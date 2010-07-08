@@ -55,7 +55,8 @@ public class DescriptorObjectMapper
 			Object dbValue = dbObject.get(propDesc.getName());
 			Object convertedValue = convertFromDBObject(
 				dbValue,
-				propDesc.getType(),
+				propDesc.getObjectClass(),
+				propDesc.getGenericType(),
 				propDesc.getParameterTypes());
 			propDesc.set(ret, convertedValue);
 		}
@@ -84,7 +85,10 @@ public class DescriptorObjectMapper
 		for (PropertyDescriptor propDesc : objDesc.getProperties()) {
 			Object propValue = propDesc.get(object);
 			Object dbValue = convertToDBObject(
-				propValue, propDesc.getType(), propDesc.getParameterTypes());
+				propValue,
+				propDesc.getObjectClass(),
+				propDesc.getGenericType(),
+				propDesc.getParameterTypes());
 			ret.add(propDesc.getName(), dbValue);
 		}
 

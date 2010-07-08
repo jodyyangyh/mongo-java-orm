@@ -4,7 +4,11 @@ import static org.junit.Assert.*;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,18 +43,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslateFromDBObject()
-		throws Exception {
-		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
-		addMapping("/com/googlecode/mjorm/City.mongo.xml");
-		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
-		addMapping("/com/googlecode/mjorm/State.mongo.xml");
-		addMapping("/com/googlecode/mjorm/SuperDuperOverride.mongo.xml");
-		
-	}
-
-	@Test
-	public void testTranslateToDBObject()
+	public void testTranslateToAndFromDBObject()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
 		addMapping("/com/googlecode/mjorm/City.mongo.xml");
@@ -99,6 +92,43 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getName(), stateCityDbListObject.get("name"));
 		assertEquals(city.getLat(), stateCityDbListObject.get("lat"));
 		assertEquals(city.getLon(), stateCityDbListObject.get("lon"));
+
+		City transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertEquals(city, transformedCity);
+
+		Address transformedAddress = mapper.translateFromDBObject(addressDbObject, Address.class);
+		assertNotNull(transformedAddress);
+		assertEquals(address, transformedAddress);
+
+		State transformedState = mapper.translateFromDBObject(stateDbObject, State.class);
+		assertNotNull(transformedState);
+		assertEquals(state, transformedState);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testTranslateToAndFromDBObject_SuperDuper()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
+		addMapping("/com/googlecode/mjorm/SuperDuperOverride.mongo.xml");
+		
+		SuperDuper superDuper = new SuperDuper();
+		superDuper.setPersonList(new ArrayList<Person>());
+		superDuper.setPersonMap(new HashMap<String, Person>());
+		superDuper.setPersonSet(new HashSet<Person>());
+		superDuper.setPersonSortedSet(new TreeSet<Person>());
+		superDuper.setStringMap(new HashMap<String, String>());
+
+		DBObject superDuperDbObject = mapper.translateToDBObject(superDuper, SuperDuper.class);
+		assertNotNull(superDuperDbObject);
+		assertTrue(superDuperDbObject.get("personList") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("personMap") instanceof Map);
+		assertTrue(superDuperDbObject.get("personSet") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("personSortedSet") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("stringMap") instanceof Map);
+	}
+		
 
 }

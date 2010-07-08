@@ -1,5 +1,6 @@
 package com.googlecode.mjorm;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,13 +34,15 @@ public abstract class AbstractObjectMapper
 	/**
 	 * Converts a java object to a DBObject.
 	 * @param value the value to convert
-	 * @param objectClass the type to convert it as
-	 * @param paramTypes the potential generic parameter types
-	 * @return the DBObject
+	 * @param clazz the class
+	 * @param genericType the generic type
+	 * @param genericParamTypes the generic parameter types
+	 * @return the converted object
 	 * @throws Exception on error
 	 */
 	@SuppressWarnings("unchecked")
-	protected Object convertToDBObject(Object value, Class<?> objectClass, Class<?>[] paramTypes)
+	protected Object convertToDBObject(
+		Object value, Class<?> clazz, Type genericType, Type[] genericParamTypes)
 		throws Exception {
 
 		// Null
@@ -47,73 +50,72 @@ public abstract class AbstractObjectMapper
 			return null;
 
 		// mapper can map it itself
-		} else if (canConvert(objectClass)) {
-			return translateToDBObject(value, Class.class.cast(objectClass));
+		} else if (canConvert(clazz)) {
+			return translateToDBObject(value, Class.class.cast(clazz));
 
 		// primitives
-		} else if (ReflectionUtil.isPrimitive(objectClass)) {
+		} else if (ReflectionUtil.isPrimitive(clazz)) {
 			return value;
 
 		// collections
 		} else if (Collection.class.isInstance(value)
-			&& Collection.class.isAssignableFrom(objectClass)) {
+			&& Collection.class.isAssignableFrom(clazz)) {
 
 			// cast to collection
 			Collection<Object> collection = Collection.class.cast(value);
-			Class<?> paramType = null;
+			Type paramType = null;
 
 			// use configured types
-			if (paramTypes!=null && paramTypes.length>0) {
-				paramType = paramTypes[0];
+			if (genericType!=null && genericParamTypes.length>0) {
+				paramType = genericParamTypes[0];
 
 			// try to reflect the types
-			} else {
-				Class<?>[] reflectedparamTypes
-					= ReflectionUtil.getParamsTypeForGenericClass(objectClass, Collection.class);
+			} else if (genericType!=null) {
+				Type[] reflectedparamTypes = ReflectionUtil.getTypeParameters(genericType);
 				if (reflectedparamTypes.length>0) {
 					paramType = reflectedparamTypes[0];
 				} else {
 					throw new IllegalArgumentException(
-						"Unable to determine param type for collection: "+objectClass);
+						"Unable to determine param type for collection: "+clazz);
 				}
 			}
 
 			// create the DBList and populate
 			BasicDBList dbList = new BasicDBList();
 			for (Object val : collection) {
-				dbList.add(convertToDBObject(val, paramType, null));
+				dbList.add(convertToDBObject(
+					val, ReflectionUtil.clazz(paramType), paramType, new Type[0]));
 			}
 			return dbList;
 
 		// maps
 		} else if (Map.class.isInstance(value)
-			&& Map.class.isAssignableFrom(objectClass)) {
+			&& Map.class.isAssignableFrom(clazz)) {
 
 			// cast to map and get generic type
 			Map<String, Object> map = Map.class.cast(value);
-			Class<?> keyParamType = null;
-			Class<?> valueParamType = null;
+			Type keyParamType = null;
+			Type valueParamType = null;
 
 			// use configured types
-			if (paramTypes!=null && paramTypes.length>1) {
-				keyParamType = paramTypes[0];
-				valueParamType = paramTypes[1];
+			if (genericType!=null && genericParamTypes.length>1) {
+				keyParamType = genericParamTypes[0];
+				valueParamType = genericParamTypes[1];
 
 			// try to reflect the types
-			} else {
-				Class<?>[] reflectedparamTypes
-					= ReflectionUtil.getParamsTypeForGenericClass(objectClass, Collection.class);
+			} else if (genericType!=null) {
+				Type[] reflectedparamTypes = ReflectionUtil.getTypeParameters(genericType);
 				if (reflectedparamTypes.length>1) {
 					keyParamType = reflectedparamTypes[0];
 					valueParamType = reflectedparamTypes[1];
 				} else {
 					throw new IllegalArgumentException(
-						"Unable to determine param type for map: "+objectClass);
+						"Unable to determine param type for map: "+clazz);
 				}
 			}
 
 			// ensure string param type
-			if (!String.class.isAssignableFrom(keyParamType)) {
+			if (!ReflectionUtil.clazz(keyParamType).equals(String.class)) {
 				throw new IllegalArgumentException(
 					"Maps may only have Strings for keys");
 			}
@@ -121,29 +123,30 @@ public abstract class AbstractObjectMapper
 			// populate map
 			DBObject dbObject = new BasicDBObject();
 			for (String key : map.keySet()) {
-				dbObject.put(key, convertToDBObject(map.get(key), valueParamType, null));
+				dbObject.put(key, convertToDBObject(
+					map.get(key), ReflectionUtil.clazz(valueParamType), valueParamType, new Type[0]));
 			}
 			return map;
 		}
 
 		// uh-oh
 		throw new IllegalArgumentException(
-			"Unable to translate type "+objectClass.getName());
+			"Unable to translate type "+clazz.getName());
 	}
 
 	/**
-	 * Converts the given object into the given type.
+	 * Converts the given object of the specified type to
+	 * a DBObject.
 	 * @param value the value
-	 * @param clazz the type to convert to
-	 * @param paramTypes the parameter types
-	 * @return the converted object
+	 * @param clazz the type
+	 * @param genericType the generic type if any
+	 * @param genericParamTypes the generic parameter types
+	 * @return the DBObject
 	 * @throws Exception on error
 	 */
-	protected Object convertFromDBObject(Object value, Class<?> clazz, Class<?>[] paramTypes)
+	protected Object convertFromDBObject(
+		Object value, Class<?> clazz, Type genericType, Type[] genericParamTypes)
 		throws Exception {
-
-		// get the value class
-		Class<?> valueClass = (value!=null) ? value.getClass() : null;
 
 		// Null
 		if (value==null) {
@@ -151,8 +154,8 @@ public abstract class AbstractObjectMapper
 
 		// mapper can map it itself
 		} else if (DBObject.class.isInstance(value)
-			&& canConvert(valueClass)) {
-			return translateFromDBObject(DBObject.class.cast(value), valueClass);
+			&& canConvert(clazz)) {
+			return translateFromDBObject(DBObject.class.cast(value), clazz);
 
 		// primitives
 		} else if (ReflectionUtil.isPrimitive(clazz)) {
@@ -164,16 +167,15 @@ public abstract class AbstractObjectMapper
 
 			// cast to list and get generic type
 			BasicDBList dbList = BasicDBList.class.cast(value);
-			Class<?> paramType = null;
+			Type paramType = null;
 
 			// use configured types
-			if (paramTypes!=null && paramTypes.length>0) {
-				paramType = paramTypes[0];
+			if (genericType!=null && genericParamTypes.length>0) {
+				paramType = genericParamTypes[0];
 
 			// try to reflect the types
-			} else {
-				Class<?>[] reflectedparamTypes
-					= ReflectionUtil.getParamsTypeForGenericClass(clazz, Collection.class);
+			} else if (genericType!=null) {
+				Type[] reflectedparamTypes = ReflectionUtil.getTypeParameters(genericType);
 				if (reflectedparamTypes.length>0) {
 					paramType = reflectedparamTypes[0];
 				} else {
@@ -199,29 +201,29 @@ public abstract class AbstractObjectMapper
 
 			// populate collection
 			for (int i=0; i<dbList.size(); i++) {
-				collection.add(convertFromDBObject(dbList.get(i), paramType, null));
+				collection.add(convertFromDBObject(
+					dbList.get(i), ReflectionUtil.clazz(paramType), paramType, new Type[0]));
 			}
 			return collection;
 
 		// maps
 		} else if (BasicDBObject.class.isInstance(value)
-			&& Map.class.isAssignableFrom(valueClass)) {
+			&& Map.class.isAssignableFrom(clazz)) {
 
 			// cast to map and get generic type
 			DBObject dbObject = DBObject.class.cast(value);
 			Map<String, Object> map = new HashMap<String, Object>();
-			Class<?> keyParamType = null;
-			Class<?> valueParamType = null;
+			Type keyParamType = null;
+			Type valueParamType = null;
 
 			// use configured types
-			if (paramTypes!=null && paramTypes.length>1) {
-				keyParamType = paramTypes[0];
-				valueParamType = paramTypes[1];
+			if (genericType!=null && genericParamTypes.length>1) {
+				keyParamType = genericParamTypes[0];
+				valueParamType = genericParamTypes[1];
 
 			// try to reflect the types
-			} else {
-				Class<?>[] reflectedparamTypes
-					= ReflectionUtil.getParamsTypeForGenericClass(clazz, Collection.class);
+			} else if (genericType!=null) {
+				Type[] reflectedparamTypes = ReflectionUtil.getTypeParameters(genericType);
 				if (reflectedparamTypes.length>1) {
 					keyParamType = reflectedparamTypes[0];
 					valueParamType = reflectedparamTypes[1];
@@ -232,20 +234,21 @@ public abstract class AbstractObjectMapper
 			}
 
 			// ensure string param type
-			if (!String.class.isAssignableFrom(keyParamType)) {
+			if (!ReflectionUtil.clazz(keyParamType).equals(String.class)) {
 				throw new IllegalArgumentException(
 					"Maps may only have Strings for keys");
 			}
 
 			// populate map
 			for (String key : dbObject.keySet()) {
-				map.put(key, convertFromDBObject(dbObject.get(key), valueParamType, null));
+				map.put(key, convertFromDBObject(
+					dbObject.get(key), ReflectionUtil.clazz(valueParamType), valueParamType, new Type[0]));
 			}
 			return map;
 		}
 
 		// uh-oh
 		throw new IllegalArgumentException(
-			"Unable to translate type "+valueClass.getName());
+			"Unable to translate type "+clazz);
 	}
 }

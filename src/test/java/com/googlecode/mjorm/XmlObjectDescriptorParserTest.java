@@ -52,9 +52,9 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(latDesc);
 		assertNotNull(lonDesc);
 
-		assertEquals(String.class, nameDesc.getType());
-		assertEquals(BigDecimal.class, latDesc.getType());
-		assertEquals(BigDecimal.class, lonDesc.getType());
+		assertEquals(String.class, nameDesc.getObjectClass());
+		assertEquals(BigDecimal.class, latDesc.getObjectClass());
+		assertEquals(BigDecimal.class, lonDesc.getObjectClass());
 	}
 
 	@Test
@@ -82,12 +82,12 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(personMap);
 		assertNotNull(stringMap);
 		
-		assertEquals(Set.class, personSet.getType());
+		assertEquals(Set.class, personSet.getObjectClass());
 		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
-		assertEquals(List.class, personList.getType());
-		assertEquals(SortedSet.class, personSortedSet.getType());
-		assertEquals(Map.class, personMap.getType());
-		assertEquals(Map.class, stringMap.getType());
+		assertEquals(List.class, personList.getObjectClass());
+		assertEquals(SortedSet.class, personSortedSet.getObjectClass());
+		assertEquals(Map.class, personMap.getObjectClass());
+		assertEquals(Map.class, stringMap.getObjectClass());
 	}
 
 	@Test
@@ -109,9 +109,9 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(latDesc);
 		assertNotNull(lonDesc);
 
-		assertEquals(String.class, nameDesc.getType());
-		assertEquals(BigDecimal.class, latDesc.getType());
-		assertEquals(BigDecimal.class, lonDesc.getType());
+		assertEquals(String.class, nameDesc.getObjectClass());
+		assertEquals(BigDecimal.class, latDesc.getObjectClass());
+		assertEquals(BigDecimal.class, lonDesc.getObjectClass());
 
 		ObjectDescriptor sdDescriptor = descriptors.get(1);
 		assertEquals(5, sdDescriptor.getProperties().size());
@@ -129,12 +129,12 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(personMap);
 		assertNotNull(stringMap);
 		
-		assertEquals(Set.class, personSet.getType());
+		assertEquals(Set.class, personSet.getObjectClass());
 		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
-		assertEquals(List.class, personList.getType());
-		assertEquals(SortedSet.class, personSortedSet.getType());
-		assertEquals(Map.class, personMap.getType());
-		assertEquals(Map.class, stringMap.getType());
+		assertEquals(List.class, personList.getObjectClass());
+		assertEquals(SortedSet.class, personSortedSet.getObjectClass());
+		assertEquals(Map.class, personMap.getObjectClass());
+		assertEquals(Map.class, stringMap.getObjectClass());
 	}
 
 }

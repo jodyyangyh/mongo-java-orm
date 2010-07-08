@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,6 +122,7 @@ public class XmlObjectDescriptorParser {
 				if (propClass==null) {
 					propClass = getter.getReturnType();
 				}
+				Type genericType = getter.getGenericReturnType();
 
 				// get parameter types
 				NodeList parameterTypeEls = (NodeList)xpath.evaluate(
@@ -133,7 +135,7 @@ public class XmlObjectDescriptorParser {
 
 				// create the PropertyDescriptor and add it
 				PropertyDescriptor desc = new PropertyDescriptor(
-					propName, propClass, parameterTypes, setter, getter);
+					propName, propClass, genericType, parameterTypes, setter, getter);
 				descriptor.getProperties().add(desc);
 			}
 

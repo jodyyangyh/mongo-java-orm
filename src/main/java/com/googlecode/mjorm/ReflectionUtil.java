@@ -23,8 +23,12 @@ public final class ReflectionUtil {
 	 * @return the {@link Class}
 	 */
 	public static Class<?> clazz(Type t) {
-		return (Class.class.isInstance(t))
-			? Class.class.cast(t) : null;
+		if (Class.class.isInstance(t)) {
+			return Class.class.cast(t);
+		} else if (ParameterizedType.class.isInstance(t)) {
+			return clazz(ParameterizedType.class.cast(t).getRawType());
+		}
+		return null;
 	}
 
 	/**
@@ -88,18 +92,16 @@ public final class ReflectionUtil {
 	 */
 	public static Class<?>[] getParamsTypeForGenericClass(Class<?> clazz, Class<?> genericClazz) {
 		for (ParameterizedType pt : getParameterizedTypes(clazz)) {
+			Type[] params = getTypeParameters(pt);
 			Class<?> c = clazz(pt);
 			if (c!=null
 				&& genericClazz.isAssignableFrom(c)
-				&& pt.getActualTypeArguments().length>0) {
-				Type[] params = pt.getActualTypeArguments();
-				if (params!=null && params.length>0) {
-					Class<?>[] ret = new Class<?>[params.length];
-					for (int i=0; i<params.length; i++) {
-						ret[i] = clazz(params[i]);
-					}
-					return ret;
+				&& params.length>0) {
+				Class<?>[] ret = new Class<?>[params.length];
+				for (int i=0; i<params.length; i++) {
+					ret[i] = clazz(params[i]);
 				}
+				return ret;
 			}
 		}
 		return new Class<?>[0];
@@ -124,6 +126,20 @@ public final class ReflectionUtil {
 			ret.add((ParameterizedType)t);
 		}
 		return ret.toArray(new ParameterizedType[0]);
+	}
+
+	/**
+	 * Returns the {@link Type} parameters for the given
+	 * {@link Type} if it's a {@link ParameterizedType}.
+	 * @param t the type
+	 * @return the {@link Type} parameters
+	 */
+	public static Type[] getTypeParameters(Type t) {
+		if (!ParameterizedType.class.isInstance(t)) {
+			return new ParameterizedType[0];
+		}
+		ParameterizedType pt = ParameterizedType.class.cast(t);
+		return pt.getActualTypeArguments();
 	}
 
 	/**
