@@ -37,8 +37,7 @@ public class DescriptorObjectMapper
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T translateFromDBObject(DBObject dbObject, Class<T> objectClass)
-		throws Exception {
+	public <T> T translateFromDBObject(DBObject dbObject, Class<T> objectClass) {
 		if (!canConvert(objectClass)) {
 			throw new IllegalArgumentException(
 				"No ObjectDescriptor found for: "+objectClass.getName());
@@ -48,17 +47,37 @@ public class DescriptorObjectMapper
 		ObjectDescriptor objDesc = objectDescriptors.get(objectClass);
 
 		// create the object type
-		Object ret = objDesc.getObjectClass().newInstance();
+		Object ret;
+		try {
+			ret = objDesc.getObjectClass().newInstance();
+		} catch (Exception e) {
+			throw new MappingException(e);
+		}
 
 		// loop through each property
 		for (PropertyDescriptor propDesc : objDesc.getProperties()) {
-			Object dbValue = dbObject.get(propDesc.getName());
-			Object convertedValue = convertFromDBObject(
-				dbValue,
-				propDesc.getObjectClass(),
-				propDesc.getGenericType(),
-				propDesc.getParameterTypes());
-			propDesc.set(ret, convertedValue);
+
+			// get value
+			Object dbValue = propDesc.isIdentifier()
+				? dbObject.get("_id") : dbObject.get(propDesc.getName());
+
+			// skip null identifiers
+			if (propDesc.isIdentifier() && dbValue==null) {
+				continue;
+			}
+
+			// convert and add
+			Object convertedValue;
+			try {
+				convertedValue = convertFromDBObject(
+					dbValue,
+					propDesc.getObjectClass(),
+					propDesc.getGenericType(),
+					propDesc.getParameterTypes());
+				propDesc.set(ret, convertedValue);
+			} catch (Exception e) {
+				throw new MappingException(e);
+			}
 		}
 
 		// return the object
@@ -68,8 +87,7 @@ public class DescriptorObjectMapper
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> DBObject translateToDBObject(T object, Class<T> objectClass)
-		throws Exception {
+	public <T> DBObject translateToDBObject(T object, Class<?> objectClass) {
 		if (!canConvert(objectClass)) {
 			throw new IllegalArgumentException(
 				"No ObjectDescriptor found for: "+objectClass.getName());
@@ -83,13 +101,33 @@ public class DescriptorObjectMapper
 
 		// loop through each property
 		for (PropertyDescriptor propDesc : objDesc.getProperties()) {
-			Object propValue = propDesc.get(object);
-			Object dbValue = convertToDBObject(
-				propValue,
-				propDesc.getObjectClass(),
-				propDesc.getGenericType(),
-				propDesc.getParameterTypes());
-			ret.add(propDesc.getName(), dbValue);
+
+			// get value
+			Object propValue;
+			try {
+				propValue = propDesc.get(object);
+			} catch (Exception e) {
+				throw new MappingException(e);
+			}
+
+			// skip null identifiers
+			if (propDesc.isIdentifier() && propValue==null) {
+				continue;
+			}
+
+			// convert and add
+			Object dbValue;
+			try {
+				dbValue = convertToDBObject(
+					propValue,
+					propDesc.getObjectClass(),
+					propDesc.getGenericType(),
+					propDesc.getParameterTypes());
+			} catch (Exception e) {
+				throw new MappingException(e);
+			}
+			ret.add(propDesc.isIdentifier()
+				? "_id" : propDesc.getName(), dbValue);
 		}
 
 		// return it

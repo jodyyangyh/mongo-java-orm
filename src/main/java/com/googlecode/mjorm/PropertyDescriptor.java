@@ -16,6 +16,7 @@ public class PropertyDescriptor {
 	private Type[] parameterTypes;
 	private Method setter;
 	private Method getter;
+	private boolean isIdentifier;
 
 	/**
 	 * Creates the {@link PropertyDescriptor}.
@@ -25,17 +26,19 @@ public class PropertyDescriptor {
 	 * @param objectClass the objectClass
 	 * @param setter the getter method
 	 * @param getter the setter method
+	 * @param isIdentifier whether or not this column is an identifier
 	 */
 	public PropertyDescriptor(
 		String name, Class<?> objectClass,
 		Type genericType, Type[] parameterTypes,
-		Method setter, Method getter) {
+		Method setter, Method getter, boolean isIdentifier) {
 		this.name 			= name;
 		this.genericType 	= genericType;
 		this.objectClass 	= objectClass;
 		this.setter			= setter;
 		this.getter			= getter;
 		this.parameterTypes = Arrays.copyOf(parameterTypes, parameterTypes.length);
+		this.isIdentifier	= isIdentifier;
 		if (setter==null || getter==null) {
 			throw new IllegalArgumentException(
 				name+"'s setter or getter is null");
@@ -110,6 +113,13 @@ public class PropertyDescriptor {
 	 */
 	public Method getGetter() {
 		return getter;
+	}
+
+	/**
+	 * @return the isIdentifier
+	 */
+	public boolean isIdentifier() {
+		return isIdentifier;
 	}
 
 }

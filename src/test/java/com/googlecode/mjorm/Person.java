@@ -1,6 +1,7 @@
 package com.googlecode.mjorm;
 
-public class Person {
+public class Person 
+	implements Comparable<Person> {
 	private String firstName;
 	private String lastName;
 	private Address address;
@@ -71,6 +72,10 @@ public class Person {
 			if (other.lastName != null) return false;
 		} else if (!lastName.equals(other.lastName)) return false;
 		return true;
+	}
+	
+	public int compareTo(Person o) {
+		return this.firstName.compareTo(o.firstName);
 	}
 
 }
