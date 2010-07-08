@@ -104,6 +104,7 @@ public class XmlObjectDescriptorParser {
 			// get properties
 			NodeList propertyEls = (NodeList)xpath.evaluate(
 				"./property", descriptorEl, XPathConstants.NODESET);
+			boolean foundIdentifier = false;
 			for (int j=0; j<propertyEls.getLength(); j++) {
 
 				// get element
@@ -115,6 +116,8 @@ public class XmlObjectDescriptorParser {
 					? Class.forName(propertyEl.getAttribute("class")) : null;
 				Method setter = ReflectionUtil.findSetter(objClass, propName, propClass);
 				Method getter = ReflectionUtil.findGetter(objClass, propName, propClass);
+				boolean isIdentifier = propertyEl.hasAttribute("id")
+					&& Boolean.parseBoolean(propertyEl.getAttribute("id"));
 				if (getter==null || setter==null) {
 					throw new IllegalArgumentException(
 						"Unable to find getter or setter for: "+propName);
@@ -123,6 +126,12 @@ public class XmlObjectDescriptorParser {
 					propClass = getter.getReturnType();
 				}
 				Type genericType = getter.getGenericReturnType();
+				if (isIdentifier && !foundIdentifier) {
+					foundIdentifier = true;
+				} else if (isIdentifier && foundIdentifier) {
+					throw new IllegalArgumentException(
+						"Two identifiers found for: "+objClass);
+				}
 
 				// get parameter types
 				NodeList parameterTypeEls = (NodeList)xpath.evaluate(
@@ -135,7 +144,8 @@ public class XmlObjectDescriptorParser {
 
 				// create the PropertyDescriptor and add it
 				PropertyDescriptor desc = new PropertyDescriptor(
-					propName, propClass, genericType, parameterTypes, setter, getter);
+					propName, propClass, genericType, parameterTypes,
+					setter, getter, isIdentifier);
 				descriptor.getProperties().add(desc);
 			}
 

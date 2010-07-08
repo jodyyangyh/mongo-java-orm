@@ -7,4 +7,10 @@
 		<property name="address" />
 	</object>
 
+	<object class="com.googlecode.mjorm.PersonEx">
+		<property name="firstName" />
+		<property name="lastName" />
+		<property name="address" />
+	</object>
+
 </descriptors>

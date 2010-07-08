@@ -2,6 +2,7 @@
 <descriptors>
 
 	<object class="com.googlecode.mjorm.City">
+		<property name="id" id="true" />
 		<property name="name" />
 		<property name="lat" />
 		<property name="lon" />

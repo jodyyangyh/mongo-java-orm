@@ -129,6 +129,133 @@ public class XmlDescriptorObjectMapperTest {
 		assertTrue(superDuperDbObject.get("personSortedSet") instanceof BasicDBList);
 		assertTrue(superDuperDbObject.get("stringMap") instanceof Map);
 	}
+
+	@Test
+	public void testTranslate_Identifiers()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/City.mongo.xml");
+
+		City city = new City();
+		city.setName("city name");
+		city.setLat(new BigDecimal("123.456"));
+		city.setLon(new BigDecimal("789.101"));
+
+		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
+		assertNotNull(cityDbObject);
+		assertNull(cityDbObject.get("_id"));
+		assertEquals(city.getName(), cityDbObject.get("name"));
+		assertEquals(city.getLat(), cityDbObject.get("lat"));
+		assertEquals(city.getLon(), cityDbObject.get("lon"));
+		
+		city.setId("anus");
+		cityDbObject = mapper.translateToDBObject(city, City.class);
+		assertNotNull(cityDbObject);
+		assertNotNull(cityDbObject.get("_id"));
+		assertEquals(city.getId(), cityDbObject.get("_id"));
+		assertEquals(city.getName(), cityDbObject.get("name"));
+		assertEquals(city.getLat(), cityDbObject.get("lat"));
+		assertEquals(city.getLon(), cityDbObject.get("lon"));
+
+		City transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertNotNull(transformedCity.getId());
+		assertEquals(city.getId(), transformedCity.getId());
+		assertEquals(city.getName(), transformedCity.getName());
+		assertEquals(city.getLat(), transformedCity.getLat());
+		assertEquals(city.getLon(), transformedCity.getLon());
+
+		cityDbObject.removeField("_id");
+		transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertNull(transformedCity.getId());
+		assertEquals(city.getName(), transformedCity.getName());
+		assertEquals(city.getLat(), transformedCity.getLat());
+		assertEquals(city.getLon(), transformedCity.getLon());
+
+	}
+
+	@Test
+	public void testTranslate_WithNulls()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/City.mongo.xml");
+
+		City city = new City();
+		city.setName(null);
+		city.setLat(new BigDecimal("123.456"));
+		city.setLon(new BigDecimal("789.101"));
+
+		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
+		assertNotNull(cityDbObject);
+		assertNull(cityDbObject.get("name"));
+		assertEquals(city.getLat(), cityDbObject.get("lat"));
+		assertEquals(city.getLon(), cityDbObject.get("lon"));
+
+		City transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertNull(transformedCity.getName());
+		assertEquals(city.getLat(), transformedCity.getLat());
+		assertEquals(city.getLon(), transformedCity.getLon());
+
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testTranslateToAndFromDBObject_Maps_And_Collections()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
+		addMapping("/com/googlecode/mjorm/SuperDuper.mongo.xml");
+
+		Person p1 = new Person(); p1.setFirstName("p1");
+		Person p2 = new Person(); p2.setFirstName("p2");
+		Person p3 = new Person(); p3.setFirstName("p3");
+		Person p4 = new Person(); p4.setFirstName("p4");
+		Person p5 = new Person(); p5.setFirstName("p5");
+		
+		SuperDuper superDuper = new SuperDuper();
+		superDuper.setPersonList(new ArrayList<Person>());
+		superDuper.setPersonMap(new HashMap<String, Person>());
+		superDuper.setPersonSet(new HashSet<Person>());
+		superDuper.setPersonSortedSet(new TreeSet<Person>());
+		superDuper.setStringMap(new HashMap<String, String>());
+		
+		superDuper.getStringMap().put("key0", "val0");
+		superDuper.getStringMap().put("key1", "val1");
+		superDuper.getStringMap().put("key2", "val2");
+
+		superDuper.getPersonMap().put("key1", p1);
+		superDuper.getPersonMap().put("key2", p2);
+
+		superDuper.getPersonList().add(p2);
+		superDuper.getPersonList().add(p1);
+		superDuper.getPersonList().add(p1);
+		superDuper.getPersonList().add(p3);
+
+		superDuper.getPersonSet().add(p1);
+		superDuper.getPersonSet().add(p2);
+		superDuper.getPersonSet().add(p3);
+
+		superDuper.getPersonSortedSet().add(p3);
+		superDuper.getPersonSortedSet().add(p2);
+		superDuper.getPersonSortedSet().add(p1);
+
+		DBObject superDuperDbObject = mapper.translateToDBObject(superDuper, SuperDuper.class);
+		assertNotNull(superDuperDbObject);
+		assertTrue(superDuperDbObject.get("personList") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("personMap") instanceof Map);
+		assertTrue(superDuperDbObject.get("personSet") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("personSortedSet") instanceof BasicDBList);
+		assertTrue(superDuperDbObject.get("stringMap") instanceof Map);
+		
+		SuperDuper translatedSuperDuper = mapper.translateFromDBObject(
+			superDuperDbObject, SuperDuper.class);
+		assertNotNull(translatedSuperDuper);
+		assertEquals(superDuper.getPersonList(), translatedSuperDuper.getPersonList());
+		assertEquals(superDuper.getPersonSet(), translatedSuperDuper.getPersonSet());
+		assertEquals(superDuper.getPersonSortedSet(), translatedSuperDuper.getPersonSortedSet());
+		assertEquals(superDuper.getPersonMap(), translatedSuperDuper.getPersonMap());
+		assertEquals(superDuper.getStringMap(), translatedSuperDuper.getStringMap());
+	}
 		
 
 }

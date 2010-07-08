@@ -120,13 +120,13 @@ public abstract class AbstractObjectMapper
 					"Maps may only have Strings for keys");
 			}
 
-			// populate map
+			// populate dbObject
 			DBObject dbObject = new BasicDBObject();
 			for (String key : map.keySet()) {
 				dbObject.put(key, convertToDBObject(
 					map.get(key), ReflectionUtil.clazz(valueParamType), valueParamType, new Type[0]));
 			}
-			return map;
+			return dbObject;
 		}
 
 		// uh-oh
@@ -207,11 +207,12 @@ public abstract class AbstractObjectMapper
 			return collection;
 
 		// maps
-		} else if (BasicDBObject.class.isInstance(value)
+		} else if ((BasicDBObject.class.isInstance(value) || Map.class.isInstance(value))
 			&& Map.class.isAssignableFrom(clazz)) {
 
 			// cast to map and get generic type
-			DBObject dbObject = DBObject.class.cast(value);
+			DBObject dbObject = BasicDBObject.class.isInstance(value)
+				? DBObject.class.cast(value) : new BasicDBObject(Map.class.cast(value));
 			Map<String, Object> map = new HashMap<String, Object>();
 			Type keyParamType = null;
 			Type valueParamType = null;
