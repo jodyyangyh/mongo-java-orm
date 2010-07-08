@@ -43,7 +43,7 @@ public class XmlObjectDescriptorParserTest {
 		assertEquals(1, descriptors.size());
 
 		ObjectDescriptor cityDescriptor = descriptors.get(0);
-		assertEquals(3, cityDescriptor.getProperties().size());
+		assertEquals(4, cityDescriptor.getProperties().size());
 
 		PropertyDescriptor nameDesc = cityDescriptor.getPropertyDescriptor("name");
 		PropertyDescriptor latDesc = cityDescriptor.getPropertyDescriptor("lat");
