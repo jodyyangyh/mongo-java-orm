@@ -2,6 +2,7 @@ package com.googlecode.mjorm;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 /**
@@ -10,39 +11,34 @@ import java.util.Arrays;
 public class PropertyDescriptor {
 
 	private String name;
-	private Class<?> type;
-	private Class<?>[] parameterTypes;
+	private Class<?> objectClass;
+	private Type genericType;
+	private Type[] parameterTypes;
 	private Method setter;
 	private Method getter;
 
 	/**
 	 * Creates the {@link PropertyDescriptor}.
 	 * @param name the property's name
-	 * @param type the type
+	 * @param genericType the genericType
 	 * @param parameterTypes the parameterTypes
+	 * @param objectClass the objectClass
 	 * @param setter the getter method
 	 * @param getter the setter method
 	 */
 	public PropertyDescriptor(
-		String name, Class<?> type, Class<?>[] parameterTypes, Method setter, Method getter) {
-		this.name 	= name;
-		this.type 	= type;
-		this.setter	= setter;
-		this.getter	= getter;
+		String name, Class<?> objectClass,
+		Type genericType, Type[] parameterTypes,
+		Method setter, Method getter) {
+		this.name 			= name;
+		this.genericType 	= genericType;
+		this.objectClass 	= objectClass;
+		this.setter			= setter;
+		this.getter			= getter;
 		this.parameterTypes = Arrays.copyOf(parameterTypes, parameterTypes.length);
 		if (setter==null || getter==null) {
 			throw new IllegalArgumentException(
 				name+"'s setter or getter is null");
-		}
-		if (setter.getParameterTypes().length!=1
-			|| !type.isAssignableFrom(setter.getParameterTypes()[0])) {
-			throw new IllegalArgumentException(
-				name+"'s setter doesn't have the correct arguments");
-		} else if (getter.getParameterTypes().length!=0
-			|| getter.getReturnType()==null
-			|| !type.isAssignableFrom(getter.getReturnType())) {
-			throw new IllegalArgumentException(
-				name+"'s getter doesn't have the correct return type and/or arguments");
 		}
 	}
 
@@ -82,10 +78,24 @@ public class PropertyDescriptor {
 	}
 
 	/**
-	 * @return the type
+	 * @return the objectClass
 	 */
-	public Class<?> getType() {
-		return type;
+	public Class<?> getObjectClass() {
+		return objectClass;
+	}
+
+	/**
+	 * @return the genericType
+	 */
+	public Type getGenericType() {
+		return genericType;
+	}
+
+	/**
+	 * @return the parameterTypes
+	 */
+	public Type[] getParameterTypes() {
+		return parameterTypes;
 	}
 
 	/**
@@ -100,13 +110,6 @@ public class PropertyDescriptor {
 	 */
 	public Method getGetter() {
 		return getter;
-	}
-
-	/**
-	 * @return the parameterTypes
-	 */
-	public Class<?>[] getParameterTypes() {
-		return parameterTypes;
 	}
 
 }
