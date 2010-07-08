@@ -18,6 +18,23 @@ public class MongoDaoImpl
 	private ObjectMapper objectMapper;
 
 	/**
+	 * Creates the {@link MongoDaoImpl}.
+	 * @param db the {@link DB}
+	 * @param objectMapper the {@link ObjectMapper}
+	 */
+	public MongoDaoImpl(DB db, ObjectMapper objectMapper) {
+		this.db 			= db;
+		this.objectMapper	= objectMapper;
+	}
+
+	/**
+	 * Creates the {@link MongoDaoImpl}.
+	 */
+	public MongoDaoImpl() {
+		this(null, null);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public long countObjects(String collection, DBObject query) {
@@ -153,5 +170,18 @@ public class MongoDaoImpl
 		 getCollection(collection).update(new BasicDBObject("_id", new ObjectId(id)), dbObject);
 	}
 
+	/**
+	 * @param db the db to set
+	 */
+	public void setDb(DB db) {
+		this.db = db;
+	}
+
+	/**
+	 * @param objectMapper the objectMapper to set
+	 */
+	public void setObjectMapper(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
 
 }
