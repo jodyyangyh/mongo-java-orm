@@ -32,6 +32,39 @@ public abstract class AbstractObjectMapper
 	 */
 	protected abstract boolean canConvert(Class<?> clazz);
 
+	private Map<Class<?>, TypeConverter> typeConverterCache
+		= new HashMap<Class<?>, TypeConverter>();
+	private List<TypeConverter> typeConverters
+		= new ArrayList<TypeConverter>();
+
+	/**
+	 * Checks to see if the given {@link Class} can
+	 * be converted with a registered {@link TypeConverter}.
+	 * @param clazz the class
+	 * @return true if it can
+	 */
+	private boolean canTypeConvert(Class<?> clazz) {
+		if (!typeConverterCache.containsKey(clazz)) {
+			for (TypeConverter tc : typeConverters) {
+				if (tc.canConvert(clazz)) {
+					typeConverterCache.put(clazz, tc);
+					return true;
+				}
+			}
+			typeConverterCache.put(clazz, null);
+		}
+		return typeConverterCache.get(clazz)!=null;
+	}
+
+	/**
+	 * Registers a {@link TypeConverter}.
+	 * @param typeConverter the {@link TypeConverter}
+	 */
+	public void registerTypeConverter(TypeConverter typeConverter) {
+		typeConverters.add(typeConverter);
+		typeConverterCache.clear();
+	}
+
 	/**
 	 * Converts a java object to a DBObject.
 	 * @param value the value to convert
@@ -53,6 +86,10 @@ public abstract class AbstractObjectMapper
 		// mapper can map it itself
 		} else if (canConvert(clazz)) {
 			return translateToDBObject(value, Class.class.cast(clazz));
+
+		// check for a type converter
+		} else if (canTypeConvert(clazz)) {
+			return typeConverterCache.get(clazz).convertToMongo(value, clazz);
 
 		// handle arrays
 		} else if (clazz.isArray()) {
@@ -168,6 +205,10 @@ public abstract class AbstractObjectMapper
 		} else if (DBObject.class.isInstance(value)
 			&& canConvert(clazz)) {
 			return translateFromDBObject(DBObject.class.cast(value), clazz);
+
+		// check for a type converter
+		} else if (canTypeConvert(clazz)) {
+			return typeConverterCache.get(clazz).convertFromMongo(value, clazz);
 
 		// handle arrays
 		} else if (clazz.isArray() && BasicDBList.class.isInstance(value)) {

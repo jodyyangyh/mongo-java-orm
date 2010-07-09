@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.core.io.Resource;
 
+import com.googlecode.mjorm.TypeConverter;
 import com.googlecode.mjorm.XmlDescriptorObjectMapper;
 
 /**
@@ -18,6 +19,7 @@ public class XmlDescriptorObjectMapperFactoryBean
 
 	private List<Resource> xmlResources = new ArrayList<Resource>();
 	private List<File> xmlFiles = new ArrayList<File>();
+	private List<TypeConverter> typeConverters = new ArrayList<TypeConverter>();
 
 	/**
 	 * {@inheritDoc}
@@ -26,6 +28,9 @@ public class XmlDescriptorObjectMapperFactoryBean
 	protected XmlDescriptorObjectMapper createInstance()
 		throws Exception {
 		XmlDescriptorObjectMapper mapper = new XmlDescriptorObjectMapper();
+		for (TypeConverter tc : typeConverters) {
+			mapper.registerTypeConverter(tc);
+		}
 		for (Resource resource : xmlResources) {
 			InputStream ips = resource.getInputStream();
 			mapper.addXmlObjectDescriptor(ips);
@@ -57,6 +62,13 @@ public class XmlDescriptorObjectMapperFactoryBean
 	 */
 	public void setXmlFiles(List<File> xmlFiles) {
 		this.xmlFiles = xmlFiles;
+	}
+
+	/**
+	 * @param typeConverters the typeConverters to set
+	 */
+	public void setTypeConverters(List<TypeConverter> typeConverters) {
+		this.typeConverters = typeConverters;
 	}
 
 }
