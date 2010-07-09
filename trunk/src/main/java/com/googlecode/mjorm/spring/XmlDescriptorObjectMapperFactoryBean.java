@@ -5,11 +5,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.core.io.Resource;
 
 import com.googlecode.mjorm.XmlDescriptorObjectMapper;
 
+/**
+ * {@link FactoryBean} for created {@link XmlDescriptorObjectMapper}s.
+ */
 public class XmlDescriptorObjectMapperFactoryBean
 	extends AbstractFactoryBean<XmlDescriptorObjectMapper> {
 
