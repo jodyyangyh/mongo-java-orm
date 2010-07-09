@@ -1,6 +1,5 @@
 package com.googlecode.mjorm.spring;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -38,8 +37,7 @@ public class MongoDBDaoSupport
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void checkDaoConfig()
-		throws IllegalArgumentException {
+	protected void checkDaoConfig() {
 
 		// make sure we have a mapper
 		if (objectMapper==null
@@ -86,8 +84,7 @@ public class MongoDBDaoSupport
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setBeanFactory(BeanFactory beanFactory)
-		throws BeansException {
+	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 	}
 
