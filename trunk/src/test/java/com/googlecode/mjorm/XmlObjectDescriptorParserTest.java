@@ -3,7 +3,6 @@ package com.googlecode.mjorm;
 import static org.junit.Assert.*;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,8 +52,8 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(lonDesc);
 
 		assertEquals(String.class, nameDesc.getObjectClass());
-		assertEquals(BigDecimal.class, latDesc.getObjectClass());
-		assertEquals(BigDecimal.class, lonDesc.getObjectClass());
+		assertEquals(Float.class, latDesc.getObjectClass());
+		assertEquals(Float.class, lonDesc.getObjectClass());
 	}
 
 	@Test
@@ -110,8 +109,8 @@ public class XmlObjectDescriptorParserTest {
 		assertNotNull(lonDesc);
 
 		assertEquals(String.class, nameDesc.getObjectClass());
-		assertEquals(BigDecimal.class, latDesc.getObjectClass());
-		assertEquals(BigDecimal.class, lonDesc.getObjectClass());
+		assertEquals(Float.class, latDesc.getObjectClass());
+		assertEquals(Float.class, lonDesc.getObjectClass());
 
 		ObjectDescriptor sdDescriptor = descriptors.get(1);
 		assertEquals(5, sdDescriptor.getProperties().size());
