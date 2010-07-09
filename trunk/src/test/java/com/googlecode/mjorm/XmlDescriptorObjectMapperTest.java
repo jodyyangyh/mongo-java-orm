@@ -259,7 +259,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testParseDocument_TranslateCity_And_AltColumns()
+	public void testTranslate_TranslateCity_And_AltColumns()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/City_alt_columns.mongo.xml");
 
@@ -284,7 +284,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testParseDocument_Arrays()
+	public void testTranslate_Arrays()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Arrays.mongo.xml");
 
