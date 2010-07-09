@@ -8,6 +8,7 @@ public class City {
 	private String name;
 	private BigDecimal lat;
 	private BigDecimal lon;
+	private String[] zipCodes;
 
 	/**
 	 * @return the id
@@ -56,6 +57,18 @@ public class City {
 	 */
 	public void setLon(BigDecimal lon) {
 		this.lon = lon;
+	}
+	/**
+	 * @return the zipCodes
+	 */
+	public String[] getZipCodes() {
+		return zipCodes;
+	}
+	/**
+	 * @param zipCodes the zipCodes to set
+	 */
+	public void setZipCodes(String[] zipCodes) {
+		this.zipCodes = zipCodes;
 	}
 	/**
 	 * {@inheritDoc}

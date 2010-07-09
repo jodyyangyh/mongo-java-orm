@@ -6,6 +6,7 @@ public class State {
 
 	private String name;
 	private Set<City> cities;
+	private City[] citiesArray;
 	/**
 	 * @return the name
 	 */
@@ -29,6 +30,18 @@ public class State {
 	 */
 	public void setCities(Set<City> cities) {
 		this.cities = cities;
+	}
+	/**
+	 * @return the citiesArray
+	 */
+	public City[] getCitiesArray() {
+		return citiesArray;
+	}
+	/**
+	 * @param citiesArray the citiesArray to set
+	 */
+	public void setCitiesArray(City[] citiesArray) {
+		this.citiesArray = citiesArray;
 	}
 	/**
 	 * {@inheritDoc}
