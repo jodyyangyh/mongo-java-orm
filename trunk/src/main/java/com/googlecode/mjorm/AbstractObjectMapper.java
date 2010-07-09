@@ -1,7 +1,9 @@
 package com.googlecode.mjorm;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +54,17 @@ public abstract class AbstractObjectMapper
 		// mapper can map it itself
 		} else if (canConvert(clazz)) {
 			return translateToDBObject(value, Class.class.cast(clazz));
+
+		// handle arrays
+		} else if (clazz.isArray()) {
+			Class<?> nonArrayClazz = clazz.getComponentType();
+			Object[] values = (Object[])value;
+			BasicDBList retValues = new BasicDBList();
+			for (int i=0; i<values.length; i++) {
+				retValues.add(convertToDBObject(
+					values[i], nonArrayClazz, genericType, genericParamTypes));
+			}
+			return retValues;
 
 		// primitives
 		} else if (ReflectionUtil.isPrimitive(clazz)) {
@@ -156,6 +169,17 @@ public abstract class AbstractObjectMapper
 		} else if (DBObject.class.isInstance(value)
 			&& canConvert(clazz)) {
 			return translateFromDBObject(DBObject.class.cast(value), clazz);
+
+		// handle arrays
+		} else if (clazz.isArray() && BasicDBList.class.isInstance(value)) {
+			Class<?> nonArrayClazz = clazz.getComponentType();
+			BasicDBList values = BasicDBList.class.cast(value);
+			Object[] retValues = (Object[])Array.newInstance(nonArrayClazz, values.size());
+			for (int i=0; i<retValues.length; i++) {
+				retValues[i] = convertFromDBObject(
+					values.get(i), nonArrayClazz, genericType, genericParamTypes);
+			}
+			return retValues;
 
 		// primitives
 		} else if (ReflectionUtil.isPrimitive(clazz)) {

@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class XmlDescriptorObjectMapperTest {
@@ -280,6 +280,64 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getName(), transformedCity.getName());
 		assertEquals(city.getLat(), transformedCity.getLat());
 		assertEquals(city.getLon(), transformedCity.getLon());
+		
+	}
+
+	@Test
+	public void testParseDocument_Arrays()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/Arrays.mongo.xml");
+
+		City city = new City();
+		city.setName("city name");
+		city.setLat(new BigDecimal("123.456"));
+		city.setLon(new BigDecimal("789.101"));
+		city.setZipCodes(new String[] {"zip1", "zip2", "zip3", "zip4"});
+
+		State state = new State();
+		state.setName("state name");
+		state.setCitiesArray(new City[]{city, null, city});
+
+		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
+		assertNotNull(cityDbObject);
+		assertEquals(city.getName(), cityDbObject.get("name"));
+		assertEquals(city.getLat(), cityDbObject.get("lat"));
+		assertEquals(city.getLon(), cityDbObject.get("lon"));
+		assertNotNull(cityDbObject.get("zipCodes"));
+		assertTrue(BasicDBList.class.isInstance(cityDbObject.get("zipCodes")));
+		BasicDBList transformedZipCodes = BasicDBList.class.cast(cityDbObject.get("zipCodes"));
+		assertArrayEquals(city.getZipCodes(), transformedZipCodes.toArray(new String[0]));
+
+		City transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertEquals(city.getName(), transformedCity.getName());
+		assertEquals(city.getLat(), transformedCity.getLat());
+		assertEquals(city.getLon(), transformedCity.getLon());
+		assertArrayEquals(city.getZipCodes(), transformedCity.getZipCodes());
+
+		DBObject stateDbObject = mapper.translateToDBObject(state, State.class);
+		assertNotNull(stateDbObject);
+		assertEquals(state.getName(), stateDbObject.get("name"));
+		assertNotNull(stateDbObject.get("citiesArray"));
+		assertTrue(BasicDBList.class.isInstance(stateDbObject.get("citiesArray")));
+		BasicDBList transformedCities = BasicDBList.class.cast(stateDbObject.get("citiesArray"));
+		BasicDBObject cityDbObject0 = BasicDBObject.class.cast(transformedCities.get(0));
+		BasicDBObject cityDbObject1 = BasicDBObject.class.cast(transformedCities.get(1));
+		BasicDBObject cityDbObject2 = BasicDBObject.class.cast(transformedCities.get(2));
+		assertNotNull(cityDbObject0);
+		assertNull(cityDbObject1);
+		assertNotNull(cityDbObject2);
+		assertEquals(city.getName(), cityDbObject0.get("name"));
+		assertEquals(city.getLat(), cityDbObject0.get("lat"));
+		assertEquals(city.getLon(), cityDbObject0.get("lon"));
+		assertEquals(city.getName(), cityDbObject2.get("name"));
+		assertEquals(city.getLat(), cityDbObject2.get("lat"));
+		assertEquals(city.getLon(), cityDbObject2.get("lon"));
+
+		State transformedState = mapper.translateFromDBObject(stateDbObject, State.class);
+		assertNotNull(transformedState);
+		assertEquals(state.getName(), transformedState.getName());
+		assertArrayEquals(state.getCitiesArray(), transformedState.getCitiesArray());
 		
 	}
 		
