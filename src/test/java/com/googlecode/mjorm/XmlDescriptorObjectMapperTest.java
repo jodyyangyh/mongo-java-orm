@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -255,6 +256,31 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(superDuper.getPersonSortedSet(), translatedSuperDuper.getPersonSortedSet());
 		assertEquals(superDuper.getPersonMap(), translatedSuperDuper.getPersonMap());
 		assertEquals(superDuper.getStringMap(), translatedSuperDuper.getStringMap());
+	}
+
+	@Test
+	public void testParseDocument_TranslateCity_And_AltColumns()
+		throws Exception {
+		addMapping("/com/googlecode/mjorm/City_alt_columns.mongo.xml");
+
+		City city = new City();
+		city.setName("city name");
+		city.setLat(new BigDecimal("123.456"));
+		city.setLon(new BigDecimal("789.101"));
+
+		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
+		assertNotNull(cityDbObject);
+		assertNull(cityDbObject.get("_id"));
+		assertEquals(city.getName(), cityDbObject.get("col1"));
+		assertEquals(city.getLat(), cityDbObject.get("col2"));
+		assertEquals(city.getLon(), cityDbObject.get("col3"));
+
+		City transformedCity = mapper.translateFromDBObject(cityDbObject, City.class);
+		assertNotNull(transformedCity);
+		assertEquals(city.getName(), transformedCity.getName());
+		assertEquals(city.getLat(), transformedCity.getLat());
+		assertEquals(city.getLon(), transformedCity.getLon());
+		
 	}
 		
 

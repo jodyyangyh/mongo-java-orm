@@ -11,39 +11,13 @@ import java.util.Arrays;
 public class PropertyDescriptor {
 
 	private String name;
+	private String propColumn;
 	private Class<?> objectClass;
 	private Type genericType;
 	private Type[] parameterTypes;
 	private Method setter;
 	private Method getter;
 	private boolean isIdentifier;
-
-	/**
-	 * Creates the {@link PropertyDescriptor}.
-	 * @param name the property's name
-	 * @param genericType the genericType
-	 * @param parameterTypes the parameterTypes
-	 * @param objectClass the objectClass
-	 * @param setter the getter method
-	 * @param getter the setter method
-	 * @param isIdentifier whether or not this column is an identifier
-	 */
-	public PropertyDescriptor(
-		String name, Class<?> objectClass,
-		Type genericType, Type[] parameterTypes,
-		Method setter, Method getter, boolean isIdentifier) {
-		this.name 			= name;
-		this.genericType 	= genericType;
-		this.objectClass 	= objectClass;
-		this.setter			= setter;
-		this.getter			= getter;
-		this.parameterTypes = Arrays.copyOf(parameterTypes, parameterTypes.length);
-		this.isIdentifier	= isIdentifier;
-		if (setter==null || getter==null) {
-			throw new IllegalArgumentException(
-				name+"'s setter or getter is null");
-		}
-	}
 
 	/**
 	 * Sets the value on the given target.
@@ -81,10 +55,24 @@ public class PropertyDescriptor {
 	}
 
 	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
 	 * @return the objectClass
 	 */
 	public Class<?> getObjectClass() {
 		return objectClass;
+	}
+
+	/**
+	 * @param objectClass the objectClass to set
+	 */
+	public void setObjectClass(Class<?> objectClass) {
+		this.objectClass = objectClass;
 	}
 
 	/**
@@ -95,10 +83,24 @@ public class PropertyDescriptor {
 	}
 
 	/**
+	 * @param genericType the genericType to set
+	 */
+	public void setGenericType(Type genericType) {
+		this.genericType = genericType;
+	}
+
+	/**
 	 * @return the parameterTypes
 	 */
 	public Type[] getParameterTypes() {
 		return parameterTypes;
+	}
+
+	/**
+	 * @param parameterTypes the parameterTypes to set
+	 */
+	public void setParameterTypes(Type[] parameterTypes) {
+		this.parameterTypes = Arrays.copyOf(parameterTypes, parameterTypes.length);
 	}
 
 	/**
@@ -109,6 +111,13 @@ public class PropertyDescriptor {
 	}
 
 	/**
+	 * @param setter the setter to set
+	 */
+	public void setSetter(Method setter) {
+		this.setter = setter;
+	}
+
+	/**
 	 * @return the getter
 	 */
 	public Method getGetter() {
@@ -116,10 +125,38 @@ public class PropertyDescriptor {
 	}
 
 	/**
+	 * @param getter the getter to set
+	 */
+	public void setGetter(Method getter) {
+		this.getter = getter;
+	}
+
+	/**
 	 * @return the isIdentifier
 	 */
 	public boolean isIdentifier() {
 		return isIdentifier;
+	}
+
+	/**
+	 * @param isIdentifier the isIdentifier to set
+	 */
+	public void setIdentifier(boolean isIdentifier) {
+		this.isIdentifier = isIdentifier;
+	}
+
+	/**
+	 * @return the propColumn
+	 */
+	public String getPropColumn() {
+		return propColumn;
+	}
+
+	/**
+	 * @param propColumn the propColumn to set
+	 */
+	public void setPropColumn(String propColumn) {
+		this.propColumn = propColumn;
 	}
 
 }

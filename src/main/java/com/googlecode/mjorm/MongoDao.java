@@ -63,6 +63,18 @@ public interface MongoDao {
 	void deleteObjects(String collection, DBObject query);
 
 	/**
+	 * Finds objects by the given example in the given
+	 * collection and returns an {@link ObjectIterator}
+	 * for them.
+	 * @param <T> the object type
+	 * @param collection the collection
+	 * @param example the example
+	 * @param clazz the class
+	 * @return the {@link ObjectIterator}
+	 */
+	<T> ObjectIterator<T> findByExample(String collection, T example, Class<T> clazz);
+
+	/**
 	 * Maps and returns an {@link ObjectIterator} for objects
 	 * matching the given query in the given collection.
 	 * @param <T> the type

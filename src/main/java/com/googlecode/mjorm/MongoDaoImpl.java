@@ -89,6 +89,19 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	public <T> ObjectIterator<T> findByExample(String collection, T example, Class<T> clazz) {
+		DBObject query;
+		try {
+			query = objectMapper.translateToDBObject(example, clazz);
+		} catch (Exception e) {
+			throw new MappingException(e);
+		}
+		return findObjects(collection, query, clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public <T> T findObject(String collection, DBObject query, Class<T> clazz) {
 		DBObject dbObject = getCollection(collection).findOne(query);
 		try {

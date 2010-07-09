@@ -59,7 +59,7 @@ public class DescriptorObjectMapper
 
 			// get value
 			Object dbValue = propDesc.isIdentifier()
-				? dbObject.get("_id") : dbObject.get(propDesc.getName());
+				? dbObject.get("_id") : dbObject.get(propDesc.getPropColumn());
 
 			// skip null identifiers
 			if (propDesc.isIdentifier() && dbValue==null) {
@@ -127,7 +127,7 @@ public class DescriptorObjectMapper
 				throw new MappingException(e);
 			}
 			ret.add(propDesc.isIdentifier()
-				? "_id" : propDesc.getName(), dbValue);
+				? "_id" : propDesc.getPropColumn(), dbValue);
 		}
 
 		// return it
