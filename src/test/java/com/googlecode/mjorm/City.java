@@ -1,13 +1,11 @@
 package com.googlecode.mjorm;
 
-import java.math.BigDecimal;
-
 public class City {
 
 	private String id;
 	private String name;
-	private BigDecimal lat;
-	private BigDecimal lon;
+	private Float lat;
+	private Float lon;
 	private String[] zipCodes;
 
 	/**
@@ -37,25 +35,25 @@ public class City {
 	/**
 	 * @return the lat
 	 */
-	public BigDecimal getLat() {
+	public Float getLat() {
 		return lat;
 	}
 	/**
 	 * @param lat the lat to set
 	 */
-	public void setLat(BigDecimal lat) {
+	public void setLat(Float lat) {
 		this.lat = lat;
 	}
 	/**
 	 * @return the lon
 	 */
-	public BigDecimal getLon() {
+	public Float getLon() {
 		return lon;
 	}
 	/**
 	 * @param lon the lon to set
 	 */
-	public void setLon(BigDecimal lon) {
+	public void setLon(Float lon) {
 		this.lon = lon;
 	}
 	/**

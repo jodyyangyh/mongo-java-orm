@@ -3,7 +3,6 @@ package com.googlecode.mjorm;
 import static org.junit.Assert.*;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,8 +53,8 @@ public class XmlDescriptorObjectMapperTest {
 
 		City city = new City();
 		city.setName("city name");
-		city.setLat(new BigDecimal("123.456"));
-		city.setLon(new BigDecimal("789.101"));
+		city.setLat(new Float("123.456"));
+		city.setLon(new Float("789.101"));
 
 		Address address = new Address();
 		address.setCity(city);
@@ -138,8 +137,8 @@ public class XmlDescriptorObjectMapperTest {
 
 		City city = new City();
 		city.setName("city name");
-		city.setLat(new BigDecimal("123.456"));
-		city.setLon(new BigDecimal("789.101"));
+		city.setLat(new Float("123.456"));
+		city.setLon(new Float("789.101"));
 
 		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
 		assertNotNull(cityDbObject);
@@ -182,8 +181,8 @@ public class XmlDescriptorObjectMapperTest {
 
 		City city = new City();
 		city.setName(null);
-		city.setLat(new BigDecimal("123.456"));
-		city.setLon(new BigDecimal("789.101"));
+		city.setLat(new Float("123.456"));
+		city.setLon(new Float("789.101"));
 
 		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
 		assertNotNull(cityDbObject);
@@ -265,8 +264,8 @@ public class XmlDescriptorObjectMapperTest {
 
 		City city = new City();
 		city.setName("city name");
-		city.setLat(new BigDecimal("123.456"));
-		city.setLon(new BigDecimal("789.101"));
+		city.setLat(new Float("123.456"));
+		city.setLon(new Float("789.101"));
 
 		DBObject cityDbObject = mapper.translateToDBObject(city, City.class);
 		assertNotNull(cityDbObject);
@@ -290,8 +289,8 @@ public class XmlDescriptorObjectMapperTest {
 
 		City city = new City();
 		city.setName("city name");
-		city.setLat(new BigDecimal("123.456"));
-		city.setLon(new BigDecimal("789.101"));
+		city.setLat(new Float("123.456"));
+		city.setLon(new Float("789.101"));
 		city.setZipCodes(new String[] {"zip1", "zip2", "zip3", "zip4"});
 
 		State state = new State();
