@@ -43,6 +43,11 @@ public class DescriptorObjectMapper
 				"No ObjectDescriptor found for: "+objectClass.getName());
 		}
 
+		// bail on nulls
+		if (dbObject==null) {
+			return null;
+		}
+
 		// get descriptor
 		ObjectDescriptor objDesc = objectDescriptors.get(objectClass);
 
@@ -91,6 +96,11 @@ public class DescriptorObjectMapper
 		if (!canConvert(objectClass)) {
 			throw new IllegalArgumentException(
 				"No ObjectDescriptor found for: "+objectClass.getName());
+		}
+
+		// bail on nulls
+		if (object==null) {
+			return null;
 		}
 
 		// get descriptor
