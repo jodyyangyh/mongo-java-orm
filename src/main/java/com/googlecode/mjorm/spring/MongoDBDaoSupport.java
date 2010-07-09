@@ -42,7 +42,7 @@ public class MongoDBDaoSupport
 		throws IllegalArgumentException {
 
 		// make sure we have a mapper
-		if (objectMapper==null 
+		if (objectMapper==null
 			&& ListableBeanFactory.class.isInstance(beanFactory)) {
 			objectMapper = BeanFactoryUtils.beanOfType(
 				ListableBeanFactory.class.cast(beanFactory), ObjectMapper.class);
@@ -50,7 +50,7 @@ public class MongoDBDaoSupport
 		Assert.notNull(objectMapper, "an ObjectMapper is required");
 
 		// get the DB
-		if (mongo==null 
+		if (mongo==null
 			&& ListableBeanFactory.class.isInstance(beanFactory)) {
 			mongo = BeanFactoryUtils.beanOfType(
 				ListableBeanFactory.class.cast(beanFactory), Mongo.class);
