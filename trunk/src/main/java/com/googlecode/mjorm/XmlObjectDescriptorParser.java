@@ -114,21 +114,28 @@ public class XmlObjectDescriptorParser {
 				String propName = propertyEl.getAttribute("name");
 				Class<?> propClass = propertyEl.hasAttribute("class")
 					? Class.forName(propertyEl.getAttribute("class")) : null;
-				Method setter = ReflectionUtil.findSetter(objClass, propName, propClass);
-				Method getter = ReflectionUtil.findGetter(objClass, propName, propClass);
-				boolean isIdentifier = propertyEl.hasAttribute("id")
+				boolean propIsIdentifier = propertyEl.hasAttribute("id")
 					&& Boolean.parseBoolean(propertyEl.getAttribute("id"));
-				if (getter==null || setter==null) {
+				String propColumn = propertyEl.hasAttribute("column")
+					? propertyEl.getAttribute("column") : propName;
+
+				// find the getter and setter.
+				Method propSetter = ReflectionUtil.findSetter(objClass, propName, propClass);
+				Method propGetter = ReflectionUtil.findGetter(objClass, propName, propClass);
+				if (propGetter==null || propSetter==null) {
 					throw new IllegalArgumentException(
-						"Unable to find getter or setter for: "+propName);
+						"Unable to find getter or setter for: "+objClass);
 				}
+
+				// make sure we have the type and get
+				// the generic type if there is one
 				if (propClass==null) {
-					propClass = getter.getReturnType();
+					propClass = propGetter.getReturnType();
 				}
-				Type genericType = getter.getGenericReturnType();
-				if (isIdentifier && !foundIdentifier) {
+				Type propGenericType = propGetter.getGenericReturnType();
+				if (propIsIdentifier && !foundIdentifier) {
 					foundIdentifier = true;
-				} else if (isIdentifier && foundIdentifier) {
+				} else if (propIsIdentifier && foundIdentifier) {
 					throw new IllegalArgumentException(
 						"Two identifiers found for: "+objClass);
 				}
@@ -136,16 +143,24 @@ public class XmlObjectDescriptorParser {
 				// get parameter types
 				NodeList parameterTypeEls = (NodeList)xpath.evaluate(
 					"./type-param", propertyEl, XPathConstants.NODESET);
-				Class<?>[] parameterTypes = new Class<?>[parameterTypeEls.getLength()];
+				Class<?>[] propParameTypes = new Class<?>[parameterTypeEls.getLength()];
 				for (int k=0; k<parameterTypeEls.getLength(); k++) {
 					Element parameterTypeEl = (Element)parameterTypeEls.item(k);
-					parameterTypes[k] = Class.forName(parameterTypeEl.getAttribute("class"));
+					propParameTypes[k] = Class.forName(parameterTypeEl.getAttribute("class"));
 				}
 
-				// create the PropertyDescriptor and add it
-				PropertyDescriptor desc = new PropertyDescriptor(
-					propName, propClass, genericType, parameterTypes,
-					setter, getter, isIdentifier);
+				// create the PropertyDescriptor
+				PropertyDescriptor desc = new PropertyDescriptor();
+				desc.setName(propName);
+				desc.setPropColumn(propColumn);
+				desc.setGetter(propGetter);
+				desc.setSetter(propSetter);
+				desc.setGenericType(propGenericType);
+				desc.setIdentifier(propIsIdentifier);
+				desc.setObjectClass(propClass);
+				desc.setParameterTypes(propParameTypes);
+
+				// add to the object descriptor
 				descriptor.getProperties().add(desc);
 			}
 
