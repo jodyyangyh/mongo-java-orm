@@ -3,6 +3,8 @@ package com.googlecode.mjorm;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
@@ -69,6 +71,8 @@ public class DescriptorObjectMapper
 			// skip null identifiers
 			if (propDesc.isIdentifier() && dbValue==null) {
 				continue;
+			} else if (propDesc.isIdentifier()) {
+				dbValue = ((ObjectId)dbValue).toString();
 			}
 
 			// convert and add
