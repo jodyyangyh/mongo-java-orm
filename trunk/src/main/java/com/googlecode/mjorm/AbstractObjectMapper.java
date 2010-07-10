@@ -13,6 +13,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -89,6 +91,10 @@ public abstract class AbstractObjectMapper
 		// Null
 		if (value==null) {
 			return null;
+
+		// handle ids
+		} else if (ObjectId.class.isAssignableFrom(clazz)) {
+			return new ObjectId(value.toString());
 
 		// mapper can map it itself
 		} else if (canConvert(clazz)) {
@@ -203,6 +209,10 @@ public abstract class AbstractObjectMapper
 		// Null
 		if (value==null) {
 			return null;
+
+		// handle ids
+		} else if (ObjectId.class.isInstance(value)) {
+			return ObjectId.class.cast(value).toStringMongod();
 
 		// mapper can map it itself
 		} else if (DBObject.class.isInstance(value)

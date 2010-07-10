@@ -66,13 +66,12 @@ public class DescriptorObjectMapper
 
 			// get value
 			Object dbValue = propDesc.isIdentifier()
-				? dbObject.get("_id") : dbObject.get(propDesc.getPropColumn());
+				? dbObject.get("_id")
+				: dbObject.get(propDesc.getPropColumn());
 
 			// skip null identifiers
 			if (propDesc.isIdentifier() && dbValue==null) {
 				continue;
-			} else if (propDesc.isIdentifier()) {
-				dbValue = ((ObjectId)dbValue).toString();
 			}
 
 			// convert and add
@@ -124,6 +123,11 @@ public class DescriptorObjectMapper
 				throw new MappingException(e);
 			}
 
+			// get class
+			Class<?> propClass = propDesc.isIdentifier()
+				? ObjectId.class
+				: propDesc.getObjectClass();
+
 			// skip null identifiers
 			if (propDesc.isIdentifier() && propValue==null) {
 				continue;
@@ -134,7 +138,7 @@ public class DescriptorObjectMapper
 			try {
 				dbValue = convertToDBObject(
 					propValue,
-					propDesc.getObjectClass(),
+					propClass,
 					propDesc.getGenericType(),
 					propDesc.getParameterTypes());
 			} catch (Exception e) {

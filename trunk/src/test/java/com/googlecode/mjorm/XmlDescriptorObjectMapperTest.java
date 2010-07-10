@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -147,11 +148,12 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
 		
-		city.setId("anus");
+		city.setId(new ObjectId().toStringMongod());
 		cityDbObject = mapper.translateToDBObject(city, City.class);
 		assertNotNull(cityDbObject);
 		assertNotNull(cityDbObject.get("_id"));
-		assertEquals(city.getId(), cityDbObject.get("_id"));
+		assertTrue(ObjectId.class.isInstance(cityDbObject.get("_id")));
+		assertEquals(city.getId(), cityDbObject.get("_id").toString());
 		assertEquals(city.getName(), cityDbObject.get("name"));
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
