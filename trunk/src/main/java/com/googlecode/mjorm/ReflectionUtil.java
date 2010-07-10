@@ -3,8 +3,6 @@ package com.googlecode.mjorm;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,22 +140,6 @@ public final class ReflectionUtil {
 		}
 		ParameterizedType pt = ParameterizedType.class.cast(t);
 		return pt.getActualTypeArguments();
-	}
-
-	/**
-	 * Returns whether or not the type is a primivite type.
-	 * @param clazz the {@link Class}
-	 * @return true or false
-	 */
-	public static boolean isPrimitive(Class<?> clazz) {
-		return clazz.isPrimitive()
-			|| (Number.class.isAssignableFrom(clazz)
-				&& !BigDecimal.class.isAssignableFrom(clazz)
-				&& !BigInteger.class.isAssignableFrom(clazz))
-			|| String.class.isAssignableFrom(clazz)
-			|| Byte.class.isAssignableFrom(clazz)
-			|| Boolean.class.isAssignableFrom(clazz)
-			|| Character.class.isAssignableFrom(clazz);
 	}
 
 	/**
