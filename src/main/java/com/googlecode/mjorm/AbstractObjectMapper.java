@@ -38,6 +38,13 @@ public abstract class AbstractObjectMapper
 		= new ArrayList<TypeConverter>();
 
 	/**
+	 * Creates the {@link AbstractObjectMapper}.
+	 */
+	protected AbstractObjectMapper() {
+		registerTypeConverter(new PrimitiveTypeConverter());
+	}
+
+	/**
 	 * Checks to see if the given {@link Class} can
 	 * be converted with a registered {@link TypeConverter}.
 	 * @param clazz the class
@@ -101,10 +108,6 @@ public abstract class AbstractObjectMapper
 					values[i], nonArrayClazz, genericType, genericParamTypes));
 			}
 			return retValues;
-
-		// primitives
-		} else if (ReflectionUtil.isPrimitive(clazz)) {
-			return value;
 
 		// collections
 		} else if (Collection.class.isInstance(value)
@@ -220,10 +223,6 @@ public abstract class AbstractObjectMapper
 					values.get(i), nonArrayClazz, genericType, genericParamTypes);
 			}
 			return retValues;
-
-		// primitives
-		} else if (ReflectionUtil.isPrimitive(clazz)) {
-			return value;
 
 		// collections
 		} else if (BasicDBList.class.isInstance(value)
