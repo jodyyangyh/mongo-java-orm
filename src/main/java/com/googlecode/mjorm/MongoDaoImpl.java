@@ -47,7 +47,7 @@ public class MongoDaoImpl
 	public <T> T createObject(String collection, T object) {
 		DBObject dbObject;
 		try {
-			dbObject = objectMapper.translateToDBObject(object, object.getClass());
+			dbObject = objectMapper.mapToDBObject(object);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
@@ -62,8 +62,7 @@ public class MongoDaoImpl
 		DBObject[] dbObjects = new DBObject[objects.length];
 		try {
 			for (int i=0; i<objects.length; i++) {
-				dbObjects[i] = objectMapper.translateToDBObject(
-					objects[i], objects[i].getClass());
+				dbObjects[i] = objectMapper.mapToDBObject(objects[i]);
 			}
 		} catch (Exception e) {
 			throw new MappingException(e);
@@ -92,7 +91,7 @@ public class MongoDaoImpl
 	public <T> ObjectIterator<T> findByExample(String collection, T example, Class<T> clazz) {
 		DBObject query;
 		try {
-			query = objectMapper.translateToDBObject(example, clazz);
+			query = objectMapper.mapToDBObject(example);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
@@ -105,7 +104,7 @@ public class MongoDaoImpl
 	public <T> T findObject(String collection, DBObject query, Class<T> clazz) {
 		DBObject dbObject = getCollection(collection).findOne(query);
 		try {
-			return objectMapper.translateFromDBObject(dbObject, clazz);
+			return objectMapper.mapFromDBObject(dbObject, clazz);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
@@ -164,7 +163,7 @@ public class MongoDaoImpl
 	public <T> T readObject(String collection, String id, Class<T> clazz) {
 		DBObject dbObject = getCollection(collection).findOne(new BasicDBObject("_id", new ObjectId(id)));
 		try {
-			return objectMapper.translateFromDBObject(dbObject, clazz);
+			return objectMapper.mapFromDBObject(dbObject, clazz);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
@@ -176,7 +175,7 @@ public class MongoDaoImpl
 	public void updateObject(String collection, String id, Object o) {
 		DBObject dbObject;
 		try {
-			dbObject = objectMapper.translateToDBObject(o, o.getClass());
+			dbObject = objectMapper.mapToDBObject(o);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}

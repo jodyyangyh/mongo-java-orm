@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.googlecode.jot.ReflectionUtil;
+
 /**
  * Parses XML Object descriptor files and returns
  * {@link ObjectDescriptor}s contained within the file.
@@ -143,10 +145,10 @@ public class XmlObjectDescriptorParser {
 				// get parameter types
 				NodeList parameterTypeEls = (NodeList)xpath.evaluate(
 					"./type-param", propertyEl, XPathConstants.NODESET);
-				Class<?>[] propParameTypes = new Class<?>[parameterTypeEls.getLength()];
+				Class<?>[] propParamTypes = new Class<?>[parameterTypeEls.getLength()];
 				for (int k=0; k<parameterTypeEls.getLength(); k++) {
 					Element parameterTypeEl = (Element)parameterTypeEls.item(k);
-					propParameTypes[k] = Class.forName(parameterTypeEl.getAttribute("class"));
+					propParamTypes[k] = Class.forName(parameterTypeEl.getAttribute("class"));
 				}
 
 				// create the PropertyDescriptor
@@ -158,7 +160,7 @@ public class XmlObjectDescriptorParser {
 				desc.setGenericType(propGenericType);
 				desc.setIdentifier(propIsIdentifier);
 				desc.setObjectClass(propClass);
-				desc.setParameterTypes(propParameTypes);
+				desc.setParameterTypes(propParamTypes);
 
 				// add to the object descriptor
 				descriptor.getProperties().add(desc);
