@@ -44,7 +44,7 @@ public class ObjectIterator<E>
 	 */
 	public E next() {
 		try {
-			return objectMapper.translateFromDBObject(cursor.next(), clazz);
+			return objectMapper.mapFromDBObject(cursor.next(), clazz);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
@@ -55,7 +55,7 @@ public class ObjectIterator<E>
 	 */
 	public E curr() {
 		try {
-			return objectMapper.translateFromDBObject(cursor.curr(), clazz);
+			return objectMapper.mapFromDBObject(cursor.curr(), clazz);
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
