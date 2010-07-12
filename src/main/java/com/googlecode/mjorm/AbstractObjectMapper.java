@@ -35,8 +35,9 @@ public abstract class AbstractObjectMapper
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T mapFromDBObject(DBObject dbObject, Class<T> objectClass) {
-		return translationCtx.translateToLocal(dbObject, objectClass);
+		return (T)translationCtx.translateToLocal(dbObject, objectClass);
 	}
 
 	/**
