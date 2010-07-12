@@ -31,7 +31,18 @@
 		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/trunk/</developerConnection>
 		<url>http://mongo-java-orm.googlecode.com/svn/trunk/</url>
 	</scm>
-	
+
+	<repositories>
+		<repository>
+			<id>jot-repo</id>
+			<name>JOT Maven Repository</name>
+			<url>https://jot-framework.googlecode.com/svn/maven/repo</url>
+			<layout>default</layout>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+	</repositories>
+
 	<!--
 	 | distribution (deployment) configuration
 	 +-->
@@ -47,7 +58,8 @@
 			<id>mongo-java-orm-webdav-maven-repo</id>
 			<name>mongo-java-orm site server</name>
 			<url>dav:https://mongo-java-orm.googlecode.com/svn/maven/site/</url>
-		</site> -->
+		</site>
+-->
 	</distributionManagement>
 
 	<build>
@@ -184,13 +196,13 @@
 	<dependencies>
 		
 		<!-- 
-		 | Logging dependencies
+		 | OCF4J dependencies
 		 +-->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.4.2</version>
-        </dependency>
+		<dependency>
+			<groupId>com.googlecode</groupId>
+			<artifactId>jot</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
 		
 		<!-- 
 		 | Mongo dependencies
