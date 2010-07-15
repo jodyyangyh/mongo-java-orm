@@ -1,5 +1,6 @@
 package com.googlecode.mjorm;
 
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -133,6 +134,20 @@ public interface MongoDao {
 	 * @return the object, or null if not found
 	 */
 	<T> T findObject(String collection, DBObject query, Class<T> clazz);
+
+	/**
+	 * Executes the given command.
+	 * @param cmd the command to execute
+	 * @return the result
+	 */
+	CommandResult executeCommand(DBObject cmd);
+
+	/**
+	 * Executes the given command.
+	 * @param cmd the command to execute
+	 * @return the result
+	 */
+	CommandResult executeCommand(String cmd);
 
 	/**
 	 * Returns the underlying {@link DB}.

@@ -3,6 +3,7 @@ package com.googlecode.mjorm;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -180,6 +181,24 @@ public class MongoDaoImpl
 			throw new MappingException(e);
 		}
 		 getCollection(collection).update(new BasicDBObject("_id", new ObjectId(id)), dbObject);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public CommandResult executeCommand(DBObject cmd) {
+		CommandResult result = getDB().command(cmd);
+		result.throwOnError();
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public CommandResult executeCommand(String cmd) {
+		CommandResult result = getDB().command(cmd);
+		result.throwOnError();
+		return result;
 	}
 
 	/**
