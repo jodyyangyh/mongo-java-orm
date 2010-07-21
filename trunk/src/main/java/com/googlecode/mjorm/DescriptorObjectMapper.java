@@ -1,6 +1,6 @@
 package com.googlecode.mjorm;
 
-import com.googlecode.mjorm.ocf4j.DescriptorTranslator;
+import com.googlecode.mjorm.jot.DescriptorTranslator;
 
 /**
  * Abstract class that uses {@link ObjectDescriptor}s and
