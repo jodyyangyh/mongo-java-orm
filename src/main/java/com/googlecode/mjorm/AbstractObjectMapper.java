@@ -6,9 +6,9 @@ import java.util.Set;
 import com.googlecode.jot.TranslationContext;
 import com.googlecode.jot.TypeTranslator;
 import com.googlecode.jot.translators.PrimitiveTypeTranslator;
-import com.googlecode.mjorm.ocf4j.ArrayTypeTranslator;
-import com.googlecode.mjorm.ocf4j.CollectionTypeTranslator;
-import com.googlecode.mjorm.ocf4j.MapTypeTranslator;
+import com.googlecode.mjorm.jot.ArrayTypeTranslator;
+import com.googlecode.mjorm.jot.CollectionTypeTranslator;
+import com.googlecode.mjorm.jot.MapTypeTranslator;
 import com.mongodb.DBObject;
 
 /**

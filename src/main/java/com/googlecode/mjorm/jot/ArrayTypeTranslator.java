@@ -1,4 +1,4 @@
-package com.googlecode.mjorm.ocf4j;
+package com.googlecode.mjorm.jot;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
