@@ -1,7 +1,6 @@
 package com.googlecode.mjorm;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import org.bson.types.ObjectId;
 
