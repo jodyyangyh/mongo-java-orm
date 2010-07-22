@@ -1,5 +1,8 @@
 package com.googlecode.mjorm;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -45,30 +48,36 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T createObject(String collection, T object) {
 		DBObject dbObject;
 		try {
 			dbObject = objectMapper.mapToDBObject(object);
+			getCollection(collection).insert(dbObject);
+			return (T)objectMapper.mapFromDBObject(dbObject, object.getClass());
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
-		getCollection(collection).insert(dbObject);
-		return object;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T[] createObjects(String collection, T[] objects) {
 		DBObject[] dbObjects = new DBObject[objects.length];
 		try {
 			for (int i=0; i<objects.length; i++) {
 				dbObjects[i] = objectMapper.mapToDBObject(objects[i]);
 			}
+			getCollection(collection).insert(dbObjects);
+			T[] ret = (T[])Array.newInstance(objects[0].getClass(), objects.length);
+			for (int i=0; i<objects.length; i++) {
+				ret[i] = (T)objectMapper.mapFromDBObject(dbObjects[i], objects[i].getClass());
+			}
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
-		getCollection(collection).insert(dbObjects);
 		return null;
 	}
 
