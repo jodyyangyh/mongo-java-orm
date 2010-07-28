@@ -79,6 +79,17 @@ public class MongoDBDaoSupport
 		if (mongoDao==null) {
 			mongoDao = new MongoDaoImpl(db, objectMapper);
 		}
+
+		// ensure indexes
+		ensureIndexes();
+	}
+
+	/**
+	 * Called durring the initialization phase to enable
+	 * the DAO to ensure mongo indexes.
+	 */
+	protected void ensureIndexes() {
+		// no-op
 	}
 
 	/**
