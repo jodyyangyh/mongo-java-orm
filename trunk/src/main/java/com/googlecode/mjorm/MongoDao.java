@@ -4,6 +4,7 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MapReduceOutput;
 
 /**
  * An interface for working with mapped objects in mongo.
@@ -148,6 +149,35 @@ public interface MongoDao {
 	 * @return the result
 	 */
 	CommandResult executeCommand(String cmd);
+
+	/**
+	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
+	 * @param collection the collection to run in on
+	 * @param config the {@link MapReduceConfiguration}
+	 * @param query the query for jobs to include in the job
+	 * @param outputCollection the name of a collection to store the results in.
+	 * @return the {@link MapReduceOutput}
+	 */
+	MapReduceOutput mapReduce(
+		String collection, MapReduceConfiguration config,
+		DBObject query, String outputCollection);
+
+	/**
+	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
+	 * @param collection the collection to run in on
+	 * @param config the {@link MapReduceConfiguration}
+	 * @param query the query for jobs to include in the job
+	 * @return the {@link MapReduceOutput}
+	 */
+	MapReduceOutput mapReduce(String collection, MapReduceConfiguration config, DBObject query);
+
+	/**
+	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
+	 * @param collection the collection to run in on
+	 * @param config the {@link MapReduceConfiguration}
+	 * @return the {@link MapReduceOutput}
+	 */
+	MapReduceOutput mapReduce(String collection, MapReduceConfiguration config);
 
 	/**
 	 * Ensures that an index exists on the given collection.

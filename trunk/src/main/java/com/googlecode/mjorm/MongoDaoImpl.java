@@ -11,6 +11,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MapReduceOutput;
 
 /**
  * Basic implementation of the {@link MongoDao} interface.
@@ -231,6 +232,32 @@ public class MongoDaoImpl
 				.add("dropDups", dropDupes)
 				.add("background", background)
 				.get());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MapReduceOutput mapReduce(
+		String collection, MapReduceConfiguration config, DBObject query, String outputCollection) {
+		return getCollection(collection).mapReduce(
+			config.getMapFunction(),
+			config.getReduceFunction(),
+			outputCollection, query);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MapReduceOutput mapReduce(
+		String collection, MapReduceConfiguration config, DBObject query) {
+		return mapReduce(collection, config, query, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MapReduceOutput mapReduce(String collection, MapReduceConfiguration config) {
+		return mapReduce(collection, config, null, null);
 	}
 
 	/**
