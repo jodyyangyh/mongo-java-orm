@@ -150,6 +150,28 @@ public interface MongoDao {
 	CommandResult executeCommand(String cmd);
 
 	/**
+	 * Ensures that an index exists on the given collection.
+	 * @param collection the collection
+	 * @param key the key
+	 * @param background whether or not to build the index in the background
+	 * @param unique if it's a unique index
+	 * @param dropDupes whether or not to drop duplicate documents
+	 */
+	void ensureIndex(String collection, String key,
+		boolean background, boolean unique, boolean dropDupes);
+
+	/**
+	 * Ensures that an index exists on the given collection.
+	 * @param collection the collection
+	 * @param keys the keys
+	 * @param background whether or not to build the index in the background
+	 * @param unique if it's a unique index
+	 * @param dropDupes whether or not to drop duplicate documents
+	 */
+	void ensureIndex(String collection, DBObject keys,
+		boolean background, boolean unique, boolean dropDupes);
+
+	/**
 	 * Returns the underlying {@link DB}.
 	 * @return the {@link DB}
 	 */
