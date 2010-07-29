@@ -1,5 +1,8 @@
 package com.googlecode.mjorm.spring;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -9,6 +12,7 @@ import org.springframework.dao.support.DaoSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.googlecode.mjorm.MapReduceConfiguration;
 import com.googlecode.mjorm.MongoDao;
 import com.googlecode.mjorm.MongoDaoImpl;
 import com.googlecode.mjorm.ObjectMapper;
@@ -32,6 +36,8 @@ public class MongoDBDaoSupport
 	private String dbName;
 	private String username;
 	private String password;
+	private Map<String, MapReduceConfiguration> mapReduceConfigs
+		= new HashMap<String, MapReduceConfiguration>();
 
 	/**
 	 * {@inheritDoc}
@@ -90,6 +96,23 @@ public class MongoDBDaoSupport
 	 */
 	protected void ensureIndexes() {
 		// no-op
+	}
+
+	/**
+	 * Loads a {@link MapReduceConfiguration}.
+	 * @param classPath the resource name
+	 * @return the {@link MapReduceConfiguration}
+	 */
+	protected MapReduceConfiguration getMapReduceConfiguration(String classPath) {
+		if (!mapReduceConfigs.containsKey(classPath)) {
+			try {
+				mapReduceConfigs.put(classPath,
+					MapReduceConfiguration.create(classPath));
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return mapReduceConfigs.get(classPath);
 	}
 
 	/**
