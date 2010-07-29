@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -207,6 +208,29 @@ public class MongoDaoImpl
 		CommandResult result = getDB().command(cmd);
 		result.throwOnError();
 		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void ensureIndex(
+		String collection, String key,
+		boolean background, boolean unique, boolean dropDupes) {
+		ensureIndex(collection, new BasicDBObject(key, 1), background, unique, dropDupes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void ensureIndex(
+		String collection, DBObject keys,
+		boolean background, boolean unique, boolean dropDupes) {
+		getCollection(collection).ensureIndex(keys,
+			BasicDBObjectBuilder.start()
+				.add("unique", unique)
+				.add("dropDups", dropDupes)
+				.add("background", background)
+				.get());
 	}
 
 	/**
