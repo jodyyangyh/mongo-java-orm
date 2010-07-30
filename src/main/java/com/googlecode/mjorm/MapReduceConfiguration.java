@@ -77,24 +77,6 @@ public class MapReduceConfiguration {
 
 	/**
 	 * Creates a {@link MapReduceConfiguration} from the xml
-	 * coming from the given resource in the classpath.
-	 * @param classpathResource the resource
-	 * @return the {@link MapReduceConfiguration}
-	 * @throws ParserConfigurationException on error
-	 * @throws SAXException on error
-	 * @throws IOException on error
-	 * @throws XPathExpressionException on error
-	 */
-	public static MapReduceConfiguration create(String classpathResource)
-		throws ParserConfigurationException,
-		SAXException,
-		IOException,
-		XPathExpressionException {
-		return create(ClassLoader.getSystemResourceAsStream(classpathResource));
-	}
-
-	/**
-	 * Creates a {@link MapReduceConfiguration} from the xml
 	 * coming from the given {@link File}.
 	 * @param file the {@link File}
 	 * @return the {@link MapReduceConfiguration}
