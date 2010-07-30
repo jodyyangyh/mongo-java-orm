@@ -106,8 +106,9 @@ public class MongoDBDaoSupport
 	protected MapReduceConfiguration getMapReduceConfiguration(String classPath) {
 		if (!mapReduceConfigs.containsKey(classPath)) {
 			try {
-				mapReduceConfigs.put(classPath,
-					MapReduceConfiguration.create(classPath));
+				MapReduceConfiguration config = MapReduceConfiguration.create(
+					getClass().getResourceAsStream(classPath));
+				mapReduceConfigs.put(classPath, config);
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
