@@ -22,7 +22,7 @@ public class MapReduceConfigurationTest {
 	public void testCreate1()
 		throws Exception {
 		MapReduceConfiguration config = MapReduceConfiguration.create(
-			getClass().getResourceAsStream("com/googlecode/mjorm/mapReduce1.xml"));
+			getClass().getResourceAsStream("/com/googlecode/mjorm/mapReduce1.xml"));
 		assertNotNull(config);
 		assertNotNull(config.getMapFunction());
 		assertNotNull(config.getReduceFunction());
@@ -36,7 +36,7 @@ public class MapReduceConfigurationTest {
 	public void testCreate2()
 		throws Exception {
 		MapReduceConfiguration config = MapReduceConfiguration.create(
-			getClass().getResourceAsStream("com/googlecode/mjorm/mapReduce2.xml"));
+			getClass().getResourceAsStream("/com/googlecode/mjorm/mapReduce2.xml"));
 		assertNotNull(config);
 		assertNotNull(config.getMapFunction());
 		assertNotNull(config.getReduceFunction());
@@ -49,7 +49,7 @@ public class MapReduceConfigurationTest {
 	public void testCreate3()
 		throws Exception {
 		MapReduceConfiguration config = MapReduceConfiguration.create(
-			getClass().getResourceAsStream("com/googlecode/mjorm/mapReduce3.xml"));
+			getClass().getResourceAsStream("/com/googlecode/mjorm/mapReduce3.xml"));
 		assertNotNull(config);
 		assertNull(config.getMapFunction());
 		assertNull(config.getReduceFunction());
