@@ -47,7 +47,8 @@ public class XmlObjectDescriptorParser {
 		throws IOException,
 		ParserConfigurationException,
 		SAXException,
-		XPathExpressionException, ClassNotFoundException {
+		XPathExpressionException,
+		ClassNotFoundException {
 		return parseDocument(new FileInputStream(file));
 	}
 
@@ -65,7 +66,8 @@ public class XmlObjectDescriptorParser {
 		throws IOException,
 		ParserConfigurationException,
 		SAXException,
-		XPathExpressionException, ClassNotFoundException {
+		XPathExpressionException,
+		ClassNotFoundException {
 		if (builder==null) {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		}
@@ -80,7 +82,8 @@ public class XmlObjectDescriptorParser {
 	 * @return a {@link List} of {@link ObjectDescriptor}s
 	 */
 	public List<ObjectDescriptor> parseDocument(Document doc)
-		throws XPathExpressionException, ClassNotFoundException {
+		throws XPathExpressionException,
+		ClassNotFoundException {
 		if (xpath==null) {
 			xpath = XPathFactory.newInstance().newXPath();
 		}
