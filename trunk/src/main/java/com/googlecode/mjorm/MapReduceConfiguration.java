@@ -39,6 +39,17 @@ public class MapReduceConfiguration {
 	}
 
 	/**
+	 * Creates a {@link MapReduce} from the config.
+	 * @return the {@link MapReduce}
+	 */
+	public MapReduce createMapReduce() {
+		return new MapReduce(
+			this.mapFunction,
+			this.reduceFunction,
+			this.finalizeFunction);
+	}
+
+	/**
 	 * Returns the value of the given xpath expression.
 	 * @param xpath the {@link XPath} object.
 	 * @param expression the expression
