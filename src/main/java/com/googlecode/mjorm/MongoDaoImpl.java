@@ -1,6 +1,8 @@
 package com.googlecode.mjorm;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 
@@ -11,7 +13,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MapReduceOutput;
 
 /**
  * Basic implementation of the {@link MongoDao} interface.
@@ -94,6 +95,18 @@ public class MongoDaoImpl
 	 */
 	public void deleteObjects(String collection, DBObject query) {
 		getCollection(collection).remove(query);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteObjects(String collection, String[] ids) {
+		ObjectId[] objIds = new ObjectId[ids.length];
+		for (int i=0; i<objIds.length; i++) {
+			objIds[i] = new ObjectId(ids[i]);
+		}
+		getCollection(collection).remove(
+			new BasicDBObject("_id", new BasicDBObject("$in", objIds)));
 	}
 
 	/**
@@ -183,6 +196,28 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
+	public <T> T[] readObjects(String collection, String[] ids, Class<T> clazz) {
+		ObjectId[] objIds = new ObjectId[ids.length];
+		for (int i=0; i<objIds.length; i++) {
+			objIds[i] = new ObjectId(ids[i]);
+		}
+		DBCursor cursor = getCollection(collection).find(
+			new BasicDBObject("_id", new BasicDBObject("$in", objIds)));
+		try {
+			List<T> ret = new ArrayList<T>();
+			while (cursor.hasNext()) {
+				ret.add((T)objectMapper.mapFromDBObject(cursor.next(), clazz));
+			}
+			return ret.toArray((T[])Array.newInstance(clazz, 0));
+		} catch (Exception e) {
+			throw new MappingException(e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void updateObject(String collection, String id, Object o) {
 		DBObject dbObject;
 		try {
@@ -237,27 +272,42 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public MapReduceOutput mapReduce(
-		String collection, MapReduceConfiguration config, DBObject query, String outputCollection) {
-		return getCollection(collection).mapReduce(
-			config.getMapFunction(),
-			config.getReduceFunction(),
-			outputCollection, query);
-	}
+	public MapReduceResult mapReduce(String collection, MapReduce mapReduce) {
+		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start()
+			.add("mapreduce", collection)
+			.add("map", mapReduce.getMapFunction())
+			.add("reduce", mapReduce.getReduceFunction());
+		if (mapReduce.getQuery()!=null) {
+			builder.add("query", mapReduce.getQuery());
+		}
+		if (mapReduce.getSort()!=null) {
+			builder.add("sort", mapReduce.getSort());
+		}
+		if (mapReduce.getLimit()!=null) {
+			builder.add("limit", mapReduce.getLimit());
+		}
+		if (mapReduce.getOutputCollectionName()!=null) {
+			builder.add("out", mapReduce.getOutputCollectionName());
+		}
+		if (mapReduce.getKeepTemp()!=null) {
+			builder.add("keeptemp", mapReduce.getKeepTemp());
+		}
+		if (mapReduce.getFinalizeFunction()!=null) {
+			builder.add("finalize", mapReduce.getFinalizeFunction());
+		}
+		if (mapReduce.getScope()!=null) {
+			builder.add("scope", mapReduce.getScope());
+		}
+		if (mapReduce.getVerbose()!=null) {
+			builder.add("verbose", mapReduce.getVerbose());
+		}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public MapReduceOutput mapReduce(
-		String collection, MapReduceConfiguration config, DBObject query) {
-		return mapReduce(collection, config, query, null);
-	}
+		// execute the command
+		CommandResult result = getDB().command(builder.get());
+		result.throwOnError();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public MapReduceOutput mapReduce(String collection, MapReduceConfiguration config) {
-		return mapReduce(collection, config, null, null);
+		// return output
+		return new MapReduceResult(getDB(), result);
 	}
 
 	/**

@@ -4,7 +4,6 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.MapReduceOutput;
 
 /**
  * An interface for working with mapped objects in mongo.
@@ -40,6 +39,16 @@ public interface MongoDao {
 	<T> T readObject(String collection, String id, Class<T> clazz);
 
 	/**
+	 * Maps and returns a objects from the given collection.
+	 * @param <T> the type
+	 * @param collection the collection
+	 * @param ids the object's id
+	 * @param clazz the object's class
+	 * @return the objects read
+	 */
+	<T> T[] readObjects(String collection, String[] ids, Class<T> clazz);
+
+	/**
 	 * Updates the object with the given id in the given
 	 * collection.
 	 * @param collection the collection
@@ -63,6 +72,14 @@ public interface MongoDao {
 	 * @param query the query
 	 */
 	void deleteObjects(String collection, DBObject query);
+
+	/**
+	 * Deletes the objects matching the given query from
+	 * the given collection.
+	 * @param collection the collection
+	 * @param ids the ids of the objects to delete
+	 */
+	void deleteObjects(String collection, String[] ids);
 
 	/**
 	 * Finds objects by the given example in the given
@@ -153,31 +170,10 @@ public interface MongoDao {
 	/**
 	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
 	 * @param collection the collection to run in on
-	 * @param config the {@link MapReduceConfiguration}
-	 * @param query the query for jobs to include in the job
-	 * @param outputCollection the name of a collection to store the results in.
+	 * @param mapReduce the {@link MapReduce}
 	 * @return the {@link MapReduceOutput}
 	 */
-	MapReduceOutput mapReduce(
-		String collection, MapReduceConfiguration config,
-		DBObject query, String outputCollection);
-
-	/**
-	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
-	 * @param collection the collection to run in on
-	 * @param config the {@link MapReduceConfiguration}
-	 * @param query the query for jobs to include in the job
-	 * @return the {@link MapReduceOutput}
-	 */
-	MapReduceOutput mapReduce(String collection, MapReduceConfiguration config, DBObject query);
-
-	/**
-	 * Executes a MapReduce job using the given {@link MapReduceConfiguration}.
-	 * @param collection the collection to run in on
-	 * @param config the {@link MapReduceConfiguration}
-	 * @return the {@link MapReduceOutput}
-	 */
-	MapReduceOutput mapReduce(String collection, MapReduceConfiguration config);
+	MapReduceResult mapReduce(String collection, MapReduce mapReduce);
 
 	/**
 	 * Ensures that an index exists on the given collection.
