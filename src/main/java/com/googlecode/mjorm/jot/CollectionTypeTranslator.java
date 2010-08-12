@@ -21,7 +21,7 @@ import com.mongodb.BasicDBList;
  * A {@link TypeTranslator} for {@link Collection}s.
  *
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class CollectionTypeTranslator
 	implements TypeTranslator<BasicDBList, Collection> {
 
@@ -40,6 +40,7 @@ public class CollectionTypeTranslator
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection translateToLocal(
 		BasicDBList object, TranslationContext converter, Type desiredType, TranslationHints hints) {
 

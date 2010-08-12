@@ -15,7 +15,7 @@ import com.mongodb.BasicDBObject;
  * A {@link TypeTranslator} for {@link Collection}s.
  *
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class MapTypeTranslator
 	implements TypeTranslator<BasicDBObject, Map> {
 
@@ -38,6 +38,7 @@ public class MapTypeTranslator
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public Map translateToLocal(
 		BasicDBObject object, TranslationContext converter, Type desiredType, TranslationHints hints) {
 
