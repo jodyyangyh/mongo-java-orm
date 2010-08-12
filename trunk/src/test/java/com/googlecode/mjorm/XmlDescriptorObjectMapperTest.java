@@ -107,7 +107,6 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(state, transformedState);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testTranslateToAndFromDBObject_SuperDuper()
 		throws Exception {
@@ -200,7 +199,6 @@ public class XmlDescriptorObjectMapperTest {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testTranslateToAndFromDBObject_Maps_And_Collections()
 		throws Exception {
