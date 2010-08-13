@@ -18,6 +18,7 @@ public class MongoFactoryBean
 	public static final int DEFAULT_CONNECT_TIMEOUT				= 0;
 	public static final int DEFAULT_SOCKET_TIMEOUT				= 0;
 	public static final boolean DEFAULT_AUTO_CONNECT_RETRY		= false;
+	public static final boolean DEFAULT_CLOSE_ON_DESTROY		= true;
 
 	private String host;
 	private int port;
@@ -28,6 +29,7 @@ public class MongoFactoryBean
 	private int connectTimeout 									= DEFAULT_CONNECT_TIMEOUT;
 	private int socketTimeout 									= DEFAULT_SOCKET_TIMEOUT;
 	private boolean autoConnectRetry 							= DEFAULT_AUTO_CONNECT_RETRY;
+	private boolean closeOnDestroy								= DEFAULT_CLOSE_ON_DESTROY;
 
 	/**
 	 * {@inheritDoc}
@@ -58,6 +60,17 @@ public class MongoFactoryBean
 	@Override
 	public Class<?> getObjectType() {
 		return Mongo.class;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void destroyInstance(Mongo instance)
+		throws Exception {
+		if (closeOnDestroy) {
+			instance.close();
+		}
 	}
 
 	/**
