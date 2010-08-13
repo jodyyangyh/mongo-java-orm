@@ -150,8 +150,10 @@ public class MongoDaoImpl
 		String collection, DBObject query,
 		int startIndex, int numObjects,
 		Class<T> clazz) {
-		DBCursor cursor = getCollection(collection).find(
-			query, null, startIndex, numObjects);
+		DBCursor cursor = getCollection(collection)
+			.find(query, null)
+			.skip(startIndex)
+			.limit(numObjects);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
 	}
 
@@ -162,8 +164,11 @@ public class MongoDaoImpl
 		String collection, DBObject query,
 		int startIndex, int numObjects, int batchSize,
 		Class<T> clazz) {
-		DBCursor cursor = getCollection(collection).find(
-			query, null, startIndex, numObjects, batchSize);
+		DBCursor cursor = getCollection(collection)
+			.find(query, null)
+			.skip(startIndex)
+			.limit(numObjects)
+			.batchSize(batchSize);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
 	}
 
@@ -185,7 +190,8 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public <T> T readObject(String collection, String id, Class<T> clazz) {
-		DBObject dbObject = getCollection(collection).findOne(new BasicDBObject("_id", new ObjectId(id)));
+		DBObject dbObject = getCollection(collection)
+			.findOne(new BasicDBObject("_id", new ObjectId(id)));
 		try {
 			return objectMapper.mapFromDBObject(dbObject, clazz);
 		} catch (Exception e) {
