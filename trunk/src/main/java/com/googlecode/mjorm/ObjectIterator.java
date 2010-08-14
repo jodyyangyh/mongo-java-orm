@@ -1,5 +1,6 @@
 package com.googlecode.mjorm;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +31,19 @@ public class ObjectIterator<E>
 		this.cursor 		= cursor;
 		this.objectMapper	= objectMapper;
 		this.clazz			= clazz;
+	}
+
+	/**
+	 * Reads all of the objects behind this cursor
+	 * and returns them in a {@link List}.
+	 * @return the {@link List} of objects.
+	 */
+	public List<E> readAll() {
+		List<E> ret = new ArrayList<E>();
+		while (hasNext()) {
+			ret.add(next());
+		}
+		return ret;
 	}
 
 	/**
