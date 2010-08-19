@@ -105,35 +105,6 @@ public interface MongoDao {
 	<T> ObjectIterator<T> findObjects(String collection, DBObject query, Class<T> clazz);
 
 	/**
-	 * Maps and returns an {@link ObjectIterator} for objects
-	 * matching the given query in the given collection.
-	 * @param <T> the type
-	 * @param collection the collection
-	 * @param query the query
-	 * @param startIndex the first object to return
-	 * @param numObjects the number of objects to return
-	 * @param clazz the java type to map the objects to
-	 * @return the {@link ObjectIterator}
-	 */
-	<T> ObjectIterator<T> findObjects(String collection, DBObject query,
-		int startIndex, int numObjects, Class<T> clazz);
-
-	/**
-	 * Maps and returns an {@link ObjectIterator} for objects
-	 * matching the given query in the given collection.
-	 * @param <T> the type
-	 * @param collection the collection
-	 * @param query the query
-	 * @param startIndex the first object to return
-	 * @param numObjects the number of objects to return
-	 * @param batchSize the batchSize
-	 * @param clazz the java type to map the objects to
-	 * @return the {@link ObjectIterator}
-	 */
-	<T> ObjectIterator<T> findObjects(String collection, DBObject query,
-		int startIndex, int numObjects, int batchSize, Class<T> clazz);
-
-	/**
 	 * Returns the count of objects matching the given query
 	 * in the given collection.
 	 * @param collection the collection

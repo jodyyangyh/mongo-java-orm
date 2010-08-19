@@ -20,11 +20,8 @@ import com.mongodb.DBObject;
 public class MongoDaoImpl
 	implements MongoDao {
 
-	private static final int DEFAULT_BATCH_SIZE = 10;
-
 	private DB db;
 	private ObjectMapper objectMapper;
-	private Integer batchSize = DEFAULT_BATCH_SIZE;
 
 	/**
 	 * Creates the {@link MongoDaoImpl}.
@@ -41,13 +38,6 @@ public class MongoDaoImpl
 	 */
 	public MongoDaoImpl() {
 		this(null, null);
-	}
-
-	/**
-	 * @param batchSize the batchSize to set
-	 */
-	public void setBatchSize(Integer batchSize) {
-		this.batchSize = batchSize;
 	}
 
 	/**
@@ -149,33 +139,7 @@ public class MongoDaoImpl
 	 */
 	public <T> ObjectIterator<T> findObjects(
 		String collection, DBObject query, Class<T> clazz) {
-		DBCursor cursor = getCollection(collection).find(query, null, 0, batchSize);
-		return new ObjectIterator<T>(cursor, objectMapper, clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public <T> ObjectIterator<T> findObjects(
-		String collection, DBObject query,
-		int startIndex, int numObjects,
-		Class<T> clazz) {
-		DBCursor cursor = getCollection(collection)
-			.find(query, null, startIndex, batchSize)
-			.limit(numObjects);
-		return new ObjectIterator<T>(cursor, objectMapper, clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public <T> ObjectIterator<T> findObjects(
-		String collection, DBObject query,
-		int startIndex, int numObjects, int batchSize,
-		Class<T> clazz) {
-		DBCursor cursor = getCollection(collection)
-			.find(query, null, startIndex, batchSize)
-			.limit(numObjects);
+		DBCursor cursor = getCollection(collection).find(query);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
 	}
 
