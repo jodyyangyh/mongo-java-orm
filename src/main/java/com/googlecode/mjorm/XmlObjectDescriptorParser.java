@@ -129,7 +129,7 @@ public class XmlObjectDescriptorParser {
 				Method propGetter = ReflectionUtil.findGetter(objClass, propName, propClass);
 				if (propGetter==null || propSetter==null) {
 					throw new IllegalArgumentException(
-						"Unable to find getter or setter for: "+objClass);
+						"Unable to find getter or setter named "+propName+" for: "+objClass);
 				}
 
 				// make sure we have the type and get

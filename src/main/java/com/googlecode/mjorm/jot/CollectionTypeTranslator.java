@@ -58,7 +58,13 @@ public class CollectionTypeTranslator
 
 		// create collection
 		Collection ret;
-		if (SortedSet.class.isAssignableFrom(desiredClass)) {
+		if (!desiredClass.isInterface()) {
+			try {
+				ret = Collection.class.cast(ReflectionUtil.instantiate(desiredClass));
+			} catch (Exception e) {
+				throw new TranslationException("Couldn't instantiate desiredClass", e);
+			}
+		} else if (SortedSet.class.isAssignableFrom(desiredClass)) {
 			ret = new TreeSet();
 		} else if (Set.class.isAssignableFrom(desiredClass)) {
 			ret = new HashSet();
