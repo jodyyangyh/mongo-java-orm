@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -17,12 +19,14 @@ public class ObjectIterator<E>
 	implements Iterator<E> {
 
 	private DBCursor cursor;
-	private ObjectMapper objectMapper;
-	private Class<E> clazz;
+	private final ObjectMapper objectMapper;
+	private final Class<E> clazz;
+	private DBObject lastSort;
+	private String lastHint;
 
 	/**
 	 * Creates the {@link ObjectIterator}.
-	 * @param cursor the curser to wrap
+	 * @param cursor the cursor to wrap
 	 * @param objectMapper the {@link ObjectMapper} to use
 	 * @param clazz the class we're returning
 	 */
@@ -120,8 +124,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> addOption(int option) {
-		return new ObjectIterator<E>(
-			cursor.addOption(option), objectMapper, clazz);
+		cursor = cursor.addOption(option);
+		return this;
 	}
 
 	/**
@@ -130,8 +134,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> batchSize(int n) {
-		return new ObjectIterator<E>(
-			cursor.batchSize(n), objectMapper, clazz);
+		cursor = cursor.batchSize(n);
+		return this;
 	}
 
 	/**
@@ -139,8 +143,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> copy() {
-		return new ObjectIterator<E>(
-			cursor.copy(), objectMapper, clazz);
+		cursor = cursor.copy();
+		return this;
 	}
 
 	/**
@@ -149,8 +153,9 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> hint(DBObject indexKeys) {
-		return new ObjectIterator<E>(
-			cursor.hint(indexKeys), objectMapper, clazz);
+		lastHint = (indexKeys != null) ? DBCollection.genIndexName(indexKeys) : null;
+		cursor = cursor.hint(indexKeys);
+		return this;
 	}
 
 	/**
@@ -159,8 +164,9 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> hint(String indexName) {
-		return new ObjectIterator<E>(
-			cursor.hint(indexName), objectMapper, clazz);
+		lastHint = indexName;
+		cursor = cursor.hint(indexName);
+		return this;
 	}
 
 	/**
@@ -169,8 +175,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> limit(int m) {
-		return new ObjectIterator<E>(
-			cursor.limit(m), objectMapper, clazz);
+		cursor = cursor.limit(m);
+		return this;
 	}
 
 	/**
@@ -179,8 +185,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> skip(int n) {
-		return new ObjectIterator<E>(
-			cursor.skip(n), objectMapper, clazz);
+		cursor = cursor.skip(n);
+		return this;
 	}
 
 	/**
@@ -188,8 +194,8 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> snapshot() {
-		return new ObjectIterator<E>(
-			cursor.snapshot(), objectMapper, clazz);
+		cursor = cursor.snapshot();
+		return this;
 	}
 
 	/**
@@ -198,8 +204,9 @@ public class ObjectIterator<E>
 	 * @return ObjectIterator<E>
 	 */
 	public ObjectIterator<E> sort(DBObject orderBy) {
-		return new ObjectIterator<E>(
-			cursor.sort(orderBy), objectMapper, clazz);
+		lastSort = new BasicDBObject(orderBy.toMap());
+		cursor = cursor.sort(orderBy);
+		return this;
 	}
 
 	/**
@@ -232,6 +239,20 @@ public class ObjectIterator<E>
 	 */
 	public int numSeen() {
 		return cursor.numSeen();
+	}
+
+	/**
+	 * @return the last sort parameters applied to the cursor
+	 */
+	public DBObject getLastSort() {
+		return lastSort;
+	}
+
+	/**
+	 * @return the last hint index name applied to the cursor
+	 */
+	public String getLastHint() {
+		return lastHint;
 	}
 
 }
