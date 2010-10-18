@@ -142,7 +142,7 @@ public class XmlDescriptorObjectMapperTest {
 
 		DBObject cityDbObject = mapper.mapToDBObject(city);
 		assertNotNull(cityDbObject);
-		assertNull(cityDbObject.get("_id"));
+		assertNotNull(cityDbObject.get("_id"));
 		assertEquals(city.getName(), cityDbObject.get("name"));
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
