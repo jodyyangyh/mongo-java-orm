@@ -207,7 +207,7 @@
 	<dependencies>
 		
 		<!-- 
-		 | OCF4J dependencies
+		 | jot dependencies
 		 +-->
 		<dependency>
 			<groupId>com.googlecode</groupId>
