@@ -8,6 +8,7 @@ import com.googlecode.jot.TypeTranslator;
 import com.googlecode.jot.translators.PrimitiveTypeTranslator;
 import com.googlecode.mjorm.jot.ArrayTypeTranslator;
 import com.googlecode.mjorm.jot.CollectionTypeTranslator;
+import com.googlecode.mjorm.jot.EnumTypeTranslator;
 import com.googlecode.mjorm.jot.MapTypeTranslator;
 import com.mongodb.DBObject;
 
@@ -27,6 +28,7 @@ public abstract class AbstractObjectMapper
 	 */
 	public AbstractObjectMapper() {
 		translationCtx.registerTranslator(new PrimitiveTypeTranslator());
+		translationCtx.registerTranslator(new EnumTypeTranslator());
 		translationCtx.registerTranslator(new CollectionTypeTranslator());
 		translationCtx.registerTranslator(new MapTypeTranslator());
 		translationCtx.registerTranslator(new ArrayTypeTranslator());
