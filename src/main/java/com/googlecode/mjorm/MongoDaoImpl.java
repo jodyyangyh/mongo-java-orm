@@ -112,6 +112,94 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	public <T> T getPartialObject(String collection, String id, String name, Class<T> clazz) {
+		return getPartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getPartialObject(String collection, DBObject query, String name, Class<T> clazz) {
+
+		// query for the object
+		DBObject dbObject = getCollection(collection).findOne(
+			query, new BasicDBObject(name, 1));
+		if (dbObject==null) {
+			return null;
+		}
+
+		// now recurse down the object
+		Object value = null;
+		for (String part : name.split("\\.")) {
+			if (!dbObject.containsField(part)) {
+				return null;
+			}
+			value = dbObject.get(part);
+			if (DBObject.class.isInstance(value)) {
+				dbObject = DBObject.class.cast(value);
+			} else {
+				break;
+			}
+		}
+
+		// now convert
+		return (!clazz.equals(String.class) && !clazz.isPrimitive())
+			? objectMapper.mapFromDBObject(dbObject, clazz)
+			: (T)value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> void savePartialObject(
+		String collection, String id, String name, T data, boolean upsert) {
+		savePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, data, upsert);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> void savePartialObject(
+		String collection, DBObject query, String name, T data, boolean upsert) {
+
+		// the value we're storing
+		Object value = null;
+
+		// if it's not null, determine the
+		// type and store accordingly
+		if (data!=null) {
+			Class<?> clazz = data.getClass();
+			value = (!clazz.equals(String.class) && !clazz.isPrimitive())
+				? objectMapper.mapToDBObject(data)
+				: data;
+		}
+
+		// save it
+		getCollection(collection).update(
+			query, new BasicDBObject("$set", new BasicDBObject(name, value)),
+			upsert, false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deletePartialObject(String collection, String id, String name) {
+		deletePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deletePartialObject(String collection, DBObject query, String name) {
+		getCollection(collection).update(
+			query, new BasicDBObject("$unset", new BasicDBObject(name, 1)),
+			false, false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public <T> ObjectIterator<T> findByExample(String collection, T example, Class<T> clazz) {
 		DBObject query;
 		try {

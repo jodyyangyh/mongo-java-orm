@@ -82,6 +82,68 @@ public interface MongoDao {
 	void deleteObjects(String collection, String[] ids);
 
 	/**
+	 * Returns a partial object.
+	 * @param <T> the partial object type
+	 * @param collection the collection
+	 * @param id the document's id
+	 * @param name the name
+	 * @param clazz the type
+	 * @return the partial object
+	 */
+	<T> T getPartialObject(String collection, String id, String name, Class<T> clazz);
+
+	/**
+	 * Returns a partial object.
+	 * @param <T> the partial object type
+	 * @param collection the collection
+	 * @param query the query
+	 * @param name the name
+	 * @param clazz the type
+	 * @return the partial object
+	 */
+	<T> T getPartialObject(String collection, DBObject query, String name, Class<T> clazz);
+
+	/**
+	 * Saves a partial object.
+	 * @param <T> the partial object type
+	 * @param collection the collection
+	 * @param id the document's id
+	 * @param name the name
+	 * @param data the data to save
+	 * @param upsert the upsert
+	 */
+	<T> void savePartialObject(
+		String collection, String id, String name, T data, boolean upsert);
+
+	/**
+	 * Saves a partial object.
+	 * @param <T> the partial object type
+	 * @param collection the collection
+	 * @param query the query
+	 * @param name the name
+	 * @param data the data to save
+	 * @param upsert the upsert
+	 */
+	<T> void savePartialObject(
+		String collection, DBObject query, String name, T data, boolean upsert);
+
+	/**
+	 * Deletes a partial object.
+	 * @param collection the collection
+	 * @param id the document's id
+	 * @param name the name
+	 */
+	void deletePartialObject(String collection, String id, String name);
+
+	/**
+	 * Deletes a partial object.
+	 * @param collection the collection
+	 * @param query the query
+	 * @param name the name
+	 */
+	void deletePartialObject(String collection, DBObject query, String name);
+
+	/**
 	 * Finds objects by the given example in the given
 	 * collection and returns an {@link ObjectIterator}
 	 * for them.
