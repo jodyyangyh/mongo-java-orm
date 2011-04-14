@@ -144,7 +144,7 @@ public class MongoDaoImpl
 		}
 
 		// now convert
-		return (!clazz.equals(String.class) && !clazz.isPrimitive())
+		return !isPrimitive(clazz)
 			? objectMapper.mapFromDBObject(dbObject, clazz)
 			: (T)value;
 	}
@@ -170,7 +170,7 @@ public class MongoDaoImpl
 		// type and store accordingly
 		if (data!=null) {
 			Class<?> clazz = data.getClass();
-			value = (!clazz.equals(String.class) && !clazz.isPrimitive())
+			value = !isPrimitive(clazz)
 				? objectMapper.mapToDBObject(data)
 				: data;
 		}
@@ -179,6 +179,25 @@ public class MongoDaoImpl
 		getCollection(collection).update(
 			query, new BasicDBObject("$set", new BasicDBObject(name, value)),
 			upsert, false);
+	}
+
+	/**
+	 * Quick and easy check for primitives.
+	 * @param clazz the class
+	 * @return true if primitive
+	 */
+	private boolean isPrimitive(Class<?> clazz) {
+		return clazz.isPrimitive()
+			|| clazz.equals(Byte.class)
+			|| clazz.equals(Short.class)
+			|| clazz.equals(Integer.class)
+			|| clazz.equals(Long.class)
+			|| clazz.equals(Float.class)
+			|| clazz.equals(Double.class)
+			|| clazz.equals(Boolean.class)
+			|| clazz.equals(Character.class)
+			|| clazz.equals(String.class)
+			|| clazz.equals(Byte.class);
 	}
 
 	/**
