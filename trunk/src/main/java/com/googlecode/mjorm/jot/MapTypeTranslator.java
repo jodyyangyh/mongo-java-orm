@@ -65,7 +65,7 @@ public class MapTypeTranslator
 			if (WildcardType.class.isInstance(type) && type!=null) {
 				type = entry.getValue().getClass();
 			}
-			
+
 			ret.put(entry.getKey(), converter.translateToLocal(entry.getValue(), type));
 		}
 		return ret;
