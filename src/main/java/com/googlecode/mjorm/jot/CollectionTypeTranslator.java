@@ -83,7 +83,7 @@ public class CollectionTypeTranslator
 			if (WildcardType.class.isInstance(type) && type!=null) {
 				type = object.get(i).getClass();
 			}
-			
+
 			ret.add(converter.translateToLocal(object.get(i), type));
 		}
 		return ret;
