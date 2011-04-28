@@ -1,6 +1,7 @@
 package com.googlecode.mjorm.jot;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -76,7 +77,14 @@ public class CollectionTypeTranslator
 
 		// iterate and convert
 		for (int i=0; i<object.size(); i++) {
-			ret.add(converter.translateToLocal(object.get(i), parameterTypes[0]));
+
+			// check for wildcard types
+			Type type = parameterTypes[0];
+			if (WildcardType.class.isInstance(type) && type!=null) {
+				type = object.get(i).getClass();
+			}
+			
+			ret.add(converter.translateToLocal(object.get(i), type));
 		}
 		return ret;
 	}

@@ -1,8 +1,10 @@
 package com.googlecode.mjorm.jot;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.googlecode.jot.ReflectionUtil;
 import com.googlecode.jot.TranslationContext;
@@ -56,8 +58,15 @@ public class MapTypeTranslator
 
 		// create and convert
 		Map ret = new HashMap();
-		for (String key : object.keySet()) {
-			ret.put(key, converter.translateToLocal(object.get(key), parameterTypes[1]));
+		for (Entry<String, Object> entry : object.entrySet()) {
+
+			// check for wildcard types
+			Type type = parameterTypes[1];
+			if (WildcardType.class.isInstance(type) && type!=null) {
+				type = entry.getValue().getClass();
+			}
+			
+			ret.put(entry.getKey(), converter.translateToLocal(entry.getValue(), type));
 		}
 		return ret;
 	}
