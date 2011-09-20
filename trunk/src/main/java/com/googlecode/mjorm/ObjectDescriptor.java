@@ -55,4 +55,5 @@ public class ObjectDescriptor {
 	public void setProperties(Set<PropertyDescriptor> properties) {
 		this.properties = properties;
 	}
+
 }

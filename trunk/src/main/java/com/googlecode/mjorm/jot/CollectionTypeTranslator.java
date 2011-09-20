@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -25,6 +26,8 @@ import com.mongodb.BasicDBList;
 @SuppressWarnings("rawtypes")
 public class CollectionTypeTranslator
 	implements TypeTranslator<BasicDBList, Collection> {
+
+	public static final String HINT_COMPARATOR_CLASS = "comparatorClass";
 
 	/**
 	 * {@inheritDoc}
@@ -66,7 +69,20 @@ public class CollectionTypeTranslator
 				throw new TranslationException("Couldn't instantiate desiredClass", e);
 			}
 		} else if (SortedSet.class.isAssignableFrom(desiredClass)) {
-			ret = new TreeSet();
+			Object comparatorClassName = hints.getOther(HINT_COMPARATOR_CLASS);
+			if (comparatorClassName!=null) {
+				try {
+					String className = comparatorClassName.toString().trim();
+					Class<Comparator<?>> comparatorClass
+						=  (Class<Comparator<?>>)Class.forName(className);
+					ret = new TreeSet(comparatorClass.newInstance());
+				} catch(Exception e) {
+					throw new TranslationException(
+						"Couldn't instantiate comparatorClass "+comparatorClassName, e);
+				}
+			} else {
+				ret = new TreeSet();
+			}
 		} else if (Set.class.isAssignableFrom(desiredClass)) {
 			ret = new HashSet();
 		} else if (List.class.isAssignableFrom(desiredClass)) {
