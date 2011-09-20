@@ -101,14 +101,10 @@ public class DescriptorTranslator
 					prop.set(ret, ObjectId.class.cast(value).toStringMongod());
 
 				} else {
-					Object value = object.get(prop.getPropColumn());
-					TranslationHints translationHints = new TranslationHints();
-					Type[] paramTypes = prop.getParameterTypes().length>0
-						? prop.getParameterTypes()
-						: ReflectionUtil.getTypeParameters(prop.getGenericType());
-					translationHints.setTypeParameters(paramTypes);
 					Object convertedValue = converter.translateToLocal(
-						value, prop.getObjectClass(), translationHints);
+						object.get(prop.getPropColumn()),
+						prop.getObjectClass(),
+						prop.createTranslationHints());
 
 					prop.set(ret, convertedValue);
 				}
