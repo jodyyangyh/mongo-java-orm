@@ -4,7 +4,7 @@
   <artifactId>mongo-java-orm</artifactId>
   <version>0.1-SNAPSHOT</version>
   <versioning>
-    <release>0.10</release>
+    <release>0.11</release>
     <versions>
       <version>0.1-SNAPSHOT</version>
       <version>0.2</version>
@@ -24,7 +24,8 @@
       <version>0.10-SNAPSHOT</version>
       <version>0.10</version>
       <version>0.11-SNAPSHOT</version>
+      <version>0.11</version>
     </versions>
-    <lastUpdated>20110428232043</lastUpdated>
+    <lastUpdated>20110920180233</lastUpdated>
   </versioning>
 </metadata>
