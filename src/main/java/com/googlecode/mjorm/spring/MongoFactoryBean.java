@@ -49,4 +49,11 @@ public class MongoFactoryBean
 		this.closeOnDestroy = closeOnDestroy;
 	}
 
+	/**
+	 * @param uri the uri to set
+	 */
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
 }
