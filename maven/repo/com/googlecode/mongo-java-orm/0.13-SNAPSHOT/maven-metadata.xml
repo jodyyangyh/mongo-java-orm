@@ -26,6 +26,12 @@
         <value>0.13-20120224.220038-1</value>
         <updated>20120224220038</updated>
       </snapshotVersion>
+      <snapshotVersion>
+        <classifier>javadoc</classifier>
+        <extension>jar</extension>
+        <value>0.13-20120224.220038-1</value>
+        <updated>20120224220038</updated>
+      </snapshotVersion>
     </snapshotVersions>
   </versioning>
 </metadata>
