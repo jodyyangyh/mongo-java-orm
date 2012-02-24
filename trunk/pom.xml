@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.googlecode</groupId>
 	<artifactId>mongo-java-orm</artifactId>
-	<version>0.12-SNAPSHOT</version>
+	<version>0.12</version>
 	<name>ORM Framework for Mongo and Java</name>
 	<packaging>jar</packaging>
 	<url>http://code.google.com/p/mongo-java-orm/</url>
@@ -23,9 +23,9 @@
      | scm configuration
      +-->
 	<scm>
-		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/trunk/</connection>
-		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/trunk/</developerConnection>
-		<url>http://mongo-java-orm.googlecode.com/svn/trunk/</url>
+		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.12</connection>
+		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.12</developerConnection>
+		<url>http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.12</url>
 	</scm>
 
 	<repositories>
@@ -134,24 +134,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- checkstyle build plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>src/main/resources/checkstyle/checkstyle_checks.xml</configLocation>
-					<failOnViolation>false</failOnViolation>
-				</configuration>
-			</plugin>
 		
 			<!-- eclipse plugin -->
 			<plugin>
@@ -187,22 +169,6 @@
 		</plugins>
 		
 	</build>
-	
-	<!-- reporting plugins -->
-	<reporting>
-		<plugins>
-
-			<!-- checkstyle report plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<configLocation>src/main/resources/checkstyle/checkstyle_checks.xml</configLocation>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 
 	<dependencies>
 		
