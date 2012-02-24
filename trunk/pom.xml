@@ -149,7 +149,7 @@
 				</executions>
 				<configuration>
 					<configLocation>src/main/resources/checkstyle/checkstyle_checks.xml</configLocation>
-					<failOnViolation>true</failOnViolation>
+					<failOnViolation>false</failOnViolation>
 				</configuration>
 			</plugin>
 		
