@@ -134,24 +134,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- checkstyle build plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>src/main/resources/checkstyle/checkstyle_checks.xml</configLocation>
-					<failOnViolation>false</failOnViolation>
-				</configuration>
-			</plugin>
 		
 			<!-- eclipse plugin -->
 			<plugin>
@@ -187,22 +169,6 @@
 		</plugins>
 		
 	</build>
-	
-	<!-- reporting plugins -->
-	<reporting>
-		<plugins>
-
-			<!-- checkstyle report plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<configLocation>src/main/resources/checkstyle/checkstyle_checks.xml</configLocation>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 
 	<dependencies>
 		
