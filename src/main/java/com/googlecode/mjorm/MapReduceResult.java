@@ -1,9 +1,9 @@
 package com.googlecode.mjorm;
 
 import com.mongodb.CommandResult;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MapReduceOutput;
 
 /**
  * The result of a map reduce operation.
@@ -18,11 +18,11 @@ public class MapReduceResult {
 
 	/**
 	 * Creates the {@link MapReduceResult}.
-	 * @param db the database that it was run on
-	 * @param result the {@link CommandResult}
+	 * @param result the {@link MapReduceOutput}
 	 */
-	public MapReduceResult(DB db, CommandResult result) {
-		this.resultCollection = db.getCollection(result.getString("result"));
+	public MapReduceResult(MapReduceOutput output) {
+		this.resultCollection = output.getOutputCollection();
+		CommandResult result = output.getCommandResult();
 		if (result.containsField("counts")) {
 			DBObject counts = (DBObject)result.get("counts");
 			this.numObjectsScanned	= new Long(counts.get("input").toString());

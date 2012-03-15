@@ -1,6 +1,9 @@
 package com.googlecode.mjorm;
 
+import java.util.Map;
+
 import com.mongodb.DBObject;
+import com.mongodb.MapReduceCommand.OutputType;
 
 /**
  * For MapReducing with {@link MongoDao}.
@@ -13,10 +16,11 @@ public class MapReduce {
 	private DBObject query;
 	private DBObject sort;
 	private Long limit;
+	private String outputDBName;
 	private String outputCollectionName;
-	private Boolean keepTemp;
-	private DBObject scope;
+	private Map<String, Object> scope;
 	private Boolean verbose;
+	private OutputType outputType = OutputType.REPLACE;
 
 	/**
 	 * Creates the {@link MapReduce}.
@@ -141,30 +145,30 @@ public class MapReduce {
 	}
 
 	/**
-	 * @return the keepTemp
+	 * @return the outputType
 	 */
-	public Boolean getKeepTemp() {
-		return keepTemp;
+	public OutputType getOutputType() {
+		return outputType;
 	}
 
 	/**
-	 * @param keepTemp the keepTemp to set
+	 * @param outputType the outputType to set
 	 */
-	public void setKeepTemp(Boolean keepTemp) {
-		this.keepTemp = keepTemp;
+	public void setOutputType(OutputType outputType) {
+		this.outputType = outputType;
 	}
 
 	/**
 	 * @return the scope
 	 */
-	public DBObject getScope() {
+	public Map<String, Object> getScope() {
 		return scope;
 	}
 
 	/**
 	 * @param scope the scope to set
 	 */
-	public void setScope(DBObject scope) {
+	public void setScope(Map<String, Object> scope) {
 		this.scope = scope;
 	}
 
@@ -180,6 +184,20 @@ public class MapReduce {
 	 */
 	public void setVerbose(Boolean verbose) {
 		this.verbose = verbose;
+	}
+
+	/**
+	 * @return the outputDBName
+	 */
+	public String getOutputDBName() {
+		return outputDBName;
+	}
+
+	/**
+	 * @param outputDBName the outputDBName to set
+	 */
+	public void setOutputDBName(String outputDBName) {
+		this.outputDBName = outputDBName;
 	}
 
 }

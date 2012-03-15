@@ -13,6 +13,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MapReduceCommand;
 
 /**
  * Basic implementation of the {@link MongoDao} interface.
@@ -357,41 +358,38 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public MapReduceResult mapReduce(String collection, MapReduce mapReduce) {
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start()
-			.add("mapreduce", collection)
-			.add("map", mapReduce.getMapFunction())
-			.add("reduce", mapReduce.getReduceFunction());
-		if (mapReduce.getQuery()!=null) {
-			builder.add("query", mapReduce.getQuery());
-		}
+
+		// create command
+		MapReduceCommand cmd = new MapReduceCommand(
+			getCollection(collection),
+			mapReduce.getMapFunction(),
+			mapReduce.getReduceFunction(),
+			mapReduce.getOutputCollectionName(),
+			mapReduce.getOutputType(),
+			mapReduce.getQuery());
+		
 		if (mapReduce.getSort()!=null) {
-			builder.add("sort", mapReduce.getSort());
+			cmd.setSort(mapReduce.getSort());
 		}
 		if (mapReduce.getLimit()!=null) {
-			builder.add("limit", mapReduce.getLimit());
-		}
-		if (mapReduce.getOutputCollectionName()!=null) {
-			builder.add("out", mapReduce.getOutputCollectionName());
-		}
-		if (mapReduce.getKeepTemp()!=null) {
-			builder.add("keeptemp", mapReduce.getKeepTemp());
+			cmd.setLimit(mapReduce.getLimit().intValue());
 		}
 		if (mapReduce.getFinalizeFunction()!=null) {
-			builder.add("finalize", mapReduce.getFinalizeFunction());
+			cmd.setFinalize(mapReduce.getFinalizeFunction());
 		}
 		if (mapReduce.getScope()!=null) {
-			builder.add("scope", mapReduce.getScope());
+			cmd.setScope(mapReduce.getScope());
 		}
 		if (mapReduce.getVerbose()!=null) {
-			builder.add("verbose", mapReduce.getVerbose());
+			cmd.setVerbose(mapReduce.getVerbose());
+		}
+		if (mapReduce.getOutputDBName()!=null) {
+			cmd.setOutputDB(mapReduce.getOutputDBName());
 		}
 
-		// execute the command
-		CommandResult result = getDB().command(builder.get());
-		result.throwOnError();
-
-		// return output
-		return new MapReduceResult(getDB(), result);
+		// execute and return
+		return new MapReduceResult(
+			getCollection(collection).mapReduce(cmd));
 	}
 
 	/**
