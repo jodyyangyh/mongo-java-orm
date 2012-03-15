@@ -359,6 +359,11 @@ public class MongoDaoImpl
 	 */
 	public MapReduceResult mapReduce(String collection, MapReduce mapReduce) {
 
+		if (mapReduce.getOutputCollectionName()==null
+			|| mapReduce.getOutputCollectionName().trim().length()==0) {
+			throw new IllegalArgumentException("Invalid output collection name");
+		}
+
 		// create command
 		MapReduceCommand cmd = new MapReduceCommand(
 			getCollection(collection),
