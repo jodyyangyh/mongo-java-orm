@@ -1,6 +1,7 @@
 package com.googlecode.mjorm;
 
 import java.util.Map;
+import java.util.Random;
 
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand.OutputType;
@@ -10,6 +11,8 @@ import com.mongodb.MapReduceCommand.OutputType;
  */
 public class MapReduce {
 
+	private static final Random rand = new Random(System.currentTimeMillis());
+
 	private String mapFunction;
 	private String reduceFunction;
 	private String finalizeFunction;
@@ -17,7 +20,7 @@ public class MapReduce {
 	private DBObject sort;
 	private Long limit;
 	private String outputDBName;
-	private String outputCollectionName;
+	private String outputCollectionName = "mr_mjorm_"+this.hashCode()+"_"+(10000*rand.nextFloat());
 	private Map<String, Object> scope;
 	private Boolean verbose;
 	private OutputType outputType = OutputType.REPLACE;
