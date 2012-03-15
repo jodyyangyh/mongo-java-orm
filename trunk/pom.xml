@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.googlecode</groupId>
 	<artifactId>mongo-java-orm</artifactId>
-	<version>0.14-SNAPSHOT</version>
+	<version>0.14</version>
 	<name>ORM Framework for Mongo and Java</name>
 	<packaging>jar</packaging>
 	<url>http://code.google.com/p/mongo-java-orm/</url>
@@ -23,9 +23,9 @@
      | scm configuration
      +-->
 	<scm>
-		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/trunk/</connection>
-		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/trunk/</developerConnection>
-		<url>http://mongo-java-orm.googlecode.com/svn/trunk/</url>
+		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.14</connection>
+		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.14</developerConnection>
+		<url>http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-0.14</url>
 	</scm>
 
 	<repositories>
