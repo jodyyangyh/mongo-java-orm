@@ -3,6 +3,7 @@ package com.googlecode.mjorm;
 import java.util.Map;
 import java.util.Random;
 
+import com.googlecode.mjorm.query.Query;
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand.OutputType;
 
@@ -103,6 +104,13 @@ public class MapReduce {
 	 */
 	public void setQuery(DBObject query) {
 		this.query = query;
+	}
+
+	/**
+	 * @param query the query to set
+	 */
+	public void setQuery(Query query) {
+		setQuery(query.toQueryObject());
 	}
 
 	/**
