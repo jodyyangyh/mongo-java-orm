@@ -1,18 +1,17 @@
 package com.googlecode.mjorm.query;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-public class ElemMatchCriteria
-	implements Criteria<DBObject> {
+public class ElemMatchCriterion
+	implements Criterion {
 
 	private Query query;
 
-	public ElemMatchCriteria(Query query) {
+	public ElemMatchCriterion(Query query) {
 		this.query = query;
 	}
 
-	public ElemMatchCriteria() {
+	public ElemMatchCriterion() {
 		this.query = new Query();
 	}
 
@@ -26,7 +25,7 @@ public class ElemMatchCriteria
 	/**
 	 * {@inheritDoc}
 	 */
-	public DBObject toQueryObject() {
+	public Object toQueryObject() {
 		return new BasicDBObject("$elemMatch", query.toQueryObject());
 	}
 

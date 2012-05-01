@@ -6,7 +6,7 @@ import java.util.List;
 import com.mongodb.BasicDBList;
 
 public class QueryGroup
-	extends AbstractCriteria<BasicDBList> {
+	extends AbstractCriterion {
 
 	private List<Query> queries = new ArrayList<Query>();
 
@@ -20,15 +20,19 @@ public class QueryGroup
 		return ret;
 	}
 
-	public void add(Query criteria) {
-		queries.add(criteria);
+	/**
+	 * Adds a {@link Query} to this group.
+	 * @param query the {@link Query}
+	 */
+	public void add(Query query) {
+		queries.add(query);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BasicDBList toQueryObject() {
+	public Object toQueryObject() {
 		BasicDBList list = new BasicDBList();
 		for (Query query : queries) {
 			list.add(query.toQueryObject());

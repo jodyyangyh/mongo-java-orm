@@ -1,10 +1,9 @@
 package com.googlecode.mjorm.query;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-public class SimpleCriteria<T>
-	extends AbstractCriteria<DBObject> {
+public class SimpleCriterion
+	extends AbstractCriterion {
 
 	public enum Operator {
 		GT		("$gt"),
@@ -26,14 +25,14 @@ public class SimpleCriteria<T>
 	}
 
 	private String operator;
-	private T value;
+	private Object value;
 
-	public SimpleCriteria(String operator, T value) {
+	public SimpleCriterion(String operator, Object value) {
 		this.operator	= operator;
 		this.value		= value;
 	}
 
-	public SimpleCriteria(Operator operator, T value) {
+	public SimpleCriterion(Operator operator, Object value) {
 		this(operator.getOperatorString(), value);
 	}
 
@@ -47,14 +46,14 @@ public class SimpleCriteria<T>
 	/**
 	 * @return the value
 	 */
-	public T getValue() {
+	public Object getValue() {
 		return value;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public DBObject toQueryObject() {
+	public Object toQueryObject() {
 		return new BasicDBObject(operator, value);
 	}
 

@@ -1,15 +1,14 @@
 package com.googlecode.mjorm.query;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-public class ExistsCriteria
-	extends AbstractCriteria<DBObject> {
+public class ExistsCriterion
+	extends AbstractCriterion {
 
 	private Boolean value;
 
-	public ExistsCriteria(Boolean value) {
-		this.value		= value;
+	public ExistsCriterion(Boolean value) {
+		this.value = value;
 	}
 
 	/**
@@ -23,7 +22,7 @@ public class ExistsCriteria
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toQueryObject() {
+	public Object toQueryObject() {
 		return new BasicDBObject("$exists", value);
 	}
 
