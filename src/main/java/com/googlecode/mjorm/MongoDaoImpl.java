@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 
-import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.CommandResult;
@@ -45,15 +45,15 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public long countObjects(String collection, DBObject query) {
-		return getCollection(collection).count(query);
+	public DaoQuery createQuery() {
+		return new DaoQuery(this);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public long countObjects(String collection, Query query) {
-		return countObjects(collection, query);
+	public long countObjects(String collection, DBObject query) {
+		return getCollection(collection).count(query);
 	}
 
 	/**
@@ -234,24 +234,10 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T findObject(String collection, Query query, Class<T> clazz) {
-		return findObject(collection, query.toQueryObject(), clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public <T> ObjectIterator<T> findObjects(
 		String collection, DBObject query, Class<T> clazz) {
 		DBCursor cursor = getCollection(collection).find(query);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public <T> ObjectIterator<T> findObjects(String collection, Query query, Class<T> clazz) {
-		return findObjects(collection, query.toQueryObject(), clazz);
 	}
 
 	/**
