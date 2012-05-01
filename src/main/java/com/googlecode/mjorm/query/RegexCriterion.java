@@ -2,20 +2,20 @@ package com.googlecode.mjorm.query;
 
 import java.util.regex.Pattern;
 
-public class RegexCriteria
-	extends AbstractCriteria<Pattern> {
+public class RegexCriterion
+	extends AbstractCriterion {
 
 	private Pattern pattern;
 
-	public RegexCriteria(Pattern pattern) {
+	public RegexCriterion(Pattern pattern) {
 		this.pattern = pattern;
 	}
 
-	public RegexCriteria(String regex, int flags) {
+	public RegexCriterion(String regex, int flags) {
 		this(Pattern.compile(regex, flags));
 	}
 
-	public RegexCriteria(String regex) {
+	public RegexCriterion(String regex) {
 		this(Pattern.compile(regex));
 	}
 
@@ -29,7 +29,7 @@ public class RegexCriteria
 	/**
 	 * {@inheritDoc}
 	 */
-	public Pattern toQueryObject() {
+	public Object toQueryObject() {
 		return pattern;
 	}
 

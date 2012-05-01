@@ -1,15 +1,14 @@
 package com.googlecode.mjorm.query;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-public class SizeCriteria
-	extends AbstractCriteria<DBObject> {
+public class SizeCriterion
+	extends AbstractCriterion {
 
 	private Number size;
 
-	public SizeCriteria(Number size) {
-		this.size		= size;
+	public SizeCriterion(Number size) {
+		this.size = size;
 	}
 
 	/**
@@ -23,7 +22,7 @@ public class SizeCriteria
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toQueryObject() {
+	public Object toQueryObject() {
 		return new BasicDBObject("$size", size);
 	}
 

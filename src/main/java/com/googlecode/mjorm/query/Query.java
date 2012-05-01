@@ -9,76 +9,129 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import com.googlecode.mjorm.query.TypeCriteria.Type;
+import com.googlecode.mjorm.query.TypeCriterion.Type;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
+/**
+ * An object for building MongoDB queries using
+ * {@link Criterion}.
+ * 
+ * @see Criterion
+ * @see Criteria
+ */
 public class Query
-	extends AbstractCriteria<DBObject> {
+	extends AbstractCriterion {
 
 	private Stack<String> propertyStack = new Stack<String>();
-	private Map<String[], Criteria<?>> criterias = new LinkedHashMap<String[], Criteria<?>>();
+	private Map<List<String>, List<Criterion>> criteriaMap = new LinkedHashMap<List<String>, List<Criterion>>();
 
-	public Query start() {
+	/**
+	 * Starts a new query.
+	 * @return the {@link Query} for chaining
+	 */
+	public static Query start() {
 		return new Query();
 	}
 
+	/**
+	 * Pushed a property onto the property stack.
+	 * @return the {@link Query} for chaining
+	 */
 	public Query push(String property) {
 		propertyStack.push(property);
 		return this;
 	}
 
+	/**
+	 * Pops a property off of the property stack.
+	 * @return the {@link Query} for chaining
+	 */
 	public Query pop() {
 		propertyStack.pop();
 		return this;
 	}
 
-	private String[] propertyHierarchy(String property) {
-		List<String> ret = new ArrayList<String>();
-		for (String element : propertyStack) {
-			ret.add(element);
+	/**
+	 * Adds a {@link Criterion} to the query.
+	 * @param property the property name
+	 * @param criterion the {@link Criterion}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query add(String property, Criterion criterion) {
+		List<String> key = propertyHierarchy(property);
+		if (!criteriaMap.containsKey(key)) {
+			criteriaMap.put(key, new ArrayList<Criterion>());
 		}
-		ret.add(property);
-		return ret.toArray(new String[0]);
-	}
-
-	public Query add(String property, Criteria<?> criteria) {
-		criterias.put(propertyHierarchy(property), criteria);
+		criteriaMap.get(key).add(criterion);
 		return this;
 	}
 
+	/**
+	 * Adds a query the {@link QueryGroup} for
+	 * {@code $or}.
+	 * @param query the {@link Query} to add
+	 * @return the {@link QueryGroup}
+	 */
+	public QueryGroup getGroup(String name) {
+		List<String> key = propertyHierarchy(name);
+		if (!criteriaMap.containsKey(key)) {
+			criteriaMap.put(key, new ArrayList<Criterion>());
+			criteriaMap.get(key).add(new QueryGroup());
+		}
+		return (QueryGroup)criteriaMap.get(key).get(0);
+	}
+
+	/**
+	 * Adds a query the {@link QueryGroup} for
+	 * {@code $or}.
+	 * @param query the {@link Query} to add
+	 * @return the {@link Query} for chaining
+	 */
+	public Query group(String name, Query query) {
+		getGroup(name).add(query);
+		return this;
+	}
+
+	/**
+	 * Adds a query the {@link QueryGroup} for
+	 * {@code $or}.
+	 * @param query the {@link Query} to add
+	 * @return the {@link Query} for chaining
+	 */
 	public Query or(Query query) {
-		String[] hierarchy = propertyHierarchy("$or");
-		if (!criterias.containsKey(hierarchy)) {
-			criterias.put(hierarchy, new QueryGroup());
-		}
-		QueryGroup group = (QueryGroup)criterias.get(hierarchy);
-		group.add(query);
+		group("$or", query);
 		return this;
 	}
 
+	/**
+	 * Adds a query the {@link QueryGroup} for
+	 * {@code $nor}.
+	 * @param query the {@link Query} to add
+	 * @return the {@link Query} for chaining
+	 */
 	public Query nor(Query query) {
-		String[] hierarchy = propertyHierarchy("$nor");
-		if (!criterias.containsKey(hierarchy)) {
-			criterias.put(hierarchy, new QueryGroup());
-		}
-		QueryGroup group = (QueryGroup)criterias.get(hierarchy);
-		group.add(query);
+		group("$nor", query);
 		return this;
 	}
 
+	/**
+	 * Adds a query the {@link QueryGroup} for
+	 * {@code $and}.
+	 * @param query the {@link Query} to add
+	 * @return the {@link Query} for chaining
+	 */
 	public Query and(Query query) {
-		String[] hierarchy = propertyHierarchy("$and");
-		if (!criterias.containsKey(hierarchy)) {
-			criterias.put(hierarchy, new QueryGroup());
-		}
-		QueryGroup group = (QueryGroup)criterias.get(hierarchy);
-		group.add(query);
+		group("$and", query);
 		return this;
 	}
 
+	/**
+	 * Clears the query.
+	 */
 	public void clear() {
-		criterias.clear();
+		criteriaMap.clear();
+		propertyStack.clear();
 	}
 
 	/**
@@ -88,13 +141,15 @@ public class Query
 	public DBObject toQueryObject() {
 		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
 		Stack<String> builderStack = new Stack<String>();
-		for (Entry<String[], Criteria<?>> entry : criterias.entrySet()) {
-			String[] parts = entry.getKey();
+		for (Entry<List<String>, List<Criterion>> entry : criteriaMap.entrySet()) {
+			String[] parts = entry.getKey().toArray(new String[0]);
+
 			// come out
 			while (builderStack.size()>parts.length-1) {
 				builderStack.pop();
 				builder.pop();
 			}
+
 			// come out until matched
 			if (builderStack.size()>0) {
 				for (int i=parts.length-2;
@@ -104,114 +159,268 @@ public class Query
 					builder.pop();
 				}
 			}
+
 			// go deeper
 			for (int i=builderStack.size(); i<parts.length-1; i++) {
 				builderStack.push(parts[i]);
 				builder.push(parts[i]);
 			}
-			builder.add(parts[parts.length-1], entry.getValue().toQueryObject());
+
+			// make the Criteron create their query objects
+			Object val = null;
+			for (Criterion criterion : entry.getValue()) {
+
+				// conver to query object
+				Object curVal = criterion.toQueryObject();
+				
+				// can't merge
+				if (val!=null
+					&& (!DBObject.class.isInstance(val) || !DBObject.class.isInstance(curVal))) {
+					throw new IllegalStateException(
+						"A Criterion generated a value other than a "
+						+"DBObject for a property that already has Criterion. "
+						+"This usually means that two Criterion are being used "
+						+"for a property that don't both create a DBObject and "
+						+"and therefore can't be merged.");
+					
+				// first value
+				} else if (val==null) {
+					val = curVal;
+				
+				// merge them
+				} else {
+					DBObject.class.cast(val).putAll(
+						DBObject.class.cast(curVal));
+				}
+			}
+
+			// add the query
+			builder.add(parts[parts.length-1], val);
 		}
 		return builder.get();
 	}
 
-	public <T> Query eq(String property, T value) {
-		return add(property, new EqualsCriteria<T>(value));
+	/**
+	 * Returns an array of the current property
+	 * hierarchy plus the property given.
+	 * @param property the property
+	 * @return an array
+	 */
+	private List<String> propertyHierarchy(String property) {
+		List<String>  ret = new ArrayList<String>(propertyStack.size()+1);
+		for (int i=0; i<propertyStack.size(); i++) {
+			ret.add(propertyStack.get(i));
+		}
+		ret.add(property);
+		return ret;
 	}
 
-	public <T> Query gt(String property, T value) {
-		return add(property, Criterion.gt(value));
+	/**
+	 * {@see Criteria#eq(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query eq(String property, Object value) {
+		return add(property, Criteria.eq(value));
 	}
 
-	public <T> Query gte(String property, T value) {
-		return add(property, Criterion.gte(value));
+	/**
+	 * {@see Criteria#gt(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query gt(String property, Object value) {
+		return add(property, Criteria.gt(value));
 	}
 
-	public <T> Query lt(String property, T value) {
-		return add(property, Criterion.lt(value));
+	/**
+	 * {@see Criteria#gte(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query gte(String property, Object value) {
+		return add(property, Criteria.gte(value));
 	}
 
-	public <T> Query lte(String property, T value) {
-		return add(property, Criterion.lte(value));
+	/**
+	 * {@see Criteria#lt(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query lt(String property, Object value) {
+		return add(property, Criteria.lt(value));
 	}
 
-	public <T> Query ne(String property, T value) {
-		return add(property, Criterion.ne(value));
+	/**
+	 * {@see Criteria#lte(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query lte(String property, Object value) {
+		return add(property, Criteria.lte(value));
 	}
 
-	public <T> Query in(String property, T values) {
-		return add(property, Criterion.in(values));
+	/**
+	 * {@see Criteria#between(Object, Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query between(String property, Object left, Object right) {
+		return add(property, Criteria.between(left, right));
 	}
 
-	public <T> Query in(String property, T... values) {
-		return add(property, Criterion.in(values));
+	/**
+	 * {@see Criteria#ne(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query ne(String property, Object value) {
+		return add(property, Criteria.ne(value));
 	}
 
-	public <T> Query in(String property, Collection<T> values) {
-		return add(property, Criterion.in(values));
+	/**
+	 * {@see Criteria#in(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query in(String property, Object values) {
+		return add(property, Criteria.in(values));
 	}
 
-	public <T> Query nin(String property, T values) {
-		return add(property, Criterion.nin(values));
+	/**
+	 * {@see Criteria#in(T[])}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query in(String property, Object... values) {
+		return add(property, Criteria.in(values));
 	}
 
-	public <T> Query nin(String property, T... values) {
-		return add(property, Criterion.nin(values));
+	/**
+	 * {@see Criteria#in(Collection)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query in(String property, Collection<?> values) {
+		return add(property, Criteria.in(values));
 	}
 
-	public <T> Query nin(String property, Collection<T> values) {
-		return add(property, Criterion.nin(values));
+	/**
+	 * {@see Criteria#nin(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query nin(String property, Object values) {
+		return add(property, Criteria.nin(values));
 	}
 
-	public <T> Query all(String property, T values) {
-		return add(property, Criterion.all(values));
+	/**
+	 * {@see Criteria#nin(T[])}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query nin(String property, Object... values) {
+		return add(property, Criteria.nin(values));
 	}
 
-	public <T> Query all(String property, T... values) {
-		return add(property, Criterion.all(values));
+	/**
+	 * {@see Criteria#nin(Collection)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query nin(String property, Collection<?> values) {
+		return add(property, Criteria.nin(values));
 	}
 
-	public <T> Query all(String property, Collection<T> values) {
-		return add(property, Criterion.all(values));
+	/**
+	 * {@see Criteria#all(Object)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query all(String property, Object values) {
+		return add(property, Criteria.all(values));
 	}
 
+	/**
+	 * {@see Criteria#all(T[])}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query all(String property, Object... values) {
+		return add(property, Criteria.all(values));
+	}
+
+	/**
+	 * {@see Criteria#all(Collection)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query all(String property, Collection<?> values) {
+		return add(property, Criteria.all(values));
+	}
+
+	/**
+	 * {@see Criteria#exists(Boolean)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query exists(String property, Boolean value) {
-		return add(property, Criterion.exists(value));
+		return add(property, Criteria.exists(value));
 	}
 
+	/**
+	 * {@see Criteria#mod(Number, Number)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query mod(String property, Number left, Number right) {
-		return add(property, Criterion.mod(left, right));
+		return add(property, Criteria.mod(left, right));
 	}
 
+	/**
+	 * {@see Criteria#regex(Pattern)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query regex(String property, Pattern pattern) {
-		return add(property, Criterion.regex(pattern));
+		return add(property, Criteria.regex(pattern));
 	}
 
+	/**
+	 * {@see Criteria#regex(String)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query regex(String property, String pattern) {
-		return add(property, Criterion.regex(pattern));
+		return add(property, Criteria.regex(pattern));
 	}
 
+	/**
+	 * {@see Criteria#regex(String, int)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query regex(String property, String pattern, int flags) {
-		return add(property, Criterion.regex(pattern, flags));
+		return add(property, Criteria.regex(pattern, flags));
 	}
-	
+
+	/**
+	 * {@see Criteria#size(Number)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query size(String property, Number size) {
-		return add(property, Criterion.size(size));
+		return add(property, Criteria.size(size));
 	}
-	
+
+	/**
+	 * {@see Criteria#type(Number)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query type(String property, Number typeCode) {
-		return add(property, Criterion.type(typeCode));
+		return add(property, Criteria.type(typeCode));
 	}
-	
+
+	/**
+	 * {@see Criteria#type(Type)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query type(String property, Type type) {
-		return add(property, Criterion.type(type));
+		return add(property, Criteria.type(type));
 	}
 
+	/**
+	 * {@see Criteria#elemMatch(Query)}
+	 * @return the {@link Query} for chaining
+	 */
 	public Query elemMatch(String property, Query query) {
-		return add(property, Criterion.elemMatch(query));
+		return add(property, Criteria.elemMatch(query));
 	}
 
-	public Query not(String property, Criteria<?> criteria) {
-		return add(property, Criterion.not(criteria));
+	/**
+	 * {@see Criteria#not(Criterion)}
+	 * @return the {@link Query} for chaining
+	 */
+	public Query not(String property, Criterion criteria) {
+		return add(property, Criteria.not(criteria));
 	}
 
 }

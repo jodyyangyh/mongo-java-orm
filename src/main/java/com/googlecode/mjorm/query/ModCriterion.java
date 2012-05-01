@@ -2,15 +2,14 @@ package com.googlecode.mjorm.query;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-public class ModCriteria
-	extends AbstractCriteria<DBObject> {
+public class ModCriterion
+	extends AbstractCriterion {
 
 	private Number left;
 	private Number right;
 
-	public ModCriteria(Number left, Number right) {
+	public ModCriterion(Number left, Number right) {
 		this.left		= left;
 		this.right		= right;
 	}
@@ -33,7 +32,7 @@ public class ModCriteria
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toQueryObject() {
+	public Object toQueryObject() {
 		BasicDBList numbers = new BasicDBList();
 		numbers.add(left);
 		numbers.add(right);
