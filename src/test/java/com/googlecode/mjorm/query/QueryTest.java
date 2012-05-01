@@ -1,13 +1,13 @@
 package com.googlecode.mjorm.query;
 
 import static org.junit.Assert.*;
-import static com.googlecode.mjorm.query.Criterion.*;
+import static com.googlecode.mjorm.query.Criteria.*;
 
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.googlecode.mjorm.query.TypeCriteria.Type;
+import com.googlecode.mjorm.query.TypeCriterion.Type;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
@@ -18,6 +18,31 @@ public class QueryTest {
 	public void testEmpty() {
 		Query query = new Query();
 		assertEquals(new BasicDBObject(), query.toQueryObject());
+	}
+
+	@Test
+	public void testMultipleCriteriaForProperty() {
+		Query query = new Query()
+			.gt("value", 10)
+			.lt("value", 20);
+		DBObject obj = BasicDBObjectBuilder.start()
+			.add("value", BasicDBObjectBuilder.start()
+				.add("$gt", 10)
+				.add("$lt", 20)
+				.get())
+			.get();
+
+		assertEquals(obj, query.toQueryObject());
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testMultipleCriteriaForProperty_WithError() {
+		Query query = new Query()
+			.gt("value", 10)
+			.lt("value", 20)
+			.eq("value", 10);
+
+		query.toQueryObject();
 	}
 
 	@Test
@@ -66,6 +91,7 @@ public class QueryTest {
 			.add("gte", gte(2))
 			.add("lt", lt(3))
 			.add("lte", lte(4))
+			.add("between", between(1, 2))
 			.add("ne", ne("netest"))
 			.add("in1", in(1))
 			.add("in12", in(1, 2))
@@ -82,7 +108,7 @@ public class QueryTest {
 			.add("regex", regex("/[A-z]/"))
 			.add("size10", size(10))
 			.add("type1", type(1))
-			.add("typeString", type(Type.String))
+			.add("typeString", type(Type.STRING))
 			.add("elemMatch", elemMatch(new Query().eq("x", 1).eq("y", 2)))
 			.add("not", not(eq("noteqtest")))
 			.or(new Query().add("or1", eq("or1test")))
@@ -100,6 +126,7 @@ public class QueryTest {
 			.gte("gte", 2)
 			.lt("lt", 3)
 			.lte("lte", 4)
+			.between("between", 1, 2)
 			.ne("ne", "netest")
 			.in("in1", 1)
 			.in("in12", 1, 2)
@@ -116,7 +143,7 @@ public class QueryTest {
 			.regex("regex", "/[A-z]/")
 			.size("size10", 10)
 			.type("type1", 1)
-			.type("typeString", Type.String)
+			.type("typeString", Type.STRING)
 			.elemMatch("elemMatch", new Query().eq("x", 1).eq("y", 2))
 			.not("not", eq("noteqtest"))
 			.or(new Query().add("or1", eq("or1test")))

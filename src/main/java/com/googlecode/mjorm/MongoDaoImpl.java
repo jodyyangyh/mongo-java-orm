@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 
+import com.googlecode.mjorm.query.Query;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.CommandResult;
@@ -46,6 +47,13 @@ public class MongoDaoImpl
 	 */
 	public long countObjects(String collection, DBObject query) {
 		return getCollection(collection).count(query);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long countObjects(String collection, Query query) {
+		return countObjects(collection, query);
 	}
 
 	/**
@@ -183,25 +191,6 @@ public class MongoDaoImpl
 	}
 
 	/**
-	 * Quick and easy check for primitives.
-	 * @param clazz the class
-	 * @return true if primitive
-	 */
-	private boolean isPrimitive(Class<?> clazz) {
-		return clazz.isPrimitive()
-			|| clazz.equals(Byte.class)
-			|| clazz.equals(Short.class)
-			|| clazz.equals(Integer.class)
-			|| clazz.equals(Long.class)
-			|| clazz.equals(Float.class)
-			|| clazz.equals(Double.class)
-			|| clazz.equals(Boolean.class)
-			|| clazz.equals(Character.class)
-			|| clazz.equals(String.class)
-			|| clazz.equals(Byte.class);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public void deletePartialObject(String collection, String id, String name) {
@@ -245,10 +234,24 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	public <T> T findObject(String collection, Query query, Class<T> clazz) {
+		return findObject(collection, query.toQueryObject(), clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public <T> ObjectIterator<T> findObjects(
 		String collection, DBObject query, Class<T> clazz) {
 		DBCursor cursor = getCollection(collection).find(query);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> ObjectIterator<T> findObjects(String collection, Query query, Class<T> clazz) {
+		return findObjects(collection, query.toQueryObject(), clazz);
 	}
 
 	/**
@@ -395,6 +398,25 @@ public class MongoDaoImpl
 		// execute and return
 		return new MapReduceResult(
 			getCollection(collection).mapReduce(cmd));
+	}
+
+	/**
+	 * Quick and easy check for primitives.
+	 * @param clazz the class
+	 * @return true if primitive
+	 */
+	private boolean isPrimitive(Class<?> clazz) {
+		return clazz.isPrimitive()
+			|| clazz.equals(Byte.class)
+			|| clazz.equals(Short.class)
+			|| clazz.equals(Integer.class)
+			|| clazz.equals(Long.class)
+			|| clazz.equals(Float.class)
+			|| clazz.equals(Double.class)
+			|| clazz.equals(Boolean.class)
+			|| clazz.equals(Character.class)
+			|| clazz.equals(String.class)
+			|| clazz.equals(Byte.class);
 	}
 
 	/**
