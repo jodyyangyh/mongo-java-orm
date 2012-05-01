@@ -5,28 +5,28 @@ import com.mongodb.BasicDBObject;
 public class ElemMatchCriterion
 	implements Criterion {
 
-	private Query query;
+	private Query queryCriterion;
 
-	public ElemMatchCriterion(Query query) {
-		this.query = query;
+	public ElemMatchCriterion(Query queryCriterion) {
+		this.queryCriterion = queryCriterion;
 	}
 
 	public ElemMatchCriterion() {
-		this.query = new Query();
+		this.queryCriterion = new Query();
 	}
 
 	/**
-	 * @return the query
+	 * @return the queryCriterion
 	 */
 	public Query getQuery() {
-		return query;
+		return queryCriterion;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public Object toQueryObject() {
-		return new BasicDBObject("$elemMatch", query.toQueryObject());
+		return new BasicDBObject("$elemMatch", queryCriterion.toQueryObject());
 	}
 
 }

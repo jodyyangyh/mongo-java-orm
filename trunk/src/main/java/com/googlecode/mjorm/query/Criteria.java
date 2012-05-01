@@ -1,6 +1,8 @@
 package com.googlecode.mjorm.query;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.googlecode.mjorm.query.SimpleCriterion.Operator;
@@ -189,8 +191,8 @@ public class Criteria {
 	/**
 	 * {@see ElemMatchCriterion}
 	 */
-	public static ElemMatchCriterion elemMatch(Query query) {
-		return new ElemMatchCriterion(query);
+	public static ElemMatchCriterion elemMatch(Query queryCriterion) {
+		return new ElemMatchCriterion(queryCriterion);
 	}
 	
 	/**
@@ -205,8 +207,8 @@ public class Criteria {
 	 */
 	public static QueryGroup group(Query... queries) {
 		QueryGroup ret = new QueryGroup();
-		for (Query query : queries) {
-			ret.add(query);
+		for (Query queryCriterion : queries) {
+			ret.add(queryCriterion);
 		}
 		return ret;
 	}
@@ -216,5 +218,65 @@ public class Criteria {
 	 */
 	public static NotCriterion not(Criterion criteria) {
 		return new NotCriterion(criteria);
+	}
+
+	/**
+	 * Returns an optimal array value for use in a MongoDB query.
+	 * Collections or Arrays can be passed in and the optimal
+	 * value is returned according to the following rules:
+	 * <ul>
+	 * 	<li>(null) if it's null, return null</li>
+	 * 	<li>(Object) if it's not an array or collection, return the value</li>
+	 * 	<li>(Object) if it only has 1 element, return the element</li>
+	 * 	<li>(Object|Object[]) if enforceUnique is true remove dupes. return unique values.
+	 * 		if there is only one value after removing dupes, return only that value.</li>
+	 * 	<li>(Object[]) return all of the values if enforceUnique is false
+	 * </ul>
+	 * @param obj the value to inspect
+	 * @param enforceUnique whether or not to enforce unique values in the return
+	 * @return the optimal array value
+	 */
+	public static Object optimalArrayValue(Object obj, boolean enforceUnique) {
+
+		// bail on null
+		if (obj == null) {
+			return null;
+		}
+
+		// no array, no collection
+		Class<?> clazz = obj.getClass();
+		if (!clazz.isArray() && !Collection.class.isAssignableFrom(clazz)) {
+			return obj;
+		}
+
+		// get array
+		Object[] objs = null;
+		if (clazz.isArray()) {
+			objs = (Object[])obj;
+		} else {
+			objs = Collection.class.cast(obj).toArray();
+		}
+
+		// if we have none, bail
+		if (objs.length==0) {
+			return null;
+
+		// if we have one, return it
+		} else if (objs.length==1) {
+			return objs[0];
+
+		// if we're enforcing unique values,
+		// remove duplicates
+		} else if (enforceUnique) {
+			Set<Object> valueObjs = new LinkedHashSet<Object>();
+			for (Object o : objs) {
+				valueObjs.add(o);
+			}
+			objs = valueObjs.toArray();
+			return (objs.length==1) ? objs[0] : objs;
+		}
+
+		// return the array as is
+		return objs;
 	}
 }

@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query;
 
 /**
- * Represents a single criteria used in a {@link Query}.
+ * Represents a single criteria used in a {@link QueryCriterion}.
  * 
  */
 public interface Criterion {

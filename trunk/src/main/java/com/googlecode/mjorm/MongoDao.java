@@ -1,6 +1,6 @@
 package com.googlecode.mjorm;
 
-import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -10,6 +10,12 @@ import com.mongodb.DBObject;
  * An interface for working with mapped objects in mongo.
  */
 public interface MongoDao {
+
+	/**
+	 * Creates a {@link DaoQuery} and returns it.
+	 * @return the {@link DaoQuery}
+	 */
+	DaoQuery createQuery();
 
 	/**
 	 * Creates the object in the given collection.
@@ -167,16 +173,6 @@ public interface MongoDao {
 	 */
 	<T> ObjectIterator<T> findObjects(String collection, DBObject query, Class<T> clazz);
 
-	/**
-	 * Maps and returns an {@link ObjectIterator} for objects
-	 * matching the given query in the given collection.
-	 * @param <T> the type
-	 * @param collection the collection
-	 * @param query the query
-	 * @param clazz the java type to map the objects to
-	 * @return the {@link ObjectIterator}
-	 */
-	<T> ObjectIterator<T> findObjects(String collection, Query query, Class<T> clazz);
 
 	/**
 	 * Returns the count of objects matching the given query
@@ -188,15 +184,6 @@ public interface MongoDao {
 	long countObjects(String collection, DBObject query);
 
 	/**
-	 * Returns the count of objects matching the given query
-	 * in the given collection.
-	 * @param collection the collection
-	 * @param query the query
-	 * @return the count
-	 */
-	long countObjects(String collection, Query query);
-
-	/**
 	 * Maps and returns a single object matching the given query
 	 * from the given collection.
 	 * @param <T> the type
@@ -206,17 +193,6 @@ public interface MongoDao {
 	 * @return the object, or null if not found
 	 */
 	<T> T findObject(String collection, DBObject query, Class<T> clazz);
-
-	/**
-	 * Maps and returns a single object matching the given query
-	 * from the given collection.
-	 * @param <T> the type
-	 * @param collection the collection
-	 * @param query the query
-	 * @param clazz the java type to map the objects to
-	 * @return the object, or null if not found
-	 */
-	<T> T findObject(String collection, Query query, Class<T> clazz);
 
 	/**
 	 * Executes the given command.

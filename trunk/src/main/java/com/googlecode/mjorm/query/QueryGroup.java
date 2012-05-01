@@ -8,11 +8,11 @@ import com.mongodb.BasicDBList;
 public class QueryGroup
 	extends AbstractCriterion {
 
-	private List<Query> queries = new ArrayList<Query>();
+	private List<Query> queryCriterions = new ArrayList<Query>();
 
 	/**
-	 * Adds a {@link Query} to the list of conditions.
-	 * @return the {@link Query}
+	 * Adds a {@link QueryCriterion} to the list of conditions.
+	 * @return the {@link QueryCriterion}
 	 */
 	public Query add() {
 		Query ret = new Query();
@@ -21,11 +21,11 @@ public class QueryGroup
 	}
 
 	/**
-	 * Adds a {@link Query} to this group.
-	 * @param query the {@link Query}
+	 * Adds a {@link QueryCriterion} to this group.
+	 * @param queryCriterion the {@link QueryCriterion}
 	 */
-	public void add(Query query) {
-		queries.add(query);
+	public void add(Query queryCriterion) {
+		queryCriterions.add(queryCriterion);
 	}
 
 	/**
@@ -34,8 +34,8 @@ public class QueryGroup
 	@Override
 	public Object toQueryObject() {
 		BasicDBList list = new BasicDBList();
-		for (Query query : queries) {
-			list.add(query.toQueryObject());
+		for (Query queryCriterion : queryCriterions) {
+			list.add(queryCriterion.toQueryObject());
 		}
 		return list;
 	}

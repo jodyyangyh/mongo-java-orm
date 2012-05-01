@@ -16,13 +16,13 @@ public class QueryTest {
 
 	@Test
 	public void testEmpty() {
-		Query query = new Query();
-		assertEquals(new BasicDBObject(), query.toQueryObject());
+		Query queryCriterion = new Query();
+		assertEquals(new BasicDBObject(), queryCriterion.toQueryObject());
 	}
 
 	@Test
 	public void testMultipleCriteriaForProperty() {
-		Query query = new Query()
+		Query queryCriterion = new Query()
 			.gt("value", 10)
 			.lt("value", 20);
 		DBObject obj = BasicDBObjectBuilder.start()
@@ -32,22 +32,22 @@ public class QueryTest {
 				.get())
 			.get();
 
-		assertEquals(obj, query.toQueryObject());
+		assertEquals(obj, queryCriterion.toQueryObject());
 	}
 
 	@Test(expected=IllegalStateException.class)
 	public void testMultipleCriteriaForProperty_WithError() {
-		Query query = new Query()
+		Query queryCriterion = new Query()
 			.gt("value", 10)
 			.lt("value", 20)
 			.eq("value", 10);
 
-		query.toQueryObject();
+		queryCriterion.toQueryObject();
 	}
 
 	@Test
 	public void testStack() {
-		Query query = new Query()
+		Query queryCriterion = new Query()
 			.eq("a", 1)
 			.push("level2")
 				.eq("b", 1)
@@ -79,7 +79,7 @@ public class QueryTest {
 			.add("what.what", "in the butt")
 			.get();
 
-		assertEquals(obj, query.toQueryObject());
+		assertEquals(obj, queryCriterion.toQueryObject());
 	}
 
 	@Test
