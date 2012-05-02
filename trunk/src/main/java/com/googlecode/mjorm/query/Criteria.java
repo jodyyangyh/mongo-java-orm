@@ -16,112 +16,91 @@ public class Criteria {
 	/**
 	 * {@see EqualsCriterion}
 	 */
-	public static EqualsCriterion eq(Object value) {
+	public static <V> EqualsCriterion eq(V value) {
 		return new EqualsCriterion(value);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion gt(Object value) {
+	public static <V> SimpleCriterion gt(V value) {
 		return new SimpleCriterion(Operator.GT, value);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion gte(Object value) {
+	public static <V> SimpleCriterion gte(V value) {
 		return new SimpleCriterion(Operator.GTE, value);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion lt(Object value) {
+	public static <V> SimpleCriterion lt(V value) {
 		return new SimpleCriterion(Operator.LT, value);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion lte(Object value) {
+	public static <V> SimpleCriterion lte(V value) {
 		return new SimpleCriterion(Operator.LTE, value);
 	}
 	
 	/**
 	 * {@see BetweenCriterion}
 	 */
-	public static BetweenCriterion between(Object left, Object right) {
+	public static <V> BetweenCriterion between(V left, V right) {
 		return new BetweenCriterion(left, right);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion ne(Object value) {
+	public static <V> SimpleCriterion ne(V value) {
 		return new SimpleCriterion(Operator.NE, value);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static SimpleCriterion in(Object values) {
+	public static <V> SimpleCriterion in(V... values) {
 		return new SimpleCriterion(Operator.IN, values);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static  SimpleCriterion in(Object... values) {
+	public static <V> SimpleCriterion in(Collection<V> values) {
 		return new SimpleCriterion(Operator.IN, values);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static  SimpleCriterion in(Collection<?> values) {
-		return new SimpleCriterion(Operator.IN, values);
-	}
-	
-	/**
-	 * {@see SimpleCriterion}
-	 */
-	public static SimpleCriterion nin(Object values) {
+	public static <V> SimpleCriterion nin(V... values) {
 		return new SimpleCriterion(Operator.NIN, values);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static  SimpleCriterion nin(Object... values) {
+	public static <V> SimpleCriterion nin(Collection<V> values) {
 		return new SimpleCriterion(Operator.NIN, values);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static  SimpleCriterion nin(Collection<?> values) {
-		return new SimpleCriterion(Operator.NIN, values);
-	}
-	
-	/**
-	 * {@see SimpleCriterion}
-	 */
-	public static SimpleCriterion all(Object values) {
+	public static <V> SimpleCriterion all(V... values) {
 		return new SimpleCriterion(Operator.ALL, values);
 	}
 	
 	/**
 	 * {@see SimpleCriterion}
 	 */
-	public static  SimpleCriterion all(Object... values) {
-		return new SimpleCriterion(Operator.ALL, values);
-	}
-	
-	/**
-	 * {@see SimpleCriterion}
-	 */
-	public static  SimpleCriterion all(Collection<?> values) {
+	public static <V> SimpleCriterion all(Collection<V> values) {
 		return new SimpleCriterion(Operator.ALL, values);
 	}
 	
@@ -236,47 +215,48 @@ public class Criteria {
 	 * @param enforceUnique whether or not to enforce unique values in the return
 	 * @return the optimal array value
 	 */
-	public static Object optimalArrayValue(Object obj, boolean enforceUnique) {
+    public static Object optimalArrayValue(Object obj, boolean enforceUnique) {
 
-		// bail on null
-		if (obj == null) {
-			return null;
-		}
+        // bail on null
+        if (obj == null) {
+        	return null;
+        }
 
-		// no array, no collection
-		Class<?> clazz = obj.getClass();
-		if (!clazz.isArray() && !Collection.class.isAssignableFrom(clazz)) {
-			return obj;
-		}
+        // no array, no collection
+        Class<?> clazz = obj.getClass();
+        if (!clazz.isArray() && !Collection.class.isAssignableFrom(clazz)) {
+        	return obj;
+        }
 
-		// get array
-		Object[] objs = null;
-		if (clazz.isArray()) {
-			objs = (Object[])obj;
-		} else {
-			objs = Collection.class.cast(obj).toArray();
-		}
+        // get array
+        Object[] objs = null;
+        if (clazz.isArray()) {
+        	objs = (Object[])obj;
+        } else {
+        	objs = Collection.class.cast(obj).toArray();
+        }
 
-		// if we have none, bail
-		if (objs.length==0) {
-			return null;
+        // if we have none, bail
+        if (objs.length==0) {
+        	return null;
 
-		// if we have one, return it
-		} else if (objs.length==1) {
-			return objs[0];
+        // if we have one, return it
+        } else if (objs.length==1) {
+        	return objs[0];
 
-		// if we're enforcing unique values,
-		// remove duplicates
-		} else if (enforceUnique) {
-			Set<Object> valueObjs = new LinkedHashSet<Object>();
-			for (Object o : objs) {
-				valueObjs.add(o);
-			}
-			objs = valueObjs.toArray();
-			return (objs.length==1) ? objs[0] : objs;
-		}
+        // if we're enforcing unique values,
+        // remove duplicates
+        } else if (enforceUnique) {
+            Set<Object> valueObjs = new LinkedHashSet<Object>();
+            for (Object o : objs) {
+                    valueObjs.add(o);
+            }
+            objs = valueObjs.toArray();
+            return (objs.length==1) ? objs[0] : objs;
+        }
 
-		// return the array as is
-		return objs;
-	}
+        // return the array as is
+        return objs;
+    }
+
 }

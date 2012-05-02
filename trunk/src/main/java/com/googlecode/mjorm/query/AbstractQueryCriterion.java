@@ -52,7 +52,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#eq(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T eq(String property, Object value) {
+	public <V> T eq(String property, V value) {
 		return add(property, Criteria.eq(value));
 	}
 
@@ -60,7 +60,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#gt(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T gt(String property, Object value) {
+	public <V> T gt(String property, V value) {
 		return add(property, Criteria.gt(value));
 	}
 
@@ -68,7 +68,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#gte(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T gte(String property, Object value) {
+	public <V> T gte(String property, V value) {
 		return add(property, Criteria.gte(value));
 	}
 
@@ -76,7 +76,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#lt(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T lt(String property, Object value) {
+	public <V> T lt(String property, V value) {
 		return add(property, Criteria.lt(value));
 	}
 
@@ -84,7 +84,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#lte(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T lte(String property, Object value) {
+	public <V> T lte(String property, V value) {
 		return add(property, Criteria.lte(value));
 	}
 
@@ -92,7 +92,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#between(Object, Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T between(String property, Object left, Object right) {
+	public <V> T between(String property, V left, V right) {
 		return add(property, Criteria.between(left, right));
 	}
 
@@ -100,16 +100,8 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#ne(Object)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T ne(String property, Object value) {
+	public <V> T ne(String property, V value) {
 		return add(property, Criteria.ne(value));
-	}
-
-	/**
-	 * {@see Criteria#in(Object)}
-	 * @return the {@link AbstractQueryCriterion} for chaining
-	 */
-	public T in(String property, Object values) {
-		return add(property, Criteria.in(values));
 	}
 
 	/**
@@ -124,23 +116,15 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#in(Collection)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T in(String property, Collection<?> values) {
+	public <V> T in(String property, Collection<V> values) {
 		return add(property, Criteria.in(values));
-	}
-
-	/**
-	 * {@see Criteria#nin(Object)}
-	 * @return the {@link AbstractQueryCriterion} for chaining
-	 */
-	public T nin(String property, Object values) {
-		return add(property, Criteria.nin(values));
 	}
 
 	/**
 	 * {@see Criteria#nin(T[])}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T nin(String property, Object... values) {
+	public <V> T nin(String property, V... values) {
 		return add(property, Criteria.nin(values));
 	}
 
@@ -148,23 +132,15 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#nin(Collection)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T nin(String property, Collection<?> values) {
+	public <V> T nin(String property, Collection<V> values) {
 		return add(property, Criteria.nin(values));
-	}
-
-	/**
-	 * {@see Criteria#all(Object)}
-	 * @return the {@link AbstractQueryCriterion} for chaining
-	 */
-	public T all(String property, Object values) {
-		return add(property, Criteria.all(values));
 	}
 
 	/**
 	 * {@see Criteria#all(T[])}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T all(String property, Object... values) {
+	public<V> T all(String property, V... values) {
 		return add(property, Criteria.all(values));
 	}
 
@@ -172,7 +148,7 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * {@see Criteria#all(Collection)}
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
-	public T all(String property, Collection<?> values) {
+	public <V> T all(String property, Collection<V> values) {
 		return add(property, Criteria.all(values));
 	}
 
