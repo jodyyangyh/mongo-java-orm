@@ -34,13 +34,12 @@ public abstract class QueryCriterion<T extends QueryCriterion<T>>
 	public void clear() {
 		criteriaMap.clear();
 		propertyStack.clear();
-		
 	}
 
 	/**
 	 * Returns the {@link Criterion} specified for a
-	 * given field.
-	 * @param property the field
+	 * given property.
+	 * @param property the property's name
 	 * @return the {@link Criterion}
 	 */
 	public Criterion[] getCriteria(String property) {

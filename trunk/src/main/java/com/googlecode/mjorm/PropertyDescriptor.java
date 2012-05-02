@@ -19,7 +19,7 @@ public class PropertyDescriptor {
 	private String name;
 	private Map<String, Object> translationHints = new HashMap<String, Object>();
 	private String propColumn;
-	private Class<?> objectClass;
+	private Class<?> type;
 	private Type genericType;
 	private Type[] parameterTypes;
 	private Method setter;
@@ -100,17 +100,17 @@ public class PropertyDescriptor {
 	}
 
 	/**
-	 * @return the objectClass
+	 * @return the type
 	 */
-	public Class<?> getObjectClass() {
-		return objectClass;
+	public Class<?> getType() {
+		return type;
 	}
 
 	/**
-	 * @param objectClass the objectClass to set
+	 * @param type the type to set
 	 */
-	public void setObjectClass(Class<?> objectClass) {
-		this.objectClass = objectClass;
+	public void setType(Class<?> objectClass) {
+		this.type = objectClass;
 	}
 
 	/**

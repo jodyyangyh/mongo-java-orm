@@ -28,7 +28,7 @@ public class DescriptorTranslator
 	 */
 	public DescriptorTranslator(ObjectDescriptor descriptor) {
 		this.descriptor = descriptor;
-		super.addSupportedLocalClass(descriptor.getObjectClass());
+		super.addSupportedLocalClass(descriptor.getType());
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class DescriptorTranslator
 			} catch (Exception e) {
 				throw new MappingException(
 					"Error mapping property "+prop.getName()
-					+" of class "+descriptor.getObjectClass(), e);
+					+" of class "+descriptor.getType(), e);
 			}
 
 		}
@@ -83,7 +83,7 @@ public class DescriptorTranslator
 		// create the return object
 		Object ret;
 		try {
-			ret = ReflectionUtil.instantiate(descriptor.getObjectClass());
+			ret = ReflectionUtil.instantiate(descriptor.getType());
 		} catch (Exception e) {
 			throw new MappingException(
 				"Error creating class: "+desiredType, e);
@@ -103,7 +103,7 @@ public class DescriptorTranslator
 				} else {
 					Object convertedValue = converter.translateToLocal(
 						object.get(prop.getPropColumn()),
-						prop.getObjectClass(),
+						prop.getType(),
 						prop.createTranslationHints());
 
 					prop.set(ret, convertedValue);
@@ -112,7 +112,7 @@ public class DescriptorTranslator
 			} catch (Exception e) {
 				throw new MappingException(
 					"Error mapping property "+prop.getName()
-					+" of class "+descriptor.getObjectClass(), e);
+					+" of class "+descriptor.getType(), e);
 			}
 
 		}
