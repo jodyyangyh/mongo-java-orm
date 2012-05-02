@@ -34,6 +34,7 @@ public abstract class QueryCriterion<T extends QueryCriterion<T>>
 	public void clear() {
 		criteriaMap.clear();
 		propertyStack.clear();
+		
 	}
 
 	/**
