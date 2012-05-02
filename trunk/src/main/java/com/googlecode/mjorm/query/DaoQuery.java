@@ -11,9 +11,10 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class DaoQuery
-	extends QueryCriterion<DaoQuery> {
+	extends AbstractQueryCriterion<DaoQuery> {
 	
 	private MongoDao mongoDao;
 	private Map<String, Integer> sort;
@@ -99,6 +100,76 @@ public class DaoQuery
 	}
 
 	/**
+	 * Removes the objects matched by this query.
+	 * @return the {@link WriteResult}
+	 */
+	public WriteResult removeObjects() {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		}
+		return mongoDao.getCollection(collection)
+			.remove(toQueryObject());
+	}
+
+	/**
+	 * Performs a findAndRemove for the current query.
+	 * @return the object found and modified
+	 */
+	public <T> T findAndRemove(Class<T> clazz) {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		}
+		return mongoDao.findAndRemove(collection, toQueryObject(), clazz);
+	}
+
+	/**
+	 * Performs a findAndModify for the current query.
+	 * @param update the update object
+	 * @param returnNew whether or not to return the new or old object
+	 * @param upsert create new if it doesn't exist
+	 * @param clazz the type of object
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		DBObject update, boolean returnNew, boolean upsert, Class<T> clazz) {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		}
+		return mongoDao.findAndModify(
+			collection, toQueryObject(), getSortDBObject(), update, returnNew, upsert, clazz);
+	}
+
+	/**
+	 * Performs a findAndModify for the current query.
+	 * @param update the update object
+	 * @param returnNew whether or not to return the new or old object
+	 * @param clazz the type of object
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		DBObject update, boolean returnNew, Class<T> clazz) {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		}
+		return mongoDao.findAndModify(
+			collection, toQueryObject(), getSortDBObject(), update, returnNew, clazz);
+	}
+
+	/**
+	 * Performs a findAndModify for the current query.
+	 * @param update the update object
+	 * @param clazz the type of object
+	 * @return the object
+	 */
+	public <T> T findAndModify(DBObject update, Class<T> clazz) {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		}
+		return mongoDao.findAndModify(
+			collection, toQueryObject(), getSortDBObject(), update, clazz);
+	}
+
+	/**
 	 * Returns distinct values for the given field.  This field
 	 * passed must be the name of a field on a MongoDB document.
 	 * @param field the field
@@ -160,15 +231,26 @@ public class DaoQuery
 			}
 		}
 		if (!sort.isEmpty()) {
-			DBObject sortObj = new BasicDBObject();
-			for (Entry<String, Integer> entry : sort.entrySet()) {
-				sortObj.put(entry.getKey(), entry.getValue());
-			}
-			cursor.sort(sortObj);
+			cursor.sort(getSortDBObject());
 		}
 		if (cursorVisitor!=null) {
 			cursorVisitor.visit(cursor);
 		}
+	}
+
+	/**
+	 * Creats and returns the DBObject representing
+	 * the sort for this query.
+	 * @return the sort
+	 */
+	public DBObject getSortDBObject() {
+		DBObject sortObj = new BasicDBObject();
+		if (!sort.isEmpty()) {
+			for (Entry<String, Integer> entry : sort.entrySet()) {
+				sortObj.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return sortObj;
 	}
 
 	/**

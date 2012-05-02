@@ -239,6 +239,76 @@ public interface MongoDao {
 		boolean background, boolean unique, boolean dropDupes);
 
 	/**
+	 * Finds and removes the first object matching the query from
+	 * the given collection and returns it.
+	 * @param collection the collection
+	 * @param query the query
+	 * @param clazz the class
+	 * @return the removed object
+	 */
+	<T> T findAndRemove(String collection, DBObject query, Class<T> clazz);
+
+	/**
+	 * Performs a find and modify.
+	 * @param collection the collection
+	 * @param query the query
+	 * @param sort the sort option
+	 * @param update the update object
+	 * @param returnNew whether or not to return the new or old value
+	 * @param upsert create if it doesn't exist
+	 * @param clazz the type
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		boolean returnNew, boolean upsert, Class<T> clazz);
+
+	/**
+	 * Performs a find and modify.
+	 * upsert = false
+	 * @param collection the collection
+	 * @param query the query
+	 * @param sort the sort option
+	 * @param update the update object
+	 * @param returnNew whether or not to return the new or old value
+	 * @param clazz the type
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		boolean returnNew, Class<T> clazz);
+
+	/**
+	 * Performs a find and modify.
+	 * upsert = false
+	 * returnNew = true
+	 * @param collection the collection
+	 * @param query the query
+	 * @param sort the sort option
+	 * @param update the update object
+	 * @param clazz the type
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		Class<T> clazz);
+
+	/**
+	 * Performs a find and modify.
+	 * upsert = false
+	 * returnNew = true
+	 * sort = null
+	 * @param collection the collection
+	 * @param query the query
+	 * @param update the update object
+	 * @param clazz the type
+	 * @return the object
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject update,
+		Class<T> clazz);
+
+	/**
 	 * Returns the underlying {@link DB}.
 	 * @return the {@link DB}
 	 */
@@ -250,4 +320,5 @@ public interface MongoDao {
 	 * @return the {@link DBCollection}
 	 */
 	DBCollection getCollection(String name);
+
 }

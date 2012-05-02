@@ -387,6 +387,52 @@ public class MongoDaoImpl
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndRemove(String collection, DBObject query, Class<T> clazz) {
+		return objectMapper.mapFromDBObject(
+			getCollection(collection).findAndRemove(query), clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		boolean returnNew, boolean upsert, Class<T> clazz) {
+		return objectMapper.mapFromDBObject(
+			getCollection(collection).findAndModify(
+				query, null, sort, false, update, returnNew, upsert), clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		boolean returnNew, Class<T> clazz) {
+		return findAndModify(collection, query, sort, update, returnNew, false, clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		Class<T> clazz) {
+		return findAndModify(collection, query, sort, update, true, false, clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject update,
+		Class<T> clazz) {
+		return findAndModify(collection, query, null, update, true, false, clazz);
+	}
+
+	/**
 	 * Quick and easy check for primitives.
 	 * @param clazz the class
 	 * @return true if primitive

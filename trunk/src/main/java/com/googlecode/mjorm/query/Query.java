@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query;
 
 public class Query
-	extends QueryCriterion<Query> {
+	extends AbstractQueryCriterion<Query> {
 
 	/**
 	 * Method to make chaining look cleaner.
