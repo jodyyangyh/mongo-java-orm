@@ -11,8 +11,8 @@ public class QueryGroup
 	private List<Query> queryCriterions = new ArrayList<Query>();
 
 	/**
-	 * Adds a {@link QueryCriterion} to the list of conditions.
-	 * @return the {@link QueryCriterion}
+	 * Adds a {@link AbstractQueryCriterion} to the list of conditions.
+	 * @return the {@link AbstractQueryCriterion}
 	 */
 	public Query add() {
 		Query ret = new Query();
@@ -21,8 +21,8 @@ public class QueryGroup
 	}
 
 	/**
-	 * Adds a {@link QueryCriterion} to this group.
-	 * @param queryCriterion the {@link QueryCriterion}
+	 * Adds a {@link AbstractQueryCriterion} to this group.
+	 * @param queryCriterion the {@link AbstractQueryCriterion}
 	 */
 	public void add(Query queryCriterion) {
 		queryCriterions.add(queryCriterion);
