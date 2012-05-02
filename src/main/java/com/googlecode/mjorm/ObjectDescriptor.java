@@ -1,7 +1,7 @@
 package com.googlecode.mjorm;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An object that describes how to translate
@@ -9,22 +9,22 @@ import java.util.Set;
  */
 public class ObjectDescriptor {
 
-	private Class<?> objectClass;
-	private Set<PropertyDescriptor> properties
-		= new HashSet<PropertyDescriptor>();
+	private Class<?> type;
+	private Map<String, PropertyDescriptor> properties
+		= new HashMap<String, PropertyDescriptor>();
 
 	/**
-	 * @return the objectClass
+	 * @return the type
 	 */
-	public Class<?> getObjectClass() {
-		return objectClass;
+	public Class<?> getType() {
+		return type;
 	}
 
 	/**
-	 * @param objectClass the objectClass to set
+	 * @param type the type to set
 	 */
-	public void setObjectClass(Class<?> objectClass) {
-		this.objectClass = objectClass;
+	public void setType(Class<?> objectClass) {
+		this.type = objectClass;
 	}
 
 	/**
@@ -34,26 +34,26 @@ public class ObjectDescriptor {
 	 * @return the {@link PropertyDescriptor}
 	 */
 	public PropertyDescriptor getPropertyDescriptor(String propertyName) {
-		for (PropertyDescriptor descriptor : properties) {
-			if (descriptor.getName().equals(propertyName)) {
-				return descriptor;
-			}
-		}
-		return null;
+		return properties.get(propertyName.toLowerCase());
 	}
 
 	/**
 	 * @return the properties
 	 */
-	public Set<PropertyDescriptor> getProperties() {
-		return properties;
+	public PropertyDescriptor[] getProperties() {
+		return properties.values().toArray(new PropertyDescriptor[0]);
 	}
 
 	/**
-	 * @param properties the properties to set
+	 * Adds a {@link PropertyDescriptor}.
+	 * @param desc the {@link PropertyDescriptor}
 	 */
-	public void setProperties(Set<PropertyDescriptor> properties) {
-		this.properties = properties;
+	public void addPropertyDescriptor(PropertyDescriptor desc) {
+		if (properties.containsKey(desc.getName().toLowerCase())) {
+			throw new IllegalArgumentException(
+				"PropertyDescriptor for "+desc.getName()+" exists");
+		}
+		properties.put(desc.getName().toLowerCase(), desc);
 	}
 
 }

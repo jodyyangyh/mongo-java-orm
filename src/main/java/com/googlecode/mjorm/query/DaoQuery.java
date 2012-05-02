@@ -99,8 +99,9 @@ public class DaoQuery
 	}
 
 	/**
-	 * Returns distinct values for the given field.
-	 * @param field
+	 * Returns distinct values for the given field.  This field
+	 * passed must be the name of a field on a MongoDB document.
+	 * @param field the field
 	 * @return the distinct objects
 	 */
 	@SuppressWarnings("unchecked")
@@ -114,8 +115,9 @@ public class DaoQuery
 	}
 
 	/**
-	 * Returns distinct values for the given field.
-	 * @param field
+	 * Returns distinct values for the given field.  This field
+	 * passed must be the name of a field on a MongoDB document.
+	 * @param field the field
 	 * @param expected the expected type
 	 * @return the distinct objects
 	 */
