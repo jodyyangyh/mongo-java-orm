@@ -2,20 +2,28 @@
 grammar Mql;
  
 tokens {
+  	SEMI_COLON	= ';' ;
 	SINGLE_QUOTE	= '\'' ;
 	DOUBLE_QUOTE	= '\"' ;
+	BACK_SLASH	= '\\' ;
+	FORWARD_SLASH	= '/' ;
 	EQUALS		= '=' ;
+	NOT_EQUALS	= '!=';
 	COMMA		= ',' ;
   	GT		= '>' ;
   	LT		= '<' ;
-  	OPEN_PAREN	= '(' ;
-  	CLOSE_PAREN	= ')' ;
+  	LT_GT		= '<>' ;
+  	GT_EQUALS	= '>=' ;
+	LT_EQUALS	= '<=' ;
+  	L_PAREN		= '(' ;
+  	R_PAREN		= ')' ;
+  	MATCHES		= '=~' ;
   	DOT		= '.';
   	FROM		= 'from' ;
   	WHERE		= 'where' ;
   	SKIP		= 'skip' ;
   	LIMIT		= 'limit' ;
-  	SEMI_COLON	= ';' ;
+  	NOT		= 'not' ;
 }
 
 @header {
@@ -44,9 +52,9 @@ collection_name
 	;
 
 criteria
-	: WHERE field_assignment+
+	: WHERE (criterion | negated_criterion)+
 	;
-	
+
 pagination
 	: ((LIMIT first_document) | (LIMIT first_document COMMA number_of_documents)).
 	;
@@ -59,16 +67,32 @@ number_of_documents
 	: NUMBER
 	;
 
-field_assignment
-	: field_name EQUALS field_value
+criterion
+	: field_name comparison_operator variable_literal
 	;
 
-field_value
-	: (string | NUMBER)
+negated_criterion
+	: (NOT criterion)
 	;
-		
+
+comparison_operator
+	: (MATCHES | EQUALS | NOT_EQUALS | LT_GT | GT | LT | GT_EQUALS | LT_EQUALS)
+	;
+
+variable_literal
+	: (regex | string | number)
+	;
+
+regex
+	: REGEX
+	;
+
 string
 	: (DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING)
+	;
+	
+number
+	: (NUMBER | DECIMAL)
 	;
 
 field_name
@@ -78,7 +102,7 @@ field_name
 /**
  * LEXER RULES
  */
-	
+
 fragment HEX_DIGIT
 	: (DIGIT | 'a'..'f' | 'A'..'F')
 	;
@@ -98,33 +122,41 @@ DECIMAL
 SCHEMA_IDENTIFIER
 	: ('a'..'z' | 'A'..'Z' | '0'..'9' | '.' | '$' | '_' )+
 	;
-    
+
+REGEX
+	: FORWARD_SLASH (ESCAPE | ~(BACK_SLASH | FORWARD_SLASH))* FORWARD_SLASH
+	;
+	
 DOUBLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: '"' ( ESCAPE[buf] | i = ~( '\\' | '"' ) { buf.appendCodePoint(i); })* '"' { setText(buf.toString()); }
+	: DOUBLE_QUOTE (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | DOUBLE_QUOTE) { buf.appendCodePoint(i); })* DOUBLE_QUOTE { setText(buf.toString()); }
 	;
 	    
 SINGLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: '\'' ( ESCAPE[buf] | i = ~( '\\' | '\'' ) { buf.appendCodePoint(i); })* '\'' { setText(buf.toString()); }
+	: SINGLE_QUOTE (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
 	;
 
-fragment ESCAPE[StringBuilder buf]
+fragment ESCAPE_EVALED[StringBuilder buf]
 	:
 	    '\\'
 	    ( 
-	        | 'r'    {buf.append("\r");}
-	        | 't'    {buf.append("\t");}
-	        | 'b'    {buf.append("\b");}
-	        | 'f'    {buf.append("\f");}
-	        | '"'    {buf.append("\"");}
-	        | '\''   {buf.append("\'");}
-	        | '/'    {buf.append("/");}
-	        | '\\'   {buf.append("\\");}
-	        | ('u')+ i=HEX_DIGIT j=HEX_DIGIT k=HEX_DIGIT l=HEX_DIGIT   {buf.append("Fix:"+i.getText()+j.getText()+k.getText()+l.getText());}
-
+	    	'n'    		{buf.append("\n");}
+	        | 'r'   	 {buf.append("\r");}
+	        | 't'    	{buf.append("\t");}
+	        | 'b'    	{buf.append("\b");}
+	        | 'f'    	{buf.append("\f");}
+	        | '"'    	{buf.append("\"");}
+	        | '\''   	{buf.append("\'");}
+	        | FORWARD_SLASH {buf.append("/");}
+	        | BACK_SLASH   	{buf.append("\\");}
+	        | 'u' i=HEX_DIGIT j=HEX_DIGIT k=HEX_DIGIT l=HEX_DIGIT   {setText(i.getText()+j.getText()+k.getText()+l.getText());}
 	    )
 	;
 
-WS
+fragment ESCAPE
+	: '\\' ( 'n' | 'r' | 't' | 'b' | 'f' | '"' | '\'' | FORWARD_SLASH | BACK_SLASH | 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT)
+	;
+
+WHITESPACE
 	: ( '\t' | ' ' | '\r' | '\n' )+ {skip();}
 	;
 
@@ -166,3 +198,4 @@ WS
     }
 
 */
+
