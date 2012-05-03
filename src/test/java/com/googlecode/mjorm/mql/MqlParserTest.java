@@ -32,7 +32,7 @@ public class MqlParserTest {
 		throws Exception {
 		MqlParser parser = createParser("/com/googlecode/mjorm/mql/test.mql");
 		try {
-			parser.something();
+			parser.start();
 		} catch (RecognitionException e) {
 			e.printStackTrace();
 		}

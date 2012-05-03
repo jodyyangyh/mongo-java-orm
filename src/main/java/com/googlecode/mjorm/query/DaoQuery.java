@@ -43,6 +43,7 @@ public class DaoQuery
 	 */
 	public DaoQuery(MongoDao mongoDao) {
 		this.mongoDao = mongoDao;
+		this.clear();
 	}
 
 	/**
@@ -59,6 +60,7 @@ public class DaoQuery
 		snapShot		= null;
 		comment			= null;
 		collection		= null;
+		cursorVisitor	= null;
 	}
 
 	/**
