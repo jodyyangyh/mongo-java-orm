@@ -44,19 +44,27 @@ start
 	;
 
 command
-	: FROM collection_name (criteria)* (pagination)? (SEMI_COLON)?
+	: FROM collection_name (WHERE command_criteria)? (pagination)? (SEMI_COLON)?
 	;
-
+	
 collection_name
 	: SCHEMA_IDENTIFIER
 	;
+	
+function_name
+	: SCHEMA_IDENTIFIER
+	;
+
+command_criteria
+	: (criteria_group | criteria)+
+	;
 
 criteria
-	: WHERE (criterion | negated_criterion)+
+	: (criterion | negated_criterion)
 	;
 
 pagination
-	: ((LIMIT first_document) | (LIMIT first_document COMMA number_of_documents)).
+	: ((LIMIT first_document) | (LIMIT first_document COMMA number_of_documents))
 	;
 
 first_document
@@ -66,9 +74,33 @@ first_document
 number_of_documents
 	: NUMBER
 	;
+	
+criteria_group
+	: function_name L_PAREN (group_criteria)* R_PAREN
+	;
+	
+group_criteria
+	: criterion (COMMA criterion)*
+	;
 
 criterion
+	: (function_criterion | compare_criterion)
+	;
+	
+compare_criterion
 	: field_name comparison_operator variable_literal
+	;
+
+function_criterion
+	: field_name function_name L_PAREN (function_args)* R_PAREN
+	;
+
+function_args
+	: variable_literal (COMMA variable_literal)*
+	;
+
+function_argument
+	: variable_literal
 	;
 
 negated_criterion
@@ -140,13 +172,13 @@ fragment ESCAPE_EVALED[StringBuilder buf]
 	    '\\'
 	    ( 
 	    	'n'    		{buf.append("\n");}
-	        | 'r'   	 {buf.append("\r");}
+	        | 'r'   	{buf.append("\r");}
 	        | 't'    	{buf.append("\t");}
 	        | 'b'    	{buf.append("\b");}
 	        | 'f'    	{buf.append("\f");}
 	        | '"'    	{buf.append("\"");}
 	        | '\''   	{buf.append("\'");}
-	        | FORWARD_SLASH {buf.append("/");}
+	        | FORWARD_SLASH {buf.append("/"); }
 	        | BACK_SLASH   	{buf.append("\\");}
 	        | 'u' i=HEX_DIGIT j=HEX_DIGIT k=HEX_DIGIT l=HEX_DIGIT   {setText(i.getText()+j.getText()+k.getText()+l.getText());}
 	    )
@@ -159,43 +191,3 @@ fragment ESCAPE
 WHITESPACE
 	: ( '\t' | ' ' | '\r' | '\n' )+ {skip();}
 	;
-
-/*
-    from collectionName
-            where
-                    field=val
-                    field2 in(val, val, val)
-                    field3 > x
-                    field4 < y
-                    some.deep.field between(val, val)
-                    or(
-                            field=val,
-                            field.anus=val
-                    )
-                    and(
-                            field=val,
-                            field.anus=val
-                    )
-            ACTION
-            skip X
-            limit y
-     
-    ACTIONS
-    select *
-    select a1, a2.b2
-    select a1
-    update ???
-    delete
-     
-    {
-            a1: "test",
-            a2: {
-                    b1: "test",
-                    b2: {
-                            c1: "test"
-                    }
-            }
-    }
-
-*/
-

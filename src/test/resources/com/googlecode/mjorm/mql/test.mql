@@ -1,1 +1,37 @@
-0
+from collection
+where
+	a < 3
+	a <> 4
+	a != 4
+	not a >= 6
+	a <= 7
+
+	somefield exists()
+
+	somefield not_exists()
+
+
+	somefield mod(1, 2)
+
+	somefield all( a, b )
+	
+	someField in( a, b )
+	
+	someField nin( a, b )
+
+	someField size(10)
+
+	someField type(1)
+
+	
+	nor( a=1, b=2 )
+	
+	or( a=1, b=2 )
+	
+	and( a=1, b=2 )
+
+	not x =~ /asd as\nd a sdfdd/
+	not a = 'lasdasdf'
+	not a > 2
+
+	limit 0, 1
