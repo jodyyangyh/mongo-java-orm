@@ -15,7 +15,6 @@
 	<target name="generate-sources" depends="check-classpath-for-antlr3">
 		<echo message="Generating sources" />
 		<mkdir dir="${basedir}/target/generated-sources" />
-		<mkdir dir="${basedir}/target/generated-sources/mql/com/googlecode/mjorm/mql/"/>
 		<java classname="org.antlr.Tool" fork="true" failonerror="true" classpathref="maven.classpath">
 			<arg value="-verbose"/>
 			<arg value="-o"/>
