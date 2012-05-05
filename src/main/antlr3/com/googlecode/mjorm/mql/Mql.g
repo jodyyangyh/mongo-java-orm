@@ -64,6 +64,11 @@ tokens {
   FIND_AND_MODIFY	= 'find and modify';
   FIND_AND_DELETE	= 'find and delete';
   ADD_TO_SET		= 'add to set';
+
+  ARRAY;
+  ADD_TO_SET_EACH;
+  PUSH_ALL;
+  PULL_ALL;
 }
 
 @header {
@@ -81,7 +86,7 @@ start
 
 /** command **/
 command
-	: FROM^ collection_name (WHERE! criteria (COMMA!? criteria)*)? action SEMI_COLON!?
+	: FROM collection_name (WHERE c+=criteria (COMMA? c+=criteria)*)? action SEMI_COLON? -> ^(collection_name ^($c+? action))
 	;
 
 /** criteria **/
@@ -221,15 +226,15 @@ operation_push
 	;
 			
 operation_push_all
-	: PUSH^ ALL field_name array
+	: PUSH ALL field_name array -> ^(PUSH_ALL field_name array)
 	;
 			
 operation_add_to_set_each
-	: ADD_TO_SET field_name EACH array -> ^(ADD_TO_SET EACH field_name array)
+	: ADD_TO_SET field_name EACH array -> ^(ADD_TO_SET_EACH field_name array)
 	;
 
 operation_add_to_set
-	: ADD_TO_SET field_name array
+	: ADD_TO_SET^ field_name array
 	;
 		
 operation_pop
@@ -245,7 +250,7 @@ operation_pull
 	;
 
 operation_pull_all
-	: PULL^ ALL field_name array
+	: PULL ALL field_name array -> ^(PULL_ALL field_name array)
 	;
 
 operation_rename
@@ -312,7 +317,7 @@ direction
 	;
 
 array
-	: L_BRACKET! variable_list? R_BRACKET!
+	: L_BRACKET variable_list? R_BRACKET -> ^(ARRAY variable_list)
 	;
 
 regex
