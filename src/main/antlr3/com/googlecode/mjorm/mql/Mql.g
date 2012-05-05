@@ -1,67 +1,69 @@
 
 grammar Mql;
- 
+
+options {
+	output			= AST;
+	ASTLabelType	= CommonTree;
+}
+
 tokens {
-	SEMI_COLON	= ';' 		;
-	STAR		= '*' 		;
-	SINGLE_QUOTE	= '\'' 		;
-	DOUBLE_QUOTE	= '\"' 		;
-	BACK_SLASH	= '\\' 		;
-	FORWARD_SLASH	= '/' 		;
-	EQUALS		= '=' 		;
-	NOT_EQUALS	= '!='		;
-	COMMA		= ',' 		;
-	MINUS		= '-' 		;
-	GT		= '>' 		;
-	LT		= '<' 		;
-	LT_GT		= '<>' 		;
-	GT_EQUALS	= '>=' 		;
-	LT_EQUALS	= '<=' 		;
-	L_PAREN		= '(' 		;
-	R_PAREN		= ')' 		;
-	L_BRACKET	= '['		;
-	R_BRACKET	= ']' 		;
-	MATCHES		= '=~' 		;
-	DOT		= '.'		;
-	TRUE		= 'true'	;
-	FALSE		= 'false'	;
-	FROM		= 'from' 	;
-	WHERE		= 'where' 	;
-	SKIP		= 'skip' 	;
-	LIMIT		= 'limit' 	;
-	NOT		= 'not' 	;
-	SELECT		= 'select' 	;
-	FIND		= 'find'	;
-	DELETE		= 'delete' 	;
-	UPDATE		= 'update' 	;
-	EXPLAIN		= 'explain' 	;
-	HINT		= 'hint'	;
-	NATURAL		= 'natural'	;
-	ATOMIC		= 'atomic'	;
-	INC		= 'inc'		;
-	UPSERT		= 'upsert'	;
-	MULTI		= 'multi'	;
-	UNSET		= 'unset'	;
-	SET		= 'set'		;
-	POP		= 'pop'		;
-	SHIFT		= 'shift'	;
-	PUSH		= 'push'	;
-	ADD		= 'add'		;
-	TO		= 'to'		;
-	EACH		= 'each'	;
-	PULL		= 'pull'	;
-	RENAME		= 'rename'	;
-	BITWISE		= 'bitwise'	;
-	SORT		= 'sort'	;
-	ASC		= 'asc'		;
-	DESC		= 'desc'	;
-	RETURN		= 'return'	;
-	NEW		= 'new'		;
-	OLD		= 'old'		;
-	MODIFY		= 'modify'	;
-	ALL		= 'all'		;
-	OR		= 'or'		;
-	AND		= 'and'		;
+  SEMI_COLON    = ';';
+  STAR          = '*';
+  BACK_SLASH    = '\\';
+  FORWARD_SLASH = '/';
+  EQUALS        = '=';
+  NOT_EQUALS    = '!=';
+  COMMA         = ',';
+  MINUS         = '-';
+  GT            = '>';
+  LT            = '<';
+  LT_GT         = '<>';
+  GT_EQUALS     = '>=';
+  LT_EQUALS     = '<=';
+  L_PAREN       = '(';
+  R_PAREN       = ')';
+  L_BRACKET     = '[';
+  R_BRACKET     = ']';
+  MATCHES       = '=~';
+  DOT           = '.';
+  TRUE          = 'true';
+  FALSE         = 'false';
+  FROM          = 'from';
+  WHERE         = 'where';
+  SKIP          = 'skip';
+  LIMIT         = 'limit';
+  NOT           = 'not';
+  SELECT        = 'select';
+  DELETE        = 'delete';
+  UPDATE        = 'update';
+  EXPLAIN       = 'explain';
+  HINT          = 'hint';
+  NATURAL       = 'natural';
+  ATOMIC        = 'atomic';
+  INC           = 'inc';
+  UPSERT        = 'upsert';
+  MULTI         = 'multi';
+  UNSET         = 'unset';
+  SET           = 'set';
+  POP           = 'pop';
+  SHIFT         = 'shift';
+  PUSH          = 'push';
+  EACH          = 'each';
+  PULL          = 'pull';
+  RENAME        = 'rename';
+  BITWISE       = 'bitwise';
+  SORT          = 'sort';
+  ASC           = 'asc';
+  DESC          = 'desc';
+  RETURN        = 'return';
+  NEW           = 'new';
+  OLD           = 'old';
+  OR            = 'or';
+  AND           = 'and';
+  ALL			= 'all';
+  FIND_AND_MODIFY	= 'find and modify';
+  FIND_AND_DELETE	= 'find and delete';
+  ADD_TO_SET		= 'add to set';
 }
 
 @header {
@@ -72,18 +74,18 @@ tokens {
 	package com.googlecode.mjorm.mql;
 }
 
-
 /** start **/
 start
-	: command command* EOF
+	: command (command)* EOF!
 	;
 
 /** command **/
 command
-	: FROM collection_name (WHERE criteria (COMMA? criteria)*)? action SEMI_COLON?
+	: FROM^ collection_name (WHERE! criteria (COMMA!? criteria)*)? action SEMI_COLON!?
 	;
 
 /** criteria **/
+
 criteria
 	: (criterion_group | negated_criterion | criterion)
 	;
@@ -93,28 +95,24 @@ criterion
 	;
 	
 negated_criterion
-	: (NOT criterion)
+	: NOT^ criterion
 	;
 
 criterion_group
-	: function_name L_PAREN group_criteria* R_PAREN
-	;
-	
-group_criteria
-	: (criterion (COMMA criterion)*) | variable_literal
+	: function_name^ L_PAREN! (criteria (COMMA!? criteria) | variable_literal)* R_PAREN!
 	;
 	
 compare_criterion
-	: field_name comparison_operator variable_literal
+	: field_name^ comparison_operator variable_literal
 	;
 
 function_criterion
-	: field_name function_name L_PAREN variable_list? R_PAREN
+	: field_name^ function_call
 	;
-	
+
 /** hint **/
 hint
-	: HINT (hint_natural | hint_index_name | (hint_field (COMMA? hint_field)*))
+	: HINT^ (hint_natural | hint_index_name | (hint_field (COMMA!? hint_field)*))
 	;
 
 hint_natural
@@ -141,15 +139,15 @@ explain_action
 
 // select
 select_action
-	: SELECT select_fields hint? sort? pagination?
+	: SELECT^ select_fields hint? sort? pagination?
 	;
 
 select_fields
-	: (STAR | (field_name (COMMA? field_name)*))
+	: (STAR | (field_name (COMMA!? field_name)*))
 	;
 
 pagination
-	: ((LIMIT first_document) | (LIMIT first_document COMMA number_of_documents))
+	: ((LIMIT^ first_document) | (LIMIT^ first_document COMMA! number_of_documents))
 	;
 
 first_document
@@ -162,12 +160,16 @@ number_of_documents
 
 // find and modify
 fam_action
-	: UPSERT? FIND AND MODIFY (RETURN (NEW | OLD))? update_operations SELECT select_fields sort?
+	: UPSERT? FIND_AND_MODIFY^ fam_return? update_operations SELECT select_fields sort?
+	;
+
+fam_return
+	: (RETURN^ (NEW | OLD))
 	;
 	
 // find and delete
 fad_action
-	: FIND AND DELETE select_fields? sort?
+	: FIND_AND_DELETE^ select_fields? sort?
 	;
 
 // delete
@@ -177,7 +179,7 @@ delete_action
 
 // update
 update_action
-	: ATOMIC? (UPDATE | UPSERT) MULTI? update_operations
+	: ATOMIC? (UPDATE^ | UPSERT^) MULTI? update_operations
 	;
 	
 update_operations
@@ -203,55 +205,55 @@ update_operation
 	;
 
 operation_inc
-	: INC field_name number
+	: INC^ field_name number
 	;
 		
 operation_set
-	: SET field_name EQUALS variable_literal
+	: SET^ field_name EQUALS! variable_literal
 	;
 	
 operation_unset
-	: UNSET field_name
+	: UNSET^ field_name
+	;
+	
+operation_push
+	: PUSH^ field_name variable_literal
 	;
 			
 operation_push_all
-	: PUSH ALL field_name array
-	;
-
-operation_push
-	: PUSH field_name variable_literal
+	: PUSH^ ALL field_name array
 	;
 			
 operation_add_to_set_each
-	: ADD TO SET field_name EACH array
+	: ADD_TO_SET field_name EACH array -> ^(ADD_TO_SET EACH field_name array)
 	;
 
 operation_add_to_set
-	: ADD TO SET field_name array
+	: ADD_TO_SET field_name array
 	;
 		
 operation_pop
-	: POP field_name variable_literal
+	: POP^ field_name variable_literal
 	;
 	
 operation_shift
-	: SHIFT field_name variable_literal
+	: SHIFT^ field_name variable_literal
+	;
+		
+operation_pull
+	: PULL^ field_name variable_literal
 	;
 
 operation_pull_all
-	: PULL ALL field_name array
-	;
-	
-operation_pull
-	: PULL field_name variable_literal
+	: PULL^ ALL field_name array
 	;
 
 operation_rename
-	: RENAME field_name field_name
+	: RENAME^ field_name field_name
 	;
 
 operation_bitwise
-	: BITWISE (OR | AND) field_name INTEGER
+	: BITWISE^ (OR | AND) field_name INTEGER
 	;
 	
 /** sort **/
@@ -284,9 +286,13 @@ comparison_operator
 variable_literal
 	: (regex | string | bool | number | array)
 	;
+
+function_call
+	: function_name^ L_PAREN! variable_list? R_PAREN!
+	;
 	
 variable_list
-	: variable_literal (COMMA variable_literal)*
+	: variable_literal (COMMA! variable_literal)*
 	;
 
 integer
@@ -298,7 +304,7 @@ decimal
 	;
 
 number
-	:  (HEX_NUMBER | integer | decimal)
+	: (HEX_NUMBER | integer | decimal)
 	;
 	
 direction
@@ -306,7 +312,7 @@ direction
 	;
 
 array
-	: L_BRACKET variable_list? R_BRACKET
+	: L_BRACKET! variable_list? R_BRACKET!
 	;
 
 regex
@@ -332,7 +338,15 @@ fragment HEX_DIGIT
 fragment DIGIT
 	: ('0'..'9')
 	;
-	
+
+fragment SINGLE_QUOTE
+  : '\''
+  ;
+
+fragment DOUBLE_QUOTE
+  : '\"'
+  ;
+
 INTEGER
 	: DIGIT+
 	;
@@ -366,7 +380,7 @@ DOUBLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
 	;
 	    
 SINGLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: SINGLE_QUOTE (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
+	: '\'' (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
 	;
 
 fragment ESCAPE_EVALED[StringBuilder buf]
