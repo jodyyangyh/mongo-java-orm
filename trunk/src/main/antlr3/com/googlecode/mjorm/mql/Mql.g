@@ -65,10 +65,36 @@ tokens {
   FIND_AND_DELETE	= 'find and delete';
   ADD_TO_SET		= 'add to set';
 
+  COMMAND;
+  
   ARRAY;
+  
   ADD_TO_SET_EACH;
   PUSH_ALL;
   PULL_ALL;
+
+  CRITERIA;
+  CRITERION;
+  GROUP_FUNCTION_CRITERION;
+  FIELD_FUNCTION_CRITERION;
+  COMPARE_CRITERION;
+  NEGATED_CRITERION;
+  
+  ACTION;
+  SELECT_ACTION;
+  FIELDS;
+  PAGINATION;
+  
+  FAM_ACTION;
+  RETURN;
+  UPDATE_OPERATIONS;
+  
+  FAD_ACTION;
+
+  DELETE_ACTION;
+  
+  FIELD;
+  NAME;
 }
 
 @header {
@@ -86,50 +112,48 @@ start
 
 /** command **/
 command
-	: FROM collection_name (WHERE c+=criteria (COMMA? c+=criteria)*)? action SEMI_COLON? -> ^(collection_name ^($c+? action))
+	: FROM collection_name (WHERE criteria)? action SEMI_COLON? -> ^(COMMAND collection_name criteria? action)
 	;
 
 /** criteria **/
 
 criteria
-	: (criterion_group | negated_criterion | criterion)
+	: c+=criterion (COMMA? c+=criterion)* -> ^(CRITERIA $c+)
 	;
 
 criterion
-	: (function_criterion | compare_criterion)
+	: (function_criterion | negated_field_criterion | field_criterion)
 	;
 	
-negated_criterion
-	: NOT^ criterion
+field_criterion
+	: (field_function_criterion | compare_criterion)
 	;
-
-criterion_group
-	: function_name^ L_PAREN! (criteria (COMMA!? criteria) | variable_literal)* R_PAREN!
+		
+negated_field_criterion
+	: NOT field_criterion -> ^(NEGATED_CRITERION field_criterion)
 	;
 	
 compare_criterion
-	: field_name^ comparison_operator variable_literal
+	: field_name comparison_operator variable_literal -> ^(COMPARE_CRITERION field_name comparison_operator variable_literal)
+	;
+	
+field_function_criterion
+	: field_name function_call -> ^(FIELD_FUNCTION_CRITERION field_name function_call)
 	;
 
-function_criterion
-	: field_name^ function_call
+function_criterion 
+	: function_name L_PAREN (criteria | variable_list) R_PAREN -> ^(GROUP_FUNCTION_CRITERION function_name criteria? variable_list?)
 	;
 
 /** hint **/
 hint
-	: HINT^ (hint_natural | hint_index_name | (hint_field (COMMA!? hint_field)*))
-	;
-
-hint_natural
-	: NATURAL
-	;
-
-hint_index_name
-	: string
+	: HINT NATURAL -> ^(HINT NATURAL)
+	| HINT string -> ^(HINT string)
+	| HINT f+=hint_field (COMMA? f+=hint_field)* -> ^(HINT $f+) 
 	;
 
 hint_field
-	: field_name direction
+	: field_name direction -> ^(field_name direction)
 	;
 
 /** action **/
@@ -144,28 +168,21 @@ explain_action
 
 // select
 select_action
-	: SELECT^ select_fields hint? sort? pagination?
+	: SELECT select_fields hint? sort? pagination? -> ^(SELECT_ACTION select_fields? hint? sort? pagination?)
 	;
 
-select_fields
-	: (STAR | (field_name (COMMA!? field_name)*))
+select_fields 
+	: STAR -> ^(FIELDS STAR)
+	| f+=field_name (COMMA? f+=field_name)* -> ^(FIELDS $f+)
 	;
 
 pagination
-	: ((LIMIT^ first_document) | (LIMIT^ first_document COMMA! number_of_documents))
-	;
-
-first_document
-	: INTEGER
-	;
-
-number_of_documents
-	: INTEGER
-	;
+ 	: LIMIT s=integer (COMMA e=integer)? -> ^(LIMIT $s $e?)
+ 	;
 
 // find and modify
 fam_action
-	: UPSERT? FIND_AND_MODIFY^ fam_return? update_operations SELECT select_fields sort?
+	: UPSERT? FIND_AND_MODIFY fam_return? update_operations SELECT select_fields sort? -> ^(FAM_ACTION UPSERT? fam_return? update_operations select_fields? sort?)
 	;
 
 fam_return
@@ -174,12 +191,12 @@ fam_return
 	
 // find and delete
 fad_action
-	: FIND_AND_DELETE^ select_fields? sort?
+	: FIND_AND_DELETE (SELECT select_fields)? sort? -> ^(FAD_ACTION select_fields? sort?)
 	;
 
 // delete
 delete_action
-	: ATOMIC? DELETE
+	: ATOMIC? DELETE -> ^(DELETE_ACTION ATOMIC?)
 	;
 
 // update
@@ -263,7 +280,7 @@ operation_bitwise
 	
 /** sort **/
 sort
-	: SORT sort_field (COMMA? sort_field)*
+	: SORT s+=sort_field (COMMA? s+=sort_field)* -> ^(SORT $s+)
 	;
 
 sort_field
@@ -280,6 +297,10 @@ field_name
 	: SCHEMA_IDENTIFIER
 	;
 
+field_list
+	: f=field_name (COMMA? f=field_name)* -> ^(FIELDS $f+)
+	;
+
 function_name
 	: SCHEMA_IDENTIFIER | ALL | OR | AND
 	;
@@ -291,13 +312,13 @@ comparison_operator
 variable_literal
 	: (regex | string | bool | number | array)
 	;
+		
+variable_list
+	: variable_literal (COMMA! variable_literal)*
+	;
 
 function_call
 	: function_name^ L_PAREN! variable_list? R_PAREN!
-	;
-	
-variable_list
-	: variable_literal (COMMA! variable_literal)*
 	;
 
 integer
