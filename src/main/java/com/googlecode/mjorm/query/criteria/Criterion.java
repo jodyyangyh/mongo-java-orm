@@ -1,7 +1,7 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 /**
- * Represents a single criteria used in a {@link AbstractQueryCriterion}.
+ * Represents a single query criteria.
  * 
  */
 public interface Criterion {
@@ -11,7 +11,6 @@ public interface Criterion {
 	 * Most of the time this will be a {@link DBObject}, but
 	 * it can be anything accepted by the MongoDB java driver.
 	 * 
-	 * @param visitor the {@link ValueVisitor}
 	 * @return the {@link Object}
 	 */
 	Object toQueryObject();

@@ -5,9 +5,6 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

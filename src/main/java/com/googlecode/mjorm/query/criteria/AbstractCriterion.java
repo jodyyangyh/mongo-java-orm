@@ -1,4 +1,4 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 public abstract class AbstractCriterion
 	implements Criterion {

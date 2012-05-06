@@ -4,7 +4,9 @@ import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBEncoder;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 
 /**
  * An interface for working with mapped objects in mongo.
@@ -244,9 +246,21 @@ public interface MongoDao {
 	 * @param collection the collection
 	 * @param query the query
 	 * @param clazz the class
+	 * @param fields the fields to populate in the return object
 	 * @return the removed object
 	 */
-	<T> T findAndRemove(String collection, DBObject query, Class<T> clazz);
+	<T> T findAndDelete(String collection, DBObject query, DBObject sort, Class<T> clazz, String[] fields);
+
+	/**
+	 * Finds and removes the first object matching the query from
+	 * the given collection and returns it.
+	 * @param collection the collection
+	 * @param query the query
+	 * @param clazz the class
+	 * @param fields the fields to populate in the return object
+	 * @return the removed object
+	 */
+	<T> T findAndDelete(String collection, DBObject query, DBObject sort, Class<T> clazz);
 
 	/**
 	 * Performs a find and modify.
@@ -265,48 +279,31 @@ public interface MongoDao {
 
 	/**
 	 * Performs a find and modify.
-	 * upsert = false
 	 * @param collection the collection
 	 * @param query the query
 	 * @param sort the sort option
 	 * @param update the update object
 	 * @param returnNew whether or not to return the new or old value
+	 * @param upsert create if it doesn't exist
 	 * @param clazz the type
+	 * @param fields the fields to populate in the return object
 	 * @return the object
 	 */
 	public <T> T findAndModify(
 		String collection, DBObject query, DBObject sort, DBObject update,
-		boolean returnNew, Class<T> clazz);
+		boolean returnNew, boolean upsert, Class<T> clazz, String[] fields);
 
-	/**
-	 * Performs a find and modify.
-	 * upsert = false
-	 * returnNew = true
-	 * @param collection the collection
-	 * @param query the query
-	 * @param sort the sort option
-	 * @param update the update object
-	 * @param clazz the type
-	 * @return the object
-	 */
-	public <T> T findAndModify(
-		String collection, DBObject query, DBObject sort, DBObject update,
-		Class<T> clazz);
-
-	/**
-	 * Performs a find and modify.
-	 * upsert = false
-	 * returnNew = true
-	 * sort = null
-	 * @param collection the collection
-	 * @param query the query
-	 * @param update the update object
-	 * @param clazz the type
-	 * @return the object
-	 */
-	public <T> T findAndModify(
+	public void update(
 		String collection, DBObject query, DBObject update,
-		Class<T> clazz);
+		boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder);
+
+	public void update(
+		String collection, DBObject query, DBObject update,
+		boolean upsert, boolean multi, WriteConcern concern);
+
+	public void update(
+		String collection, DBObject query, DBObject update,
+		boolean upsert, boolean multi);
 
 	/**
 	 * Returns the underlying {@link DB}.

@@ -1,12 +1,14 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.googlecode.mjorm.query.SimpleCriterion.Operator;
-import com.googlecode.mjorm.query.TypeCriterion.Type;
+import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.QueryGroup;
+import com.googlecode.mjorm.query.criteria.SimpleCriterion.Operator;
+import com.googlecode.mjorm.query.criteria.TypeCriterion.Type;
 
 /**
  * Utility class for easily creating {@link Criterion}.

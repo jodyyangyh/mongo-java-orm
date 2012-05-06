@@ -1,4 +1,4 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 
+import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.QueryGroup;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
