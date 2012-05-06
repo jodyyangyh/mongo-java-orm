@@ -82,6 +82,9 @@ tokens {
   
   ACTION;
   SELECT_ACTION;
+  EXPLAIN_ACTION;
+  UPDATE_ACTION;
+  UPSERT_ACTION;
   FIELDS;
   PAGINATION;
   
@@ -92,6 +95,8 @@ tokens {
   FAD_ACTION;
 
   DELETE_ACTION;
+  VARIABLE_LIST;
+  FUNCTION_CALL;
   
   FIELD;
   NAME;
@@ -163,12 +168,12 @@ action
 
 // explain
 explain_action
-	: EXPLAIN hint?
+	: EXPLAIN hint? -> ^(EXPLAIN_ACTION hint?)
 	;
 
 // select
 select_action
-	: SELECT select_fields hint? sort? pagination? -> ^(SELECT_ACTION select_fields? hint? sort? pagination?)
+	: SELECT select_fields hint? sort_field_list? pagination? -> ^(SELECT_ACTION select_fields? hint? sort_field_list? pagination?)
 	;
 
 select_fields 
@@ -182,7 +187,7 @@ pagination
 
 // find and modify
 fam_action
-	: UPSERT? FIND_AND_MODIFY fam_return? update_operations SELECT select_fields sort? -> ^(FAM_ACTION UPSERT? fam_return? update_operations select_fields? sort?)
+	: UPSERT? FIND_AND_MODIFY fam_return? update_operation_list SELECT select_fields sort_field_list? -> ^(FAM_ACTION UPSERT? fam_return? update_operation_list select_fields? sort_field_list?)
 	;
 
 fam_return
@@ -191,7 +196,7 @@ fam_return
 	
 // find and delete
 fad_action
-	: FIND_AND_DELETE (SELECT select_fields)? sort? -> ^(FAD_ACTION select_fields? sort?)
+	: FIND_AND_DELETE (SELECT select_fields)? sort_field_list? -> ^(FAD_ACTION select_fields? sort_field_list?)
 	;
 
 // delete
@@ -201,11 +206,12 @@ delete_action
 
 // update
 update_action
-	: ATOMIC? (UPDATE^ | UPSERT^) MULTI? update_operations
+	: ATOMIC? UPDATE MULTI? update_operation_list -> ^(UPDATE_ACTION ATOMIC? MULTI? update_operation_list)
+	| ATOMIC? UPSERT MULTI? update_operation_list -> ^(UPSERT_ACTION ATOMIC? MULTI? update_operation_list)
 	;
 	
-update_operations
-	: update_operation (COMMA? update_operation)*
+update_operation_list
+	: u+=update_operation (COMMA? u+=update_operation)* -> ^(UPDATE_OPERATIONS $u+)
 	;
 
 update_operation
@@ -279,7 +285,7 @@ operation_bitwise
 	;
 	
 /** sort **/
-sort
+sort_field_list
 	: SORT s+=sort_field (COMMA? s+=sort_field)* -> ^(SORT $s+)
 	;
 
@@ -314,11 +320,11 @@ variable_literal
 	;
 		
 variable_list
-	: variable_literal (COMMA! variable_literal)*
+	: v+=variable_literal (COMMA v+=variable_literal)* -> ^(VARIABLE_LIST $v+)
 	;
 
 function_call
-	: function_name^ L_PAREN! variable_list? R_PAREN!
+	: function_name L_PAREN variable_list? R_PAREN -> ^(FUNCTION_CALL function_name variable_list?)
 	;
 
 integer
