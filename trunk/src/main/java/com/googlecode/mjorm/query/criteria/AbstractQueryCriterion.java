@@ -1,9 +1,11 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import com.googlecode.mjorm.query.TypeCriterion.Type;
+import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.QueryGroup;
+import com.googlecode.mjorm.query.criteria.TypeCriterion.Type;
 
 /**
  * An object for building MongoDB queries using

@@ -1,5 +1,6 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.query.Query;
 import com.mongodb.BasicDBObject;
 
 public class ElemMatchCriterion

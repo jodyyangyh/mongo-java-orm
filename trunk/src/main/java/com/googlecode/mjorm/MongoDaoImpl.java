@@ -13,8 +13,10 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBEncoder;
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand;
+import com.mongodb.WriteConcern;
 
 /**
  * Basic implementation of the {@link MongoDao} interface.
@@ -389,9 +391,45 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T findAndRemove(String collection, DBObject query, Class<T> clazz) {
+	public <T> T findAndDelete(
+		String collection, DBObject query,
+		DBObject sort, Class<T> clazz, String[] fields) {
+		DBObject fieldsObject = null;
+		if (fields!=null && fields.length>0) {
+			fieldsObject = new BasicDBObject();
+			for (String field : fields) {
+				fieldsObject.put(field, 1);
+			}
+		}
 		return objectMapper.mapFromDBObject(
-			getCollection(collection).findAndRemove(query), clazz);
+			getCollection(collection).findAndModify(
+				query, fieldsObject, sort, true, null, false, false), clazz);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndDelete(
+		String collection, DBObject query, DBObject sort, Class<T> clazz) {
+		return findAndDelete(collection, query, sort, clazz, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T findAndModify(
+		String collection, DBObject query, DBObject sort, DBObject update,
+		boolean returnNew, boolean upsert, Class<T> clazz, String[] fields) {
+		DBObject fieldsObject = null;
+		if (fields!=null && fields.length>0) {
+			fieldsObject = new BasicDBObject();
+			for (String field : fields) {
+				fieldsObject.put(field, 1);
+			}
+		}
+		return objectMapper.mapFromDBObject(
+			getCollection(collection).findAndModify(
+				query, fieldsObject, sort, false, update, returnNew, upsert), clazz);
 	}
 
 	/**
@@ -400,36 +438,33 @@ public class MongoDaoImpl
 	public <T> T findAndModify(
 		String collection, DBObject query, DBObject sort, DBObject update,
 		boolean returnNew, boolean upsert, Class<T> clazz) {
-		return objectMapper.mapFromDBObject(
-			getCollection(collection).findAndModify(
-				query, null, sort, false, update, returnNew, upsert), clazz);
+		return findAndModify(collection, query, sort, update, returnNew, upsert, clazz, null);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T findAndModify(
-		String collection, DBObject query, DBObject sort, DBObject update,
-		boolean returnNew, Class<T> clazz) {
-		return findAndModify(collection, query, sort, update, returnNew, false, clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public <T> T findAndModify(
-		String collection, DBObject query, DBObject sort, DBObject update,
-		Class<T> clazz) {
-		return findAndModify(collection, query, sort, update, true, false, clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public <T> T findAndModify(
+	public void update(
 		String collection, DBObject query, DBObject update,
-		Class<T> clazz) {
-		return findAndModify(collection, query, null, update, true, false, clazz);
+		boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
+		getCollection(collection).update(query, update, upsert, multi, concern, encoder);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void update(String collection, DBObject query, DBObject update,
+		boolean upsert, boolean multi, WriteConcern concern) {
+		update(collection, query, update, upsert, multi, concern, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void update(
+		String collection, DBObject query, DBObject update,
+		boolean upsert, boolean multi) {
+		update(collection, query, update, upsert, multi, null, null);
 	}
 
 	/**

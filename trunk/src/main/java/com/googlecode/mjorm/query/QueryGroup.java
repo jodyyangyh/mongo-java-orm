@@ -3,6 +3,8 @@ package com.googlecode.mjorm.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.googlecode.mjorm.query.criteria.AbstractCriterion;
+import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.mongodb.BasicDBList;
 
 public class QueryGroup

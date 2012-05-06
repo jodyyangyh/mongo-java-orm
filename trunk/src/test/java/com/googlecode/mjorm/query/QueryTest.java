@@ -1,13 +1,13 @@
 package com.googlecode.mjorm.query;
 
 import static org.junit.Assert.*;
-import static com.googlecode.mjorm.query.Criteria.*;
+import static com.googlecode.mjorm.query.criteria.Criteria.*;
 
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.googlecode.mjorm.query.TypeCriterion.Type;
+import com.googlecode.mjorm.query.criteria.TypeCriterion.Type;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;

@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.query;
 
+import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
+
 public class Query
 	extends AbstractQueryCriterion<Query> {
 

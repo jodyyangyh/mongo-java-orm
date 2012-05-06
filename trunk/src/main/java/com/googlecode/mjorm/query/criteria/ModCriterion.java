@@ -1,4 +1,4 @@
-package com.googlecode.mjorm.query;
+package com.googlecode.mjorm.query.criteria;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
