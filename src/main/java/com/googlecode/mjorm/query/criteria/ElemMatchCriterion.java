@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.googlecode.mjorm.query.Query;
 import com.mongodb.BasicDBObject;
 
@@ -29,5 +31,12 @@ public class ElemMatchCriterion
 	public Object toQueryObject() {
 		return new BasicDBObject("$elemMatch", queryCriterion.toQueryObject());
 	}
+
+	public static final MqlFunction MQL_FUNCTION = new MqlFunctionImpl() {
+		@Override
+		protected Criterion doCreate(Query query) {
+			return new ElemMatchCriterion(query);
+		}
+	};
 
 }

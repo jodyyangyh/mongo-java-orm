@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class TypeCriterion
@@ -58,5 +60,12 @@ public class TypeCriterion
 	public Object toQueryObject() {
 		return new BasicDBObject("$type", typeCode);
 	}
+
+	public static final MqlFunction MQL_FUNCTION = new MqlFunctionImpl(1, Number.class) {
+		@Override
+		protected Criterion doCreate(Object[] values) {
+			return new TypeCriterion(Number.class.cast(values[0]));
+		}
+	};
 
 }

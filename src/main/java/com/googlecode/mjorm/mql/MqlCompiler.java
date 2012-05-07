@@ -21,10 +21,15 @@ import org.antlr.runtime.tree.TreeAdaptor;
 import com.googlecode.mjorm.query.DaoQuery;
 import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
+import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.Criterion;
+import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
 import com.googlecode.mjorm.query.criteria.ExistsCriterion;
+import com.googlecode.mjorm.query.criteria.ModCriterion;
 import com.googlecode.mjorm.query.criteria.NotCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion;
+import com.googlecode.mjorm.query.criteria.SizeCriterion;
+import com.googlecode.mjorm.query.criteria.TypeCriterion;
 
 public class MqlCompiler {
 
@@ -34,27 +39,32 @@ public class MqlCompiler {
 		}
 	};
 
-	private Map<String, MqlFieldFunction> fieldFunctions
-		= new HashMap<String, MqlFieldFunction>();
+	private Map<String, MqlFunction> fieldFunctions
+		= new HashMap<String, MqlFunction>();
 
-	private Map<String, MqlGroupFunction> groupFunctions
-		= new HashMap<String, MqlGroupFunction>();
+	private Map<String, MqlFunction> groupFunctions
+		= new HashMap<String, MqlFunction>();
 
 	public MqlCompiler() {
 		registerDefaultFunctions();
 	}
 
-	public void registerFieldFunction(String name, MqlFieldFunction function) {
+	public void registerFieldFunction(String name, MqlFunction function) {
 		fieldFunctions.put(name.toLowerCase(), function);
 	}
 
-	public void registerGroupFunction(String name, MqlGroupFunction function) {
+	public void registerGroupFunction(String name, MqlFunction function) {
 		groupFunctions.put(name.toLowerCase(), function);
 	}
 
 	public void registerDefaultFunctions() {
 		registerFieldFunction("exists", ExistsCriterion.MQL_EXISTS_FUNCTION);
 		registerFieldFunction("not_exists", ExistsCriterion.MQL_DOESNT_EXIST_FUNCTION);
+		registerFieldFunction("between", BetweenCriterion.MQL_FUNCTION);
+		registerFieldFunction("elemMatch", ElemMatchCriterion.MQL_FUNCTION);
+		registerFieldFunction("mod", ModCriterion.MQL_FUNCTION);
+		registerFieldFunction("size", SizeCriterion.MQL_FUNCTION);
+		registerFieldFunction("type", TypeCriterion.MQL_FUNCTION);
 	}
 
 	public List<DaoQuery> compile(String code)
@@ -134,10 +144,12 @@ public class MqlCompiler {
 	 */
 	private void readCriterion(Tree tree, AbstractQueryCriterion<?> query) {
 		String fieldName = null;
+		String groupName = null;
+		Query groupQuery = null;
 		Criterion criterion = null;
 		switch (tree.getType()) {
-			case MqlParser.GROUP_FUNCTION_CRITERION:
-				fieldName = getFieldNameFromFieldCriterion(tree);
+			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
+				groupName = getFunctionNameFromFunctionCall(tree.getChild(0));
 				criterion = createCriterion(tree);
 				break;
 				
@@ -159,7 +171,12 @@ public class MqlCompiler {
 			default:
 				assertTokenType(tree);
 		}
-		query.add(fieldName, criterion);
+		if (groupName!=null) {
+			// TODO: work out document function criterion
+			//query.doc(groupName, criterion);
+		} else {
+			query.add(fieldName, criterion);
+		}
 	}
 
 	/**
@@ -178,26 +195,26 @@ public class MqlCompiler {
 	 */
 	private Criterion createCriterion(Tree tree) {
 		switch (tree.getType()) {
-			case MqlParser.GROUP_FUNCTION_CRITERION:
+			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
 				String groupFunctionName = tree.getChild(0).getText();
 				if (!groupFunctions.containsKey(groupFunctionName)) {
 					throw new IllegalArgumentException(
-						"Unknown group function: "+groupFunctionName);
+						"Unknown doc function: "+groupFunctionName);
 					
 				} else if (tree.getChildCount()==1) {
-					return groupFunctions.get(groupFunctionName).createCriterionForNoArguments();
+					return groupFunctions.get(groupFunctionName).createForNoArguments();
 					
 				} else if (tree.getChild(1).getType()==MqlParser.CRITERIA) {
 					Query query = new Query();
 					readCriteria(tree.getChild(1), query);
-					return groupFunctions.get(groupFunctionName).createCriterionForQuery(query);
+					return groupFunctions.get(groupFunctionName).createForQuery(query);
 					
 				} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
 					Object[] arguments = readVariableListFromFunctionCall(tree.getChild(1));
-					return groupFunctions.get(groupFunctionName).createCriterionForVariables(arguments);
+					return groupFunctions.get(groupFunctionName).createForArguments(arguments);
 				}
 				throw new IllegalArgumentException(
-					"Unknown group function argument type");
+					"Unknown document function argument type");
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
 				String functionName = getFunctionNameFromFunctionCall(tree.getChild(1));
@@ -206,7 +223,7 @@ public class MqlCompiler {
 						"Unknown field function: "+functionName);
 				}
 				Object[] arguments = readVariableListFromFunctionCall(tree.getChild(1));
-				return fieldFunctions.get(functionName).createCriterion(arguments); 
+				return fieldFunctions.get(functionName).createForArguments(arguments); 
 				
 			case MqlParser.COMPARE_CRITERION:
 				return new SimpleCriterion(
@@ -280,6 +297,10 @@ public class MqlCompiler {
 	 * @param types
 	 */
 	private void assertTokenType(Tree tree, int... types) {
+		if (tree==null) {
+			throw new IllegalArgumentException(
+				"Got a null token when expecting a specific type");
+		}
 		int treeType = tree.getType();
 		for (int type : types) {
 			if (type==treeType) {
