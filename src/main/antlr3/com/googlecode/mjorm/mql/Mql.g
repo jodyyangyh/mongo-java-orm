@@ -7,101 +7,98 @@ options {
 }
 
 tokens {
-  SEMI_COLON    = ';';
-  STAR          = '*';
-  BACK_SLASH    = '\\';
-  FORWARD_SLASH = '/';
-  EQUALS        = '=';
-  NOT_EQUALS    = '!=';
-  COMMA         = ',';
-  MINUS         = '-';
-  GT            = '>';
-  LT            = '<';
-  LT_GT         = '<>';
-  GT_EQUALS     = '>=';
-  LT_EQUALS     = '<=';
-  L_PAREN       = '(';
-  R_PAREN       = ')';
-  L_BRACKET     = '[';
-  R_BRACKET     = ']';
-  MATCHES       = '=~';
-  DOT           = '.';
-  TRUE          = 'true';
-  FALSE         = 'false';
-  FROM          = 'from';
-  WHERE         = 'where';
-  SKIP          = 'skip';
-  LIMIT         = 'limit';
-  NOT           = 'not';
-  SELECT        = 'select';
-  DELETE        = 'delete';
-  UPDATE        = 'update';
-  EXPLAIN       = 'explain';
-  HINT          = 'hint';
-  NATURAL       = 'natural';
-  ATOMIC        = 'atomic';
-  INC           = 'inc';
-  UPSERT        = 'upsert';
-  MULTI         = 'multi';
-  UNSET         = 'unset';
-  SET           = 'set';
-  POP           = 'pop';
-  SHIFT         = 'shift';
-  PUSH          = 'push';
-  EACH          = 'each';
-  PULL          = 'pull';
-  RENAME        = 'rename';
-  BITWISE       = 'bitwise';
-  SORT          = 'sort';
-  ASC           = 'asc';
-  DESC          = 'desc';
-  RETURN        = 'return';
-  NEW           = 'new';
-  OLD           = 'old';
-  OR            = 'or';
-  AND           = 'and';
-  ALL			= 'all';
-  FIND_AND_MODIFY	= 'find and modify';
-  FIND_AND_DELETE	= 'find and delete';
-  ADD_TO_SET		= 'add to set';
+	SEMI_COLON    	= ';';
+	STAR          	= '*';
+	BACK_SLASH    	= '\\';
+	FORWARD_SLASH 	= '/';
+	EQUALS        	= '=';
+	NOT_EQUALS    	= '!=';
+	COMMA         	= ',';
+	MINUS         	= '-';
+	GT            	= '>';
+	LT            	= '<';
+	LT_GT		= '<>';
+	GT_EQUALS     	= '>=';
+	LT_EQUALS     	= '<=';
+	L_PAREN       	= '(';
+	R_PAREN       	= ')';
+	L_BRACKET     	= '[';
+	R_BRACKET     	= ']';
+	MATCHES       	= '=~';
+	DOT           	= '.';
+	TRUE          	= 'true';
+	FALSE         	= 'false';
+	FROM          	= 'from';
+	WHERE         	= 'where';
+	SKIP          	= 'skip';
+	LIMIT         	= 'limit';
+	NOT           	= 'not';
+	SELECT       	= 'select';
+	DELETE       	= 'delete';
+	UPDATE        	= 'update';
+	EXPLAIN       	= 'explain';
+	HINT          	= 'hint';
+	NATURAL       	= 'natural';
+	ATOMIC        	= 'atomic';
+	INC           	= 'inc';
+	UPSERT        	= 'upsert';
+	MULTI         	= 'multi';
+	UNSET         	= 'unset';
+	SET           	= 'set';
+	POP           	= 'pop';
+	SHIFT         	= 'shift';
+	PUSH          	= 'push';
+	EACH          	= 'each';
+	PULL          	= 'pull';
+	RENAME        	= 'rename';
+	BITWISE       	= 'bitwise';
+	SORT          	= 'sort';
+	ASC           	= 'asc';
+	DESC          	= 'desc';
+	RETURN        	= 'return';
+	NEW           	= 'new';
+	OLD           	= 'old';
+	OR            	= 'or';
+	AND           	= 'and';
+	ALL		= 'all';
+	
+	FIND_AND_MODIFY	= 'find and modify';
+	FIND_AND_DELETE	= 'find and delete';
+	ADD_TO_SET	= 'add to set';
+	
 
-  COMMAND;
-  
-  ARRAY;
-  
-  ADD_TO_SET_EACH;
-  PUSH_ALL;
-  PULL_ALL;
-
-  CRITERIA;
-  CRITERION;
-  DOCUMENT_FUNCTION_CRITERION;
-  FIELD_FUNCTION_CRITERION;
-  COMPARE_CRITERION;
-  NEGATED_CRITERION;
-  
-  ACTION;
-  SELECT_ACTION;
-  EXPLAIN_ACTION;
-  UPDATE_ACTION;
-  UPSERT_ACTION;
-  FIELDS;
-  PAGINATION;
-  
-  FAM_ACTION;
-  RETURN;
-  UPDATE_OPERATIONS;
-  
-  FAD_ACTION;
-
-  DELETE_ACTION;
-  VARIABLE_LIST;
-  FUNCTION_CALL;
-  
-  COMMANDS;
-  
-  FIELD;
-  NAME;
+	COMMANDS;
+	COMMAND;
+	ACTION;
+	
+	ADD_TO_SET_EACH;
+	PUSH_ALL;
+	PULL_ALL;
+	
+	CRITERION;
+	COMPARE_CRITERION;
+	NEGATED_CRITERION;
+	DOCUMENT_FUNCTION_CRITERION;
+	FIELD_FUNCTION_CRITERION;
+	
+	CRITERIA;
+	CRITERIA_GROUP;
+	CRITERIA_GROUP_LIST;
+	
+	SELECT_ACTION;
+	EXPLAIN_ACTION;
+	UPDATE_ACTION;
+	UPSERT_ACTION;
+	FAM_ACTION;
+	FAD_ACTION;
+	DELETE_ACTION;
+	
+	FIELD_LIST;
+	UPDATE_OPERATIONS;
+	
+	ARRAY;
+	VARIABLE_LIST;
+	FUNCTION_CALL;
 }
 
 @header {
@@ -126,6 +123,14 @@ command
 
 criteria
 	: c+=criterion (COMMA? c+=criterion)* -> ^(CRITERIA $c+)
+	;
+
+criteria_group
+	: L_PAREN criteria R_PAREN -> ^(CRITERIA_GROUP criteria)
+	;
+
+criteria_group_list
+	: L_PAREN c+=criteria_group (COMMA? c+=criteria_group)* -> ^(CRITERIA_GROUP_LIST $c+)
 	;
 
 criterion
@@ -179,8 +184,8 @@ select_action
 	;
 
 select_fields 
-	: STAR -> ^(FIELDS STAR)
-	| f+=field_name (COMMA? f+=field_name)* -> ^(FIELDS $f+)
+	: STAR -> ^(FIELD_LIST STAR)
+	| f+=field_name (COMMA? f+=field_name)* -> ^(FIELD_LIST $f+)
 	;
 
 pagination
@@ -306,7 +311,7 @@ field_name
 	;
 
 field_list
-	: f=field_name (COMMA? f=field_name)* -> ^(FIELDS $f+)
+	: f=field_name (COMMA? f=field_name)* -> ^(FIELD_LIST $f+)
 	;
 
 function_name
@@ -326,7 +331,7 @@ variable_list
 	;
 
 function_call
-	: function_name L_PAREN (criteria | variable_list)? R_PAREN -> ^(FUNCTION_CALL function_name criteria? variable_list?)
+	: function_name L_PAREN (criteria_group_list| criteria | variable_list)? R_PAREN -> ^(FUNCTION_CALL function_name criteria_group_list? criteria? variable_list?)
 	;
 
 integer
@@ -374,12 +379,12 @@ fragment DIGIT
 	;
 
 fragment SINGLE_QUOTE
-  : '\''
-  ;
+	: '\''
+	;
 
 fragment DOUBLE_QUOTE
-  : '\"'
-  ;
+	: '\"'
+	;
 
 INTEGER
 	: DIGIT+
@@ -410,27 +415,27 @@ REGEX
 	;
 	
 DOUBLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: DOUBLE_QUOTE (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | DOUBLE_QUOTE) { buf.appendCodePoint(i); })* DOUBLE_QUOTE { setText(buf.toString()); }
+	: DOUBLE_QUOTE (ESCAPE_EVALUATED[buf] | i = ~(BACK_SLASH | DOUBLE_QUOTE) { buf.appendCodePoint(i); })* DOUBLE_QUOTE { setText(buf.toString()); }
 	;
 	    
 SINGLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: '\'' (ESCAPE_EVALED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
+	: '\'' (ESCAPE_EVALUATED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
 	;
 
-fragment ESCAPE_EVALED[StringBuilder buf]
+fragment ESCAPE_EVALUATED[StringBuilder buf]
 	: '\\'
-	    ( 
+	  ( 
 		'n'		{buf.append("\n");}
-	        | 'r' 	{buf.append("\r");}
-	        | 't'	{buf.append("\t");}
-	        | 'b'	{buf.append("\b");}
-	        | 'f'	{buf.append("\f");}
-	        | '"'	{buf.append("\"");}
-	        | '\'' 	{buf.append("\'");}
+	        | 'r' 		{buf.append("\r");}
+	        | 't'		{buf.append("\t");}
+	        | 'b'		{buf.append("\b");}
+	        | 'f'		{buf.append("\f");}
+	        | '"'		{buf.append("\"");}
+	        | '\'' 		{buf.append("\'");}
 	        | FORWARD_SLASH {buf.append("/"); }
 	        | BACK_SLASH 	{buf.append("\\");}
 	        | 'u' i=HEX_DIGIT j=HEX_DIGIT k=HEX_DIGIT l=HEX_DIGIT   {setText(i.getText()+j.getText()+k.getText()+l.getText());}
-	    )
+	  )
 	;
 
 fragment ESCAPE
