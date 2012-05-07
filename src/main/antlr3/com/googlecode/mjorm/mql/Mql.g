@@ -326,7 +326,7 @@ variable_list
 	;
 
 function_call
-	: function_name L_PAREN (criteria | variable_list) R_PAREN -> ^(FUNCTION_CALL function_name criteria? variable_list?)
+	: function_name L_PAREN (criteria | variable_list)? R_PAREN -> ^(FUNCTION_CALL function_name criteria? variable_list?)
 	;
 
 integer

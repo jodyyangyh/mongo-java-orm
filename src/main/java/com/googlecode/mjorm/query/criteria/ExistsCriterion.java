@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFunction;
-import com.googlecode.mjorm.mql.MqlFunctionImpl;
+import com.googlecode.mjorm.mql.MqlFieldFunction;
+import com.googlecode.mjorm.mql.MqlFieldFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class ExistsCriterion
@@ -28,19 +28,38 @@ public class ExistsCriterion
 		return new BasicDBObject("$exists", value);
 	}
 
-	public static final MqlFunction
-		MQL_EXISTS_FUNCTION = new MqlFunctionImpl(0, 1, Boolean.class) {
+	public static final MqlFieldFunction
+		MQL_EXISTS_FUNCTION = new MqlFieldFunctionImpl() {
+		{
+			setMinArgs(1);
+			setMaxArgs(1);
+			setTypes(Boolean.class);
+		}
 		@Override
 		protected Criterion doCreate(Object[] values) {
 			Boolean arg = (values.length>0) ? Boolean.class.cast(values[0]) : true;
 			return new ExistsCriterion(arg);
 		}
+		@Override
+		protected Criterion doCreate() {
+			return new ExistsCriterion(true);
+		}
 	};
 
-	public static final MqlFunction
-		MQL_DOESNT_EXIST_FUNCTION = new MqlFunctionImpl(0, Boolean.class) {
+	public static final MqlFieldFunction
+		MQL_DOESNT_EXIST_FUNCTION = new MqlFieldFunctionImpl() {
+		{
+			setMinArgs(1);
+			setMaxArgs(1);
+			setTypes(Boolean.class);
+		}
 		@Override
 		protected Criterion doCreate(Object[] values) {
+			Boolean arg = (values.length>0) ? Boolean.class.cast(values[0]) : false;
+			return new ExistsCriterion(arg);
+		}
+		@Override
+		protected Criterion doCreate() {
 			return new ExistsCriterion(false);
 		}
 	};

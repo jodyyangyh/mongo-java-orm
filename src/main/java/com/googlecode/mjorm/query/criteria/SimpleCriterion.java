@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.mql.MqlFieldFunction;
+import com.googlecode.mjorm.mql.MqlFieldFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class SimpleCriterion
@@ -70,6 +72,34 @@ public class SimpleCriterion
 		}
 		
 		return new BasicDBObject(operator, optimalValue);
+	}
+
+	/**	 
+	 * Creates an {@link MqlFieldFunction} for the given {@link Operator}
+	 * with the given restrictions.
+	 * @param operator
+	 * @param minArgs
+	 * @param maxArgs
+	 * @param exactArgs
+	 * @param types
+	 * @return
+	 */
+	public static final MqlFieldFunction createForOperator(
+		final Operator operator, 
+		final int minArgs, final int maxArgs, final int exactArgs,
+		final Class<?>... types) {
+		return new MqlFieldFunctionImpl() {
+			{
+				setMinArgs(minArgs);
+				setMaxArgs(maxArgs);
+				setExactArgs(exactArgs);
+				setTypes(types);
+			}
+			@Override
+			public Criterion createForArguments(Object[] values) {
+				return new SimpleCriterion(operator, values);
+			}
+		};
 	}
 
 }

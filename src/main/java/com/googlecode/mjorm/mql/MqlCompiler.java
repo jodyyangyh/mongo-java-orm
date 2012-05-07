@@ -30,6 +30,7 @@ import com.googlecode.mjorm.query.criteria.NotCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion;
 import com.googlecode.mjorm.query.criteria.SizeCriterion;
 import com.googlecode.mjorm.query.criteria.TypeCriterion;
+import com.googlecode.mjorm.query.criteria.SimpleCriterion.Operator;
 
 public class MqlCompiler {
 
@@ -39,22 +40,22 @@ public class MqlCompiler {
 		}
 	};
 
-	private Map<String, MqlFunction> fieldFunctions
-		= new HashMap<String, MqlFunction>();
+	private Map<String, MqlFieldFunction> fieldFunctions
+		= new HashMap<String, MqlFieldFunction>();
 
-	private Map<String, MqlFunction> groupFunctions
-		= new HashMap<String, MqlFunction>();
+	private Map<String, MqlDocumentFunction> documentFunctions
+		= new HashMap<String, MqlDocumentFunction>();
 
 	public MqlCompiler() {
 		registerDefaultFunctions();
 	}
 
-	public void registerFieldFunction(String name, MqlFunction function) {
-		fieldFunctions.put(name.toLowerCase(), function);
+	public void registerFieldFunction(String name, MqlFieldFunction function) {
+		fieldFunctions.put(name.trim().toLowerCase(), function);
 	}
 
-	public void registerGroupFunction(String name, MqlFunction function) {
-		groupFunctions.put(name.toLowerCase(), function);
+	public void registerDocumentFunction(String name, MqlDocumentFunction function) {
+		documentFunctions.put(name.trim().toLowerCase(), function);
 	}
 
 	public void registerDefaultFunctions() {
@@ -65,6 +66,13 @@ public class MqlCompiler {
 		registerFieldFunction("mod", ModCriterion.MQL_FUNCTION);
 		registerFieldFunction("size", SizeCriterion.MQL_FUNCTION);
 		registerFieldFunction("type", TypeCriterion.MQL_FUNCTION);
+		registerFieldFunction("in", SimpleCriterion.createForOperator(Operator.IN, 1, Integer.MAX_VALUE, -1));
+		registerFieldFunction("nin", SimpleCriterion.createForOperator(Operator.NIN, 1, Integer.MAX_VALUE, -1));
+		registerFieldFunction("all", SimpleCriterion.createForOperator(Operator.ALL, 1, Integer.MAX_VALUE, -1));
+
+		registerDocumentFunction("or", MqlDocumentFunctionImpl.createDocumentQueryFunction("$or"));
+		registerDocumentFunction("nor", MqlDocumentFunctionImpl.createDocumentQueryFunction("$nor"));
+		registerDocumentFunction("and", MqlDocumentFunctionImpl.createDocumentQueryFunction("$and"));
 	}
 
 	public List<DaoQuery> compile(String code)
@@ -143,28 +151,29 @@ public class MqlCompiler {
 	 * @param query
 	 */
 	private void readCriterion(Tree tree, AbstractQueryCriterion<?> query) {
-		String fieldName = null;
-		String groupName = null;
-		Query groupQuery = null;
+		String fieldName 	= null;
+		String groupName 	= null;
+		Query groupQuery	= null;
 		Criterion criterion = null;
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
-				groupName = getFunctionNameFromFunctionCall(tree.getChild(0));
-				criterion = createCriterion(tree);
+				String functionName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
+				groupQuery = Query.class.cast(createCriterion(tree));
+				groupName = documentFunctions.get(functionName).getGroupName();
 				break;
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				fieldName = getFieldNameFromFieldCriterion(tree);
+				fieldName = tree.getChild(0).getText().trim().toLowerCase();
 				criterion = createCriterion(tree);
 				break;
 				
 			case MqlParser.COMPARE_CRITERION:
-				fieldName = getFieldNameFromFieldCriterion(tree);
+				fieldName = tree.getChild(0).getText().trim().toLowerCase();
 				criterion = createCriterion(tree);
 				break;
 				
 			case MqlParser.NEGATED_CRITERION:
-				fieldName = getFieldNameFromFieldCriterion(tree.getChild(0));
+				fieldName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
 				criterion = createCriterion(tree.getChild(0));
 				break;
 				
@@ -172,8 +181,7 @@ public class MqlCompiler {
 				assertTokenType(tree);
 		}
 		if (groupName!=null) {
-			// TODO: work out document function criterion
-			//query.doc(groupName, criterion);
+			query.group(groupName, groupQuery);
 		} else {
 			query.add(fieldName, criterion);
 		}
@@ -196,34 +204,10 @@ public class MqlCompiler {
 	private Criterion createCriterion(Tree tree) {
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
-				String groupFunctionName = tree.getChild(0).getText();
-				if (!groupFunctions.containsKey(groupFunctionName)) {
-					throw new IllegalArgumentException(
-						"Unknown doc function: "+groupFunctionName);
-					
-				} else if (tree.getChildCount()==1) {
-					return groupFunctions.get(groupFunctionName).createForNoArguments();
-					
-				} else if (tree.getChild(1).getType()==MqlParser.CRITERIA) {
-					Query query = new Query();
-					readCriteria(tree.getChild(1), query);
-					return groupFunctions.get(groupFunctionName).createForQuery(query);
-					
-				} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
-					Object[] arguments = readVariableListFromFunctionCall(tree.getChild(1));
-					return groupFunctions.get(groupFunctionName).createForArguments(arguments);
-				}
-				throw new IllegalArgumentException(
-					"Unknown document function argument type");
+				return readQueryForDocumentFunction(tree.getChild(0), documentFunctions);
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				String functionName = getFunctionNameFromFunctionCall(tree.getChild(1));
-				if (!fieldFunctions.containsKey(functionName)) {
-					throw new IllegalArgumentException(
-						"Unknown field function: "+functionName);
-				}
-				Object[] arguments = readVariableListFromFunctionCall(tree.getChild(1));
-				return fieldFunctions.get(functionName).createForArguments(arguments); 
+				return readCriterionForFieldFunction(tree.getChild(0), fieldFunctions);
 				
 			case MqlParser.COMPARE_CRITERION:
 				return new SimpleCriterion(
@@ -239,6 +223,89 @@ public class MqlCompiler {
 		}
 	}
 
+	/**
+	 * Creates a {@link Criterion} for the given function call.
+	 * @param tree
+	 * @param functionTable
+	 * @return
+	 */
+	private Query readQueryForDocumentFunction(
+		Tree tree, Map<String, MqlDocumentFunction> functionTable) {
+		assertTokenType(tree, MqlParser.FUNCTION_CALL);
+
+		// get the function name
+		String functionName = tree.getChild(0).getText().trim().toLowerCase();
+		Query ret = null;
+
+		// function not found
+		if (!functionTable.containsKey(functionName)) {
+			throw new IllegalArgumentException(
+				"Unknown function: "+functionName);
+
+		// no arguments
+		} else if (tree.getChildCount()==1) {
+			ret = functionTable.get(functionName).createForNoArguments();
+
+		// criteria arguments
+		} else if (tree.getChild(1).getType()==MqlParser.CRITERIA) {
+			Query query = new Query();
+			readCriteria(tree.getChild(1), query);
+			ret = functionTable.get(functionName).createForQuery(query);
+
+		// variable list arguments
+		} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
+			Object[] arguments = readVariableList(tree.getChild(1));
+			ret = functionTable.get(functionName).createForArguments(arguments);
+		}
+
+		// return it
+		return ret;
+	}
+
+	/**
+	 * Creates a {@link Criterion} for the given function call.
+	 * @param tree
+	 * @param functionTable
+	 * @return
+	 */
+	private Criterion readCriterionForFieldFunction(
+		Tree tree, Map<String, MqlFieldFunction> functionTable) {
+		assertTokenType(tree, MqlParser.FUNCTION_CALL);
+
+		// get the function name
+		String functionName = tree.getChild(0).getText().trim().toLowerCase();
+		Criterion ret = null;
+
+		// function not found
+		if (!functionTable.containsKey(functionName)) {
+			throw new IllegalArgumentException(
+				"Unknown function: "+functionName);
+
+		// no arguments
+		} else if (tree.getChildCount()==1) {
+			ret = functionTable.get(functionName).createForNoArguments();
+
+		// criteria arguments
+		} else if (tree.getChild(1).getType()==MqlParser.CRITERIA) {
+			Query query = new Query();
+			readCriteria(tree.getChild(1), query);
+			ret = functionTable.get(functionName).createForQuery(query);
+
+		// variable list arguments
+		} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
+			Object[] arguments = readVariableList(tree.getChild(1));
+			ret = functionTable.get(functionName).createForArguments(arguments);
+		}
+
+		// return it
+		return ret;
+	}
+
+	/**
+	 * Reads a variable literal.
+	 * @param tree
+	 * @return
+	 */
 	private Object readVariableLiteral(Tree tree) {
 		return null;
 	}
@@ -255,40 +322,6 @@ public class MqlCompiler {
 			ret[i] = readVariableLiteral(tree.getChild(i));
 		}
 		return ret;
-	}
-
-	/**
-	 * Returns a function name from a function call.
-	 * @param tree
-	 * @return
-	 */
-	private Object[] readVariableListFromFunctionCall(Tree tree) {
-		assertTokenType(tree, MqlParser.FUNCTION_CALL);
-		return tree.getChildCount()>1
-			? readVariableList(tree.getChild(1))
-			: new Object[0];
-	}
-
-	/**
-	 * Returns a function name from a function call.
-	 * @param tree
-	 * @return
-	 */
-	private String getFunctionNameFromFunctionCall(Tree tree) {
-		assertTokenType(tree, MqlParser.FUNCTION_CALL);
-		return tree.getChild(0).getText().toLowerCase();
-	}
-
-	/**
-	 * Gets the field name from a field criterion.
-	 * @param tree
-	 * @return
-	 */
-	private String getFieldNameFromFieldCriterion(Tree tree) {
-		assertTokenType(tree,
-			MqlParser.FIELD_FUNCTION_CRITERION,
-			MqlParser.COMPARE_CRITERION);
-		return tree.getChild(0).getText();
 	}
 
 	/**
