@@ -39,6 +39,13 @@ public class DaoQuery
 
 	/**
 	 * Creates the {@link DaoQuery}.
+	 */
+	public DaoQuery() {
+		this.clear();
+	}
+
+	/**
+	 * Creates the {@link DaoQuery}.
 	 * @param mongoDao the {@link MongoDao}
 	 */
 	public DaoQuery(MongoDao mongoDao) {
@@ -64,6 +71,18 @@ public class DaoQuery
 	}
 
 	/**
+	 * Asserts that the {@link DaoQuery} is valid.
+	 * Throws an exception if not.
+	 */
+	public void assertValid() {
+		if (collection==null) {
+			throw new IllegalStateException("collection must be specified");
+		} else if (mongoDao==null) {
+			throw new IllegalStateException("mongoDao must be specified");
+		}
+	}
+
+	/**
 	 * Creates a {@link DaoModifier} for the
 	 * current query.
 	 * @return the {@link DaoModifier}
@@ -78,9 +97,7 @@ public class DaoQuery
 	 * @return the iterator.
 	 */
 	public <T> ObjectIterator<T> findObjects(Class<T> clazz) {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		ObjectIterator<T> itr = mongoDao.findObjects(collection, toQueryObject(), clazz);
 		setupCursor(itr.getDBCursor());
 		return itr;
@@ -92,9 +109,7 @@ public class DaoQuery
 	 * @return the object.
 	 */
 	public <T> T findObject(Class<T> clazz) {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		return mongoDao.findObject(collection, toQueryObject(), clazz);
 	}
 
@@ -104,9 +119,7 @@ public class DaoQuery
 	 * @return the count
 	 */
 	public long countObjects() {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		return mongoDao.countObjects(collection, toQueryObject());
 	}
 
@@ -119,9 +132,7 @@ public class DaoQuery
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Object> distinct(String field) {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		return mongoDao
 			.getCollection(collection)
 			.distinct(field, toQueryObject());
@@ -136,9 +147,7 @@ public class DaoQuery
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> List<T> distinct(String field, Class<T> expected) {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		return mongoDao
 			.getCollection(collection)
 			.distinct(field, toQueryObject());
@@ -149,9 +158,7 @@ public class DaoQuery
 	 * @return the explained query
 	 */
 	public DBObject explain() {
-		if (collection==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
+		assertValid();
 		DBCursor cursor = mongoDao.getCollection(collection)
 			.find(toQueryObject());
 		setupCursor(cursor);
@@ -333,6 +340,14 @@ public class DaoQuery
 	 */
 	public DaoQuery setCollection(String collection) {
 		this.collection = collection;
+		return self();
+	}
+
+	/**
+	 * @param mongoDao the mongoDao to set
+	 */
+	public DaoQuery setMongoDao(MongoDao mongoDao) {
+		this.mongoDao = mongoDao;
 		return self();
 	}
 

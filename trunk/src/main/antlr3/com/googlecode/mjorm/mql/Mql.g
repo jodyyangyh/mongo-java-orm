@@ -98,6 +98,8 @@ tokens {
   VARIABLE_LIST;
   FUNCTION_CALL;
   
+  COMMANDS;
+  
   FIELD;
   NAME;
 }
@@ -112,7 +114,7 @@ tokens {
 
 /** start **/
 start
-	: command (command)* EOF!
+	: c+=command (c+=command)* EOF -> ^(COMMANDS $c+)
 	;
 
 /** command **/

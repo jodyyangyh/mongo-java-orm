@@ -9,17 +9,41 @@ import com.mongodb.WriteResult;
 public class DaoModifier
 	extends AbstractQueryModifiers<DaoModifier> {
 
-	private MongoDao mongoDao;
 	private DaoQuery query;
 
 	/**
 	 * Creates the {@link DaoModifier}.
 	 * @param mongoDao the {@link MongoDao}
 	 */
-	public DaoModifier(DaoQuery query) {
-		this.query 		= query;
-		this.mongoDao	= query.getMongoDao();
+	public DaoModifier() {
 		this.clear();
+	}
+
+	/**
+	 * Creates the {@link DaoModifier}.
+	 * @param mongoDao the {@link MongoDao}
+	 */
+	public DaoModifier(DaoQuery query) {
+		this.query = query;
+		this.clear();
+	}
+
+	/**
+	 * Asserts that the {@link DaoModifier} is valid.
+	 * Throws an exception if not.
+	 */
+	public void assertValid() {
+		if (query==null) {
+			throw new IllegalStateException("query must be specified");
+		}
+		query.assertValid();
+	}
+
+	/**
+	 * Clears this modifier query.
+	 */
+	public void clear() {
+		super.clear();
 	}
 
 	/**
@@ -31,14 +55,30 @@ public class DaoModifier
 	}
 
 	/**
+	 * Returns the {@link DaoQuery} tha this modifier will use.
+	 * @return
+	 */
+	public DaoQuery getQuery() {
+		return query;
+	}
+
+	/**
+	 * Sets the {@link DaoQuery} that this modifier will use.
+	 * @param query
+	 * @return
+	 */
+	public DaoModifier setQuery(DaoQuery query) {
+		this.query = query;
+		return this;
+	}
+
+	/**
 	 * Removes the objects matched by this query.
 	 * @return the {@link WriteResult}
 	 */
 	public WriteResult deleteObjects() {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		return mongoDao.getCollection(query.getCollection())
+		assertValid();
+		return query.getMongoDao().getCollection(query.getCollection())
 			.remove(query.toQueryObject());
 	}
 
@@ -47,10 +87,8 @@ public class DaoModifier
 	 * @return the object found and modified
 	 */
 	public <T> T findAndDelete(Class<T> clazz) {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		return mongoDao.findAndDelete(
+		assertValid();
+		return query.getMongoDao().findAndDelete(
 			query.getCollection(), query.toQueryObject(),
 			query.getSortDBObject(), clazz);
 	}
@@ -61,10 +99,8 @@ public class DaoModifier
 	 * @param fields the fields to populate on the return object
 	 */
 	public <T> T findAndDelete(Class<T> clazz, String[] fields) {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		return mongoDao.findAndDelete(
+		assertValid();
+		return query.getMongoDao().findAndDelete(
 			query.getCollection(), query.toQueryObject(),
 			query.getSortDBObject(), clazz, fields);
 	}
@@ -77,10 +113,8 @@ public class DaoModifier
 	 * @return the object
 	 */
 	public <T> T findAndModify(boolean returnNew, boolean upsert, Class<T> clazz) {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		return mongoDao.findAndModify(
+		assertValid();
+		return query.getMongoDao().findAndModify(
 			query.getCollection(), query.toQueryObject(), query.getSortDBObject(),
 			toModifierObject(), returnNew, upsert, clazz);
 	}
@@ -94,10 +128,8 @@ public class DaoModifier
 	 * @return the object
 	 */
 	public <T> T findAndModify(boolean returnNew, boolean upsert, Class<T> clazz, String[] fields) {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		return mongoDao.findAndModify(
+		assertValid();
+		return query.getMongoDao().findAndModify(
 			query.getCollection(), query.toQueryObject(), query.getSortDBObject(),
 			toModifierObject(), returnNew, upsert, clazz, fields);
 	}
@@ -110,10 +142,8 @@ public class DaoModifier
 	 * @param encoder
 	 */
 	public void update(boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
-		if (query.getCollection()==null) {
-			throw new IllegalStateException("collection must be specified");
-		}
-		mongoDao.update(
+		assertValid();
+		query.getMongoDao().update(
 			query.getCollection(), query.toQueryObject(),
 			toModifierObject(), upsert, multi,
 			concern, encoder);

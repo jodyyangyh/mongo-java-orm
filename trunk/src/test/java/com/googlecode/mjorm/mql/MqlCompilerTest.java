@@ -4,10 +4,13 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.googlecode.mjorm.query.DaoQuery;
 
 public class MqlCompilerTest {
 
@@ -34,7 +37,8 @@ public class MqlCompilerTest {
 		throws Exception {
 
 		// compile the test
-		compiler.compile(rs("/com/googlecode/mjorm/mql/test.mql"));
+		List<DaoQuery> queries = compiler.compile(rs("/com/googlecode/mjorm/mql/test.mql"));
+		assertEquals(1, queries.size());
 	}
 
 }
