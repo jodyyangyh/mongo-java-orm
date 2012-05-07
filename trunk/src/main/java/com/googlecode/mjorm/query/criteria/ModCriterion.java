@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFunction;
-import com.googlecode.mjorm.mql.MqlFunctionImpl;
+import com.googlecode.mjorm.mql.MqlFieldFunction;
+import com.googlecode.mjorm.mql.MqlFieldFunctionImpl;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 
@@ -41,7 +41,11 @@ public class ModCriterion
 		return new BasicDBObject("$mod", numbers);
 	}
 
-	public static final MqlFunction MQL_FUNCTION = new MqlFunctionImpl(2, Number.class) {
+	public static final MqlFieldFunction MQL_FUNCTION = new MqlFieldFunctionImpl() {
+		{
+			setExactArgs(2);
+			setTypes(Number.class);
+		}
 		@Override
 		protected Criterion doCreate(Object[] values) {
 			return new ModCriterion(
