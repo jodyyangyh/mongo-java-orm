@@ -75,7 +75,7 @@ tokens {
 
   CRITERIA;
   CRITERION;
-  GROUP_FUNCTION_CRITERION;
+  DOCUMENT_FUNCTION_CRITERION;
   FIELD_FUNCTION_CRITERION;
   COMPARE_CRITERION;
   NEGATED_CRITERION;
@@ -145,11 +145,11 @@ compare_criterion
 	;
 	
 field_function_criterion
-	: field_name function_call -> ^(FIELD_FUNCTION_CRITERION field_name function_call)
+	: field_name function_call -> ^(FIELD_FUNCTION_CRITERION function_call?)
 	;
 
 function_criterion 
-	: function_name L_PAREN (criteria | variable_list) R_PAREN -> ^(GROUP_FUNCTION_CRITERION function_name criteria? variable_list?)
+	: function_call -> ^(DOCUMENT_FUNCTION_CRITERION function_call?)
 	;
 
 /** hint **/
@@ -326,7 +326,7 @@ variable_list
 	;
 
 function_call
-	: function_name L_PAREN variable_list? R_PAREN -> ^(FUNCTION_CALL function_name variable_list?)
+	: function_name L_PAREN (criteria | variable_list) R_PAREN -> ^(FUNCTION_CALL function_name criteria? variable_list?)
 	;
 
 integer

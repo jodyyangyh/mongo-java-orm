@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.AbstractMqlFieldFunction;
-import com.googlecode.mjorm.mql.MqlFieldFunction;
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class ExistsCriterion
@@ -28,8 +28,8 @@ public class ExistsCriterion
 		return new BasicDBObject("$exists", value);
 	}
 
-	public static final MqlFieldFunction
-		MQL_EXISTS_FUNCTION = new AbstractMqlFieldFunction(0, 1, Boolean.class) {
+	public static final MqlFunction
+		MQL_EXISTS_FUNCTION = new MqlFunctionImpl(0, 1, Boolean.class) {
 		@Override
 		protected Criterion doCreate(Object[] values) {
 			Boolean arg = (values.length>0) ? Boolean.class.cast(values[0]) : true;
@@ -37,8 +37,8 @@ public class ExistsCriterion
 		}
 	};
 
-	public static final MqlFieldFunction
-		MQL_DOESNT_EXIST_FUNCTION = new AbstractMqlFieldFunction(0, Boolean.class) {
+	public static final MqlFunction
+		MQL_DOESNT_EXIST_FUNCTION = new MqlFunctionImpl(0, Boolean.class) {
 		@Override
 		protected Criterion doCreate(Object[] values) {
 			return new ExistsCriterion(false);
