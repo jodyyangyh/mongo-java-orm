@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFieldFunction;
-import com.googlecode.mjorm.mql.MqlFieldFunctionImpl;
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class TypeCriterion
@@ -61,15 +61,18 @@ public class TypeCriterion
 		return new BasicDBObject("$type", typeCode);
 	}
 
-	public static final MqlFieldFunction MQL_FUNCTION = new MqlFieldFunctionImpl() {
-		{
-			setExactArgs(1);
-			setTypes(Number.class);
-		}
-		@Override
-		protected Criterion doCreate(Object[] values) {
-			return new TypeCriterion(Number.class.cast(values[0]));
-		}
-	};
 
+	public static MqlFunction createFunction(final String functionName) {
+		return new MqlFunctionImpl() {
+			protected void init() {
+				setFunctionName(functionName);
+				setExactArgs(1);
+				setTypes(Number.class);
+			}
+			@Override
+			protected Criterion doCreate(Object[] values) {
+				return new TypeCriterion(Number.class.cast(values[0]));
+			}
+		};
+	}
 }

@@ -39,6 +39,7 @@ public class MqlCompilerTest {
 		// compile the test
 		List<DaoQuery> queries = compiler.compile(rs("/com/googlecode/mjorm/mql/test.mql"));
 		assertEquals(1, queries.size());
+		System.out.println(queries.get(0).toQueryObject());
 	}
 
 }

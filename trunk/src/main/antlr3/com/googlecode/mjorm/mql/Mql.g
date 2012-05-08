@@ -150,7 +150,7 @@ compare_criterion
 	;
 	
 field_function_criterion
-	: field_name function_call -> ^(FIELD_FUNCTION_CRITERION function_call?)
+	: field_name function_call -> ^(FIELD_FUNCTION_CRITERION field_name function_call?)
 	;
 
 function_criterion 

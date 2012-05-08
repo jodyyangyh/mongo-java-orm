@@ -4,7 +4,7 @@ import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.Criterion;
 
-public interface MqlFieldFunction {
+public interface MqlFunction {
 
 	Criterion createForQuery(Query query);
 
@@ -13,5 +13,7 @@ public interface MqlFieldFunction {
 	Criterion createForArguments(Object[] values);
 
 	Criterion createForNoArguments();
+
+	String getName();
 
 }

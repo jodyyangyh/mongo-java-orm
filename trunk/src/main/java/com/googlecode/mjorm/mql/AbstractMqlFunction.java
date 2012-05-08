@@ -2,54 +2,68 @@ package com.googlecode.mjorm.mql;
 
 import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
+import com.googlecode.mjorm.query.criteria.Criterion;
 
-public class AbstractMqlFunction<T> {
+public abstract class AbstractMqlFunction {
 
-	protected boolean allowQueryGroup	= false;
-	protected boolean allowQuery		= false;
-	protected int exactArgs 			= -1;
-	protected int maxArgs 				= -1;
-	protected int minArgs				= -1;
-	protected Class<?> types[]			= new Class<?>[0];
+	private String functionName				= "unknown";
+	private boolean allowQueryGroup		= false;
+	private boolean allowQuery				= false;
+	private int exactArgs					= -1;
+	private int maxArgs					= -1;
+	private int minArgs					= -1;
+	private Class<?> types[]				= new Class<?>[0];
+	private boolean initialized			= false;
+	private boolean strictInitialization	= true;
 
-
-	protected T doCreate(Object[] values) {
-		throw new IllegalArgumentException(
-			this.getClass().getName()+" doesn't implement doCreate(Object[])");
+	public AbstractMqlFunction() {
+		initialized = false;
+		init();
+		if (functionName==null || functionName.trim().length()==0) {
+			throw new IllegalArgumentException("Invalid function name");
+		}
+		initialized = true;
 	}
 
-	protected T doCreate() {
+	protected abstract void init();
+
+	protected Criterion doCreate(Object[] values) {
 		throw new IllegalArgumentException(
-			this.getClass().getName()+" doesn't implement doCreate()");
+			functionName+" doesn't implement doCreate(Object[])");
 	}
 
-	protected T doCreate(Query query) {
+	protected Criterion doCreate() {
 		throw new IllegalArgumentException(
-			this.getClass().getName()+" doesn't implement doCreate(Query)");
+			functionName+" doesn't implement doCreate()");
 	}
 
-	protected T doCreate(QueryGroup queryGroup) {
+	protected Criterion doCreate(Query query) {
 		throw new IllegalArgumentException(
-			this.getClass().getName()+" doesn't implement doCreate(QueryGroup)");
+			functionName+" doesn't implement doCreate(Query)");
+	}
+
+	protected Criterion doCreate(QueryGroup queryGroup) {
+		throw new IllegalArgumentException(
+			functionName+" doesn't implement doCreate(QueryGroup)");
 	}
 	
-	public T createForQuery(Query query) {
+	public Criterion createForQuery(Query query) {
 		if (!allowQuery) {
 			throw new IllegalArgumentException(
-				this.getClass().getName()+" doesn't take Query as an argument");
+				functionName+" doesn't take Query as an argument");
 		}
 		return doCreate(query);
 	}
 
-	public T createForQueryGroup(QueryGroup queryGroup) {
+	public Criterion createForQueryGroup(QueryGroup queryGroup) {
 		if (!allowQueryGroup) {
 			throw new IllegalArgumentException(
-				this.getClass().getName()+" doesn't take QueryGroup as an argument");
+				functionName+" doesn't take QueryGroup as an argument");
 		}
 		return doCreate(queryGroup);
 	}
 
-	public T createForArguments(Object[] values) {
+	public Criterion createForArguments(Object[] values) {
 		if (maxArgs!=-1) {
 			assertMaximumArgumentLength(values, maxArgs);
 		}
@@ -68,53 +82,96 @@ public class AbstractMqlFunction<T> {
 		return doCreate(values);
 	}
 
-	public T createForNoArguments() {
+	public Criterion createForNoArguments() {
 		return doCreate();
 	}
 
-	/**
-	 * @param allowQueryGroup the allowQueryGroup to set
-	 */
-	protected void setAllowQueryGroup(boolean allowQueryGroup) {
-		this.allowQueryGroup = allowQueryGroup;
+	public String getName() {
+		return functionName;
 	}
 
-	/**
-	 * @param allowQuery the allowQuery to set
-	 */
-	protected void setAllowQuery(boolean allowQuery) {
-		this.allowQuery = allowQuery;
-	}
-
-	/**
-	 * @param exactArgs the exactArgs to set
-	 */
-	protected void setExactArgs(int exactArgs) {
-		this.exactArgs = exactArgs;
-	}
-
-	/**
-	 * @param maxArgs the maxArgs to set
-	 */
-	protected void setMaxArgs(int maxArgs) {
-		this.maxArgs = maxArgs;
-	}
-
-	/**
-	 * @param minArgs the minArgs to set
-	 */
-	protected void setMinArgs(int minArgs) {
-		if (minArgs==0) {
-			throw new IllegalArgumentException("minArgs must be > 0");
+	protected void assertNotInitialized() {
+		if (strictInitialization && initialized) {
+			throw new IllegalStateException("Function "+functionName+" already initialized");
 		}
-		this.minArgs = minArgs;
+	}
+	
+	protected void assertArgumentTypes(Object[] arguments, Class<?> type) {
+		for (int i=0; i<arguments.length; i++) {
+			if (arguments[i]!=null && !type.isInstance(arguments[i])) {
+				throw new IllegalArgumentException("Invalid type for argument "+i+" in function "+functionName);
+			}
+		}
+	}
+
+	protected void assertArgumentTypes(Object[] arguments, Class<?>[] types) {
+		if (arguments.length!=types.length) {
+			throw new IllegalArgumentException(
+				"Argument length doesn't match type length in function "+functionName);
+		}
+		for (int i=0; i<types.length; i++) {
+			if (!types[i].isInstance(arguments[i])) {
+				throw new IllegalArgumentException(
+					"Invalid type for argument "+i+" in function "+functionName);
+			}
+		}
+	}
+
+	protected void assertArgumentLength(Object[] arguments, int length) {
+		if (arguments.length!=length) {
+			throw new IllegalArgumentException(
+				"Invalid argument length in function "+functionName);
+		}
+	}
+
+	protected void assertMinimumArgumentLength(Object[] arguments, int length) {
+		if (arguments.length<length) {
+			throw new IllegalArgumentException(
+				"Must have at least "+length+" arguments in function "+functionName);
+		}
+	}
+
+	protected void assertMaximumArgumentLength(Object[] arguments, int length) {
+		if (arguments.length>length) {
+			throw new IllegalArgumentException(
+				"Must have no more than "+length+" arguments in function "+functionName);
+		}
 	}
 
 	/**
-	 * @param types the types to set
+	 * @return the initialized
 	 */
-	protected void setTypes(Class<?>... types) {
-		this.types = types;
+	protected boolean isInitialized() {
+		return initialized;
+	}
+
+	/**
+	 * @return the strictInitialization
+	 */
+	protected boolean isStrictInitialization() {
+		return strictInitialization;
+	}
+
+	/**
+	 * @param strictInitialization the strictInitialization to set
+	 */
+	protected void setStrictInitialization(boolean strictInitialization) {
+		this.strictInitialization = strictInitialization;
+	}
+
+	/**
+	 * @return the functionName
+	 */
+	protected String getFunctionName() {
+		return functionName;
+	}
+
+	/**
+	 * @param functionName the functionName to set
+	 */
+	protected void setFunctionName(String functionName) {
+		assertNotInitialized();
+		this.functionName = functionName;
 	}
 
 	/**
@@ -125,10 +182,26 @@ public class AbstractMqlFunction<T> {
 	}
 
 	/**
+	 * @param allowQueryGroup the allowQueryGroup to set
+	 */
+	protected void setAllowQueryGroup(boolean allowQueryGroup) {
+		assertNotInitialized();
+		this.allowQueryGroup = allowQueryGroup;
+	}
+
+	/**
 	 * @return the allowQuery
 	 */
 	protected boolean isAllowQuery() {
 		return allowQuery;
+	}
+
+	/**
+	 * @param allowQuery the allowQuery to set
+	 */
+	protected void setAllowQuery(boolean allowQuery) {
+		assertNotInitialized();
+		this.allowQuery = allowQuery;
 	}
 
 	/**
@@ -139,10 +212,26 @@ public class AbstractMqlFunction<T> {
 	}
 
 	/**
+	 * @param exactArgs the exactArgs to set
+	 */
+	protected void setExactArgs(int exactArgs) {
+		assertNotInitialized();
+		this.exactArgs = exactArgs;
+	}
+
+	/**
 	 * @return the maxArgs
 	 */
 	protected int getMaxArgs() {
 		return maxArgs;
+	}
+
+	/**
+	 * @param maxArgs the maxArgs to set
+	 */
+	protected void setMaxArgs(int maxArgs) {
+		assertNotInitialized();
+		this.maxArgs = maxArgs;
 	}
 
 	/**
@@ -153,47 +242,26 @@ public class AbstractMqlFunction<T> {
 	}
 
 	/**
+	 * @param minArgs the minArgs to set
+	 */
+	protected void setMinArgs(int minArgs) {
+		assertNotInitialized();
+		this.minArgs = minArgs;
+	}
+
+	/**
 	 * @return the types
 	 */
 	protected Class<?>[] getTypes() {
 		return types;
 	}
 
-	protected void assertArgumentTypes(Object[] arguments, Class<?> type) {
-		for (int i=0; i<arguments.length; i++) {
-			if (arguments[i]!=null && !type.isInstance(arguments[i])) {
-				throw new IllegalArgumentException("Invalid type for argument "+i);
-			}
-		}
-	}
-
-	protected void assertArgumentTypes(Object[] arguments, Class<?>[] types) {
-		if (arguments.length!=types.length) {
-			throw new IllegalArgumentException("Argument length doesn't match type length");
-		}
-		for (int i=0; i<types.length; i++) {
-			if (!types[i].isInstance(arguments[i])) {
-				throw new IllegalArgumentException("Invalid type for argument "+i);
-			}
-		}
-	}
-
-	protected void assertArgumentLength(Object[] arguments, int length) {
-		if (arguments.length!=length) {
-			throw new IllegalArgumentException("Invalid argument length");
-		}
-	}
-
-	protected void assertMinimumArgumentLength(Object[] arguments, int length) {
-		if (arguments.length<length) {
-			throw new IllegalArgumentException("Must have at least "+length+" arguments");
-		}
-	}
-
-	protected void assertMaximumArgumentLength(Object[] arguments, int length) {
-		if (arguments.length>length) {
-			throw new IllegalArgumentException("Must have noe more than "+length+" arguments");
-		}
+	/**
+	 * @param types the types to set
+	 */
+	protected void setTypes(Class<?>... types) {
+		assertNotInitialized();
+		this.types = types;
 	}
 
 }
