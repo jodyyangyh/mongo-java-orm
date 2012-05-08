@@ -173,7 +173,7 @@ public class MqlCompiler {
 				
 			case MqlParser.NEGATED_CRITERION:
 				fieldName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
-				criterion = new NotCriterion(fieldName, createCriterion(tree));
+				criterion = new NotCriterion(fieldName, createCriterion(tree.getChild(0)));
 				break;
 				
 			default:
