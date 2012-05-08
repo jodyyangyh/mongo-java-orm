@@ -23,8 +23,10 @@ import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.Criterion;
+import com.googlecode.mjorm.query.criteria.DocumentCriterion;
 import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
 import com.googlecode.mjorm.query.criteria.ExistsCriterion;
+import com.googlecode.mjorm.query.criteria.FieldCriterion;
 import com.googlecode.mjorm.query.criteria.ModCriterion;
 import com.googlecode.mjorm.query.criteria.NotCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion;
@@ -70,9 +72,9 @@ public class MqlCompiler {
 		registerFieldFunction("nin", SimpleCriterion.createForOperator(Operator.NIN, 1, Integer.MAX_VALUE, -1));
 		registerFieldFunction("all", SimpleCriterion.createForOperator(Operator.ALL, 1, Integer.MAX_VALUE, -1));
 
-		registerDocumentFunction("or", MqlDocumentFunctionImpl.createDocumentQueryFunction("$or"));
-		registerDocumentFunction("nor", MqlDocumentFunctionImpl.createDocumentQueryFunction("$nor"));
-		registerDocumentFunction("and", MqlDocumentFunctionImpl.createDocumentQueryFunction("$and"));
+		//registerDocumentFunction("or", MqlDocumentFunctionImpl.createDocumentQueryFunction("$or"));
+		//registerDocumentFunction("nor", MqlDocumentFunctionImpl.createDocumentQueryFunction("$nor"));
+		//registerDocumentFunction("and", MqlDocumentFunctionImpl.createDocumentQueryFunction("$and"));
 	}
 
 	public List<DaoQuery> compile(String code)
@@ -151,40 +153,33 @@ public class MqlCompiler {
 	 * @param query
 	 */
 	private void readCriterion(Tree tree, AbstractQueryCriterion<?> query) {
-		String fieldName 	= null;
-		String groupName 	= null;
-		Query groupQuery	= null;
-		Criterion criterion = null;
+		DocumentCriterion criterion = null;
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
 				String functionName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
-				groupQuery = Query.class.cast(createCriterion(tree));
-				groupName = documentFunctions.get(functionName).getGroupName();
+				//groupQuery = Query.class.cast(createCriterion(tree));
+				//groupName = documentFunctions.get(functionName).getGroupName();
 				break;
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				fieldName = tree.getChild(0).getText().trim().toLowerCase();
-				criterion = createCriterion(tree);
+				String fieldName = tree.getChild(0).getText().trim().toLowerCase();
+				criterion = new FieldCriterion(fieldName, createCriterion(tree));
 				break;
 				
 			case MqlParser.COMPARE_CRITERION:
 				fieldName = tree.getChild(0).getText().trim().toLowerCase();
-				criterion = createCriterion(tree);
+				criterion = new FieldCriterion(fieldName, createCriterion(tree));
 				break;
 				
 			case MqlParser.NEGATED_CRITERION:
 				fieldName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
-				criterion = createCriterion(tree.getChild(0));
+				criterion = new NotCriterion(fieldName, createCriterion(tree));
 				break;
 				
 			default:
 				assertTokenType(tree);
 		}
-		if (groupName!=null) {
-			query.group(groupName, groupQuery);
-		} else {
-			query.add(fieldName, criterion);
-		}
+		query.add(criterion);
 	}
 
 	/**
@@ -215,7 +210,12 @@ public class MqlCompiler {
 					readVariableLiteral(tree.getChild(2)));
 				
 			case MqlParser.NEGATED_CRITERION:
-				return new NotCriterion(createCriterion(tree.getChild(0)));
+				Criterion c = createCriterion(tree.getChild(0));
+				if (!FieldCriterion.class.isInstance(c)) {
+					throw new IllegalArgumentException(
+						"NOT requires FieldCriteiron");
+				}
+				return new NotCriterion(FieldCriterion.class.cast(c));
 				
 			default:
 				assertTokenType(tree);

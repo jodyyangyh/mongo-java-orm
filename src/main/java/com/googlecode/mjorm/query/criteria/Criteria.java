@@ -197,8 +197,15 @@ public class Criteria {
 	/**
 	 * {@see NotCriterion}
 	 */
-	public static NotCriterion not(Criterion criteria) {
+	public static NotCriterion not(FieldCriterion criteria) {
 		return new NotCriterion(criteria);
+	}
+	
+	/**
+	 * {@see NotCriterion}
+	 */
+	public static NotCriterion not(String fieldName, Criterion criteria) {
+		return new NotCriterion(fieldName, criteria);
 	}
 
 	/**

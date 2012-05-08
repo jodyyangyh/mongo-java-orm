@@ -9,13 +9,23 @@ import com.mongodb.DBObject;
 public class DBObjectUtil {
 
 	/**
-	 * Indicates whether or not the given {@link DBObject}
-	 * is a list.
+	 * Indicates whether or not the given {@link Object}
+	 * is a {@link BasicDBList}.
 	 * @param dbObject
 	 * @return
 	 */
 	public static boolean isList(Object dbObject) {
 		return BasicDBList.class.isInstance(dbObject);
+	}
+
+	/**
+	 * Indicates whether or not the given {@link Object}
+	 * is a {@link DBObject}.
+	 * @param dbObject
+	 * @return
+	 */
+	public static boolean isDBObject(Object dbObject) {
+		return DBObject.class.isInstance(dbObject);
 	}
 
 	/**
@@ -55,8 +65,8 @@ public class DBObjectUtil {
 			}
 			
 			// they're not DB objects, resolve them
-			if (!DBObject.class.isInstance(intoVal)
-				|| !DBObject.class.isInstance(fromVal)) {
+			if (!isDBObject(intoVal)
+				|| !isDBObject(fromVal)) {
 				resolver.resolve(from, into, field);
 				continue;
 			}

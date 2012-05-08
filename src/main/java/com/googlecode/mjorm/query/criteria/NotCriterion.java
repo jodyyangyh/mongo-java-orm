@@ -1,29 +1,26 @@
 package com.googlecode.mjorm.query.criteria;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
 public class NotCriterion
-	extends AbstractCriterion {
+	extends FieldCriterion {
 
-	private Criterion criterion;
-
-	public NotCriterion(Criterion criterion) {
-		this.criterion	= criterion;
+	public NotCriterion(String fieldName, Criterion criterion) {
+		super(fieldName, criterion);
 	}
 
-	/**
-	 * @return the criterion
-	 */
-	public Criterion getCriterion() {
-		return criterion;
+	public NotCriterion(FieldCriterion criterion) {
+		this(criterion.getFieldName(), criterion.getCriterion());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
-		return new BasicDBObject("$not", criterion.toQueryObject());
+	public DBObject toQueryObject() {
+		return new BasicDBObject(getFieldName(),
+				new BasicDBObject("$not", getCriterion().toQueryObject()));
 	}
 
 }

@@ -3,12 +3,10 @@ package com.googlecode.mjorm.query.criteria;
 import java.util.regex.Pattern;
 
 public class RegexCriterion
-	extends AbstractCriterion {
-
-	private Pattern pattern;
+	extends EqualsCriterion {
 
 	public RegexCriterion(Pattern pattern) {
-		this.pattern = pattern;
+		super(pattern);
 	}
 
 	public RegexCriterion(String regex, int flags) {
@@ -17,20 +15,6 @@ public class RegexCriterion
 
 	public RegexCriterion(String regex) {
 		this(Pattern.compile(regex));
-	}
-
-	/**
-	 * @return the pattern
-	 */
-	public Object getPattern() {
-		return pattern;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Object toQueryObject() {
-		return pattern;
 	}
 
 }
