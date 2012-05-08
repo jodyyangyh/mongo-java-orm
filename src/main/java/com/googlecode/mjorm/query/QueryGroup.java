@@ -5,8 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.googlecode.mjorm.query.criteria.AbstractCriterion;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
+import com.googlecode.mjorm.query.criteria.Criterion;
+import com.googlecode.mjorm.query.criteria.EqualsCriterion;
+import com.googlecode.mjorm.query.criteria.FieldCriterion;
 import com.mongodb.BasicDBList;
 
 public class QueryGroup
@@ -73,6 +78,58 @@ public class QueryGroup
 			list.add(queryCriterion.toQueryObject());
 		}
 		return list;
+	}
+
+	public static MqlFunction createMqlDocumentFunction(
+		final String functionName, final String operatorName, final boolean allowQueryGroup, final boolean allowQuery) {
+		return createMqlDocumentFunction(
+			functionName, operatorName, allowQueryGroup, allowQuery, -1, -1, -1);
+	}
+
+	public static MqlFunction createMqlDocumentFunction(
+		final String functionName, final String operatorName,
+		final int exactArgs, final int minArgs, final int maxArgs, final Class<?>... types) {
+		return createMqlDocumentFunction(
+			functionName, operatorName, false, false, exactArgs, minArgs, maxArgs, types);
+	}
+
+	public static MqlFunction createMqlDocumentFunction(
+		final String functionName, final String operatorName,
+		final int exactArgs, final Class<?>... types) {
+		return createMqlDocumentFunction(
+			functionName, operatorName, false, false, exactArgs, -1, -1, types);
+	}
+
+	public static MqlFunction createMqlDocumentFunction(
+		final String functionName, final String operatorName,
+		final boolean allowQueryGroup, final boolean allowQuery,
+		final int exactArgs, final int minArgs, final int maxArgs, final Class<?>... types) {
+		return new MqlFunctionImpl() {
+			protected void init() {
+				setFunctionName(functionName);
+				setAllowQueryGroup(allowQueryGroup);
+				setAllowQuery(allowQuery);
+				setExactArgs(exactArgs);
+				setMinArgs(minArgs);
+				setMaxArgs(maxArgs);
+				setTypes(types);
+			}
+			
+			@Override
+			protected Criterion doCreate(Query query) {
+				return new FieldCriterion(operatorName, new QueryGroup(query));
+			}
+			@Override
+			protected Criterion doCreate(QueryGroup queryGroup) {
+				return new FieldCriterion(operatorName, queryGroup);
+			}
+			@Override
+			protected Criterion doCreate(Object[] values) {
+				return  (values.length==1)
+					? new FieldCriterion(operatorName, new EqualsCriterion(values[0]))
+					: new FieldCriterion(operatorName, new EqualsCriterion(values));
+			}
+		};
 	}
 
 }

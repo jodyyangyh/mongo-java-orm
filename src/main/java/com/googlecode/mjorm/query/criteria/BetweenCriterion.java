@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFieldFunction;
-import com.googlecode.mjorm.mql.MqlFieldFunctionImpl;
+import com.googlecode.mjorm.mql.MqlFunction;
+import com.googlecode.mjorm.mql.MqlFunctionImpl;
 import com.mongodb.BasicDBObject;
 
 public class BetweenCriterion
@@ -23,14 +23,17 @@ public class BetweenCriterion
 		return ret;
 	}
 
-	public static final MqlFieldFunction MQL_FUNCTION = new MqlFieldFunctionImpl() {
-		{
-			setMaxArgs(1);
-		}
-		@Override
-		protected Criterion doCreate(Object[] values) {
-			return new BetweenCriterion(values[0], values[1]);
-		}
-	};
+	public static MqlFunction createFunction(final String functionName) {
+		return new MqlFunctionImpl() {
+			protected void init() {
+				setFunctionName(functionName);
+				setMaxArgs(1);
+			}
+			@Override
+			protected Criterion doCreate(Object[] values) {
+				return new BetweenCriterion(values[0], values[1]);
+			}
+		};
+	}
 
 }

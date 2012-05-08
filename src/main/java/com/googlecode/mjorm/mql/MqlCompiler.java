@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -20,15 +21,18 @@ import org.antlr.runtime.tree.TreeAdaptor;
 
 import com.googlecode.mjorm.query.DaoQuery;
 import com.googlecode.mjorm.query.Query;
+import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.Criterion;
 import com.googlecode.mjorm.query.criteria.DocumentCriterion;
 import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
+import com.googlecode.mjorm.query.criteria.EqualsCriterion;
 import com.googlecode.mjorm.query.criteria.ExistsCriterion;
 import com.googlecode.mjorm.query.criteria.FieldCriterion;
 import com.googlecode.mjorm.query.criteria.ModCriterion;
 import com.googlecode.mjorm.query.criteria.NotCriterion;
+import com.googlecode.mjorm.query.criteria.RegexCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion;
 import com.googlecode.mjorm.query.criteria.SizeCriterion;
 import com.googlecode.mjorm.query.criteria.TypeCriterion;
@@ -42,39 +46,56 @@ public class MqlCompiler {
 		}
 	};
 
-	private Map<String, MqlFieldFunction> fieldFunctions
-		= new HashMap<String, MqlFieldFunction>();
+	private Map<String, MqlFunction> fieldFunctions
+		= new HashMap<String, MqlFunction>();
 
-	private Map<String, MqlDocumentFunction> documentFunctions
-		= new HashMap<String, MqlDocumentFunction>();
+	private Map<String, MqlFunction> documentFunctions
+		= new HashMap<String, MqlFunction>();
+
+	private Map<String, Operator> comparisonOperators
+		= new HashMap<String, SimpleCriterion.Operator>();
 
 	public MqlCompiler() {
 		registerDefaultFunctions();
+		registerComparisonOperators();
 	}
 
-	public void registerFieldFunction(String name, MqlFieldFunction function) {
-		fieldFunctions.put(name.trim().toLowerCase(), function);
+	public void registerFieldFunction(MqlFunction function) {
+		fieldFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
-	public void registerDocumentFunction(String name, MqlDocumentFunction function) {
-		documentFunctions.put(name.trim().toLowerCase(), function);
+	public void registerDocumentFunction(MqlFunction function) {
+		documentFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
-	public void registerDefaultFunctions() {
-		registerFieldFunction("exists", ExistsCriterion.MQL_EXISTS_FUNCTION);
-		registerFieldFunction("not_exists", ExistsCriterion.MQL_DOESNT_EXIST_FUNCTION);
-		registerFieldFunction("between", BetweenCriterion.MQL_FUNCTION);
-		registerFieldFunction("elemMatch", ElemMatchCriterion.MQL_FUNCTION);
-		registerFieldFunction("mod", ModCriterion.MQL_FUNCTION);
-		registerFieldFunction("size", SizeCriterion.MQL_FUNCTION);
-		registerFieldFunction("type", TypeCriterion.MQL_FUNCTION);
-		registerFieldFunction("in", SimpleCriterion.createForOperator(Operator.IN, 1, Integer.MAX_VALUE, -1));
-		registerFieldFunction("nin", SimpleCriterion.createForOperator(Operator.NIN, 1, Integer.MAX_VALUE, -1));
-		registerFieldFunction("all", SimpleCriterion.createForOperator(Operator.ALL, 1, Integer.MAX_VALUE, -1));
+	private void registerComparisonOperators() {
+		comparisonOperators.put(">", Operator.GT);
+		comparisonOperators.put(">=", Operator.GTE);
+		comparisonOperators.put("<", Operator.LT);
+		comparisonOperators.put("<=", Operator.LTE);
+		comparisonOperators.put("!=", Operator.NE);
+		comparisonOperators.put("<>", Operator.NE);
+	}
 
-		//registerDocumentFunction("or", MqlDocumentFunctionImpl.createDocumentQueryFunction("$or"));
-		//registerDocumentFunction("nor", MqlDocumentFunctionImpl.createDocumentQueryFunction("$nor"));
-		//registerDocumentFunction("and", MqlDocumentFunctionImpl.createDocumentQueryFunction("$and"));
+	private void registerDefaultFunctions() {
+		
+		// field functions
+		registerFieldFunction(ExistsCriterion.createFunction("exists"));
+		registerFieldFunction(ExistsCriterion.createNegatedFunction("not_exists"));
+		registerFieldFunction(BetweenCriterion.createFunction("between"));
+		registerFieldFunction(ElemMatchCriterion.createFunction("elemMatch"));
+		registerFieldFunction(ModCriterion.createFunction("mod"));
+		registerFieldFunction(SizeCriterion.createFunction("size"));
+		registerFieldFunction(TypeCriterion.createFunction("type"));
+		registerFieldFunction(SimpleCriterion.createForOperator("in", Operator.IN, 1, Integer.MAX_VALUE, -1));
+		registerFieldFunction(SimpleCriterion.createForOperator("nin", Operator.NIN, 1, Integer.MAX_VALUE, -1));
+		registerFieldFunction(SimpleCriterion.createForOperator("all", Operator.ALL, 1, Integer.MAX_VALUE, -1));
+
+		// document functions
+		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("or", "$or", true, true));
+		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("nor", "$nor", true, true));
+		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("and", "$and", true, true));
+		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("predicate", "$where", 1));
 	}
 
 	public List<DaoQuery> compile(String code)
@@ -154,15 +175,20 @@ public class MqlCompiler {
 	 */
 	private void readCriterion(Tree tree, AbstractQueryCriterion<?> query) {
 		DocumentCriterion criterion = null;
+		String fieldName = null;
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
 				String functionName = tree.getChild(0).getChild(0).getText().trim().toLowerCase();
-				//groupQuery = Query.class.cast(createCriterion(tree));
-				//groupName = documentFunctions.get(functionName).getGroupName();
+				Criterion c = createCriterion(tree);
+				if (!DocumentCriterion.class.isInstance(c)) {
+					throw new IllegalArgumentException(
+						"Document function '"+functionName+"' returned a Criterion other than a DocumentCriterion");
+				}
+				criterion = DocumentCriterion.class.cast(c);
 				break;
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				String fieldName = tree.getChild(0).getText().trim().toLowerCase();
+				fieldName = tree.getChild(0).getText().trim().toLowerCase();
 				criterion = new FieldCriterion(fieldName, createCriterion(tree));
 				break;
 				
@@ -199,15 +225,20 @@ public class MqlCompiler {
 	private Criterion createCriterion(Tree tree) {
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
-				return readQueryForDocumentFunction(tree.getChild(0), documentFunctions);
+				return readCriterionForFunctionCall(tree.getChild(0), documentFunctions);
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				return readCriterionForFieldFunction(tree.getChild(0), fieldFunctions);
+				return readCriterionForFunctionCall(tree.getChild(1), fieldFunctions);
 				
 			case MqlParser.COMPARE_CRITERION:
-				return new SimpleCriterion(
-					tree.getChild(1).getText(),
-					readVariableLiteral(tree.getChild(2)));
+				String op = tree.getChild(1).getText();
+				Object value = readVariableLiteral(tree.getChild(2));
+				if (op.equals("=")) {
+					return new EqualsCriterion(value);
+				} else if (op.equals("=~")) {
+					return new RegexCriterion(Pattern.class.cast(value));
+				}
+				return new SimpleCriterion(comparisonOperators.get(op), value);
 				
 			case MqlParser.NEGATED_CRITERION:
 				Criterion c = createCriterion(tree.getChild(0));
@@ -229,47 +260,8 @@ public class MqlCompiler {
 	 * @param functionTable
 	 * @return
 	 */
-	private Query readQueryForDocumentFunction(
-		Tree tree, Map<String, MqlDocumentFunction> functionTable) {
-		assertTokenType(tree, MqlParser.FUNCTION_CALL);
-
-		// get the function name
-		String functionName = tree.getChild(0).getText().trim().toLowerCase();
-		Query ret = null;
-
-		// function not found
-		if (!functionTable.containsKey(functionName)) {
-			throw new IllegalArgumentException(
-				"Unknown function: "+functionName);
-
-		// no arguments
-		} else if (tree.getChildCount()==1) {
-			ret = functionTable.get(functionName).createForNoArguments();
-
-		// criteria arguments
-		} else if (tree.getChild(1).getType()==MqlParser.CRITERIA) {
-			Query query = new Query();
-			readCriteria(tree.getChild(1), query);
-			ret = functionTable.get(functionName).createForQuery(query);
-
-		// variable list arguments
-		} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
-			Object[] arguments = readVariableList(tree.getChild(1));
-			ret = functionTable.get(functionName).createForArguments(arguments);
-		}
-
-		// return it
-		return ret;
-	}
-
-	/**
-	 * Creates a {@link Criterion} for the given function call.
-	 * @param tree
-	 * @param functionTable
-	 * @return
-	 */
-	private Criterion readCriterionForFieldFunction(
-		Tree tree, Map<String, MqlFieldFunction> functionTable) {
+	private Criterion readCriterionForFunctionCall(
+		Tree tree, Map<String, MqlFunction> functionTable) {
 		assertTokenType(tree, MqlParser.FUNCTION_CALL);
 
 		// get the function name
@@ -291,6 +283,12 @@ public class MqlCompiler {
 			readCriteria(tree.getChild(1), query);
 			ret = functionTable.get(functionName).createForQuery(query);
 
+		// criteria arguments
+		} else if (tree.getChild(1).getType()==MqlParser.CRITERIA_GROUP_LIST) {
+			QueryGroup queryGroup = new QueryGroup();
+			readCriteriaGroupList(tree.getChild(1), queryGroup);
+			ret = functionTable.get(functionName).createForQueryGroup(queryGroup);
+
 		// variable list arguments
 		} else if (tree.getChild(1).getType()==MqlParser.VARIABLE_LIST) {
 			Object[] arguments = readVariableList(tree.getChild(1));
@@ -301,13 +299,52 @@ public class MqlCompiler {
 		return ret;
 	}
 
+	private QueryGroup readCriteriaGroupList(Tree tree, QueryGroup queryGroup) {
+		assertTokenType(tree, MqlParser.CRITERIA_GROUP_LIST);
+		if (queryGroup==null) {
+			queryGroup = new QueryGroup();
+		}
+		for (int i=0; i<tree.getChildCount(); i++) {
+			Tree groupTree = tree.getChild(i);
+			Query query = new Query();
+			readCriteria(groupTree.getChild(0), query);
+			queryGroup.add(query);
+		}
+		return queryGroup;
+	}
+
 	/**
 	 * Reads a variable literal.
 	 * @param tree
 	 * @return
 	 */
 	private Object readVariableLiteral(Tree tree) {
-		return null;
+		String text = tree.getText();
+		switch (tree.getType()){
+			case MqlParser.REGEX:
+				return Pattern.compile(text);
+			case MqlParser.INTEGER:
+				return new Integer(text);
+			case MqlParser.DECIMAL:
+				return new Double(text);
+			case MqlParser.DOUBLE_QUOTED_STRING:
+				return text;
+			case MqlParser.SINGLE_QUOTED_STRING:
+				return text;
+			case MqlParser.TRUE:
+				return Boolean.TRUE;
+			case MqlParser.FALSE:
+				return Boolean.FALSE;
+			case MqlParser.ARRAY:
+				Object[] vars = new Object[tree.getChild(0).getChildCount()];
+				for (int i=0; i<vars.length; i++) {
+					vars[i] = readVariableLiteral(tree.getChild(0).getChild(i));
+				}
+				return vars;
+			default:
+				throw new IllegalArgumentException(
+					"Unknown variable literal type "+tree.getType()+" with value "+text);
+		}
 	}
 
 	/**
