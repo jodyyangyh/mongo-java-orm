@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
+import com.googlecode.mjorm.query.criteria.GroupedQueryCriterion.Group;
 import com.googlecode.mjorm.query.criteria.TypeCriterion.Type;
 
 /**
@@ -18,36 +19,87 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	extends AbstractCriterionBuilder<T> {
 
 	/**
-	 * Adds a query the {@link QueryGroup} for
-	 * {@code $or}.
-	 * @param queryCriterion the {@link AbstractQueryCriterion} to add
-	 * @return the {@link AbstractQueryCriterion} for chaining
+	 * Adds a {@link QueryGroup} for {@code $or}.
+	 * @param group
+	 * @return
 	 */
-	public T or(Query queryCriterion) {
-		group("$or", queryCriterion);
+	public T or(QueryGroup group) {
+		add(new GroupedQueryCriterion(Group.OR, group));
 		return self();
 	}
 
 	/**
-	 * Adds a query the {@link QueryGroup} for
-	 * {@code $nor}.
-	 * @param queryCriterion the {@link AbstractQueryCriterion} to add
-	 * @return the {@link AbstractQueryCriterion} for chaining
+	 * Adds a {@link QueryGroup} for {@code $or}.
+	 * @param queries
+	 * @return
 	 */
-	public T nor(Query queryCriterion) {
-		group("$nor", queryCriterion);
+	public T or(Query... queries) {
+		return or(new QueryGroup(queries));
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $or}.
+	 * @param queries
+	 * @return
+	 */
+	public T or(Collection<Query> queries) {
+		return or(new QueryGroup(queries));
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $nor}.
+	 * @param group
+	 * @return
+	 */
+	public T nor(QueryGroup group) {
+		add(new GroupedQueryCriterion(Group.NOR, group));
 		return self();
 	}
 
 	/**
-	 * Adds a query the {@link QueryGroup} for
-	 * {@code $and}.
-	 * @param queryCriterion the {@link AbstractQueryCriterion} to add
-	 * @return the {@link AbstractQueryCriterion} for chaining
+	 * Adds a {@link QueryGroup} for {@code $nor}.
+	 * @param queries
+	 * @return
 	 */
-	public T and(Query queryCriterion) {
-		group("$and", queryCriterion);
+	public T nor(Query... queries) {
+		return or(new QueryGroup(queries));
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $nor}.
+	 * @param queries
+	 * @return
+	 */
+	public T nor(Collection<Query> queries) {
+		return or(new QueryGroup(queries));
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $and}.
+	 * @param group
+	 * @return
+	 */
+	public T and(QueryGroup group) {
+		add(new GroupedQueryCriterion(Group.AND, group));
 		return self();
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $and}.
+	 * @param queries
+	 * @return
+	 */
+	public T and(Query... queries) {
+		return or(new QueryGroup(queries));
+	}
+
+	/**
+	 * Adds a {@link QueryGroup} for {@code $and}.
+	 * @param queries
+	 * @return
+	 */
+	public T and(Collection<Query> queries) {
+		return or(new QueryGroup(queries));
 	}
 
 	/**
@@ -231,6 +283,14 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	 * @return the {@link AbstractQueryCriterion} for chaining
 	 */
 	public T not(String property, Criterion criteria) {
-		return add(property, Criteria.not(criteria));
+		return add(Criteria.not(property, criteria));
+	}
+
+	/**
+	 * {@see Criteria#not(Criterion)}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T not(FieldCriterion criterion) {
+		return add(Criteria.not(criterion));
 	}
 }

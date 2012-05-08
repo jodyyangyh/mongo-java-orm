@@ -130,7 +130,7 @@ criteria_group
 	;
 
 criteria_group_list
-	: L_PAREN c+=criteria_group (COMMA? c+=criteria_group)* -> ^(CRITERIA_GROUP_LIST $c+)
+	: c+=criteria_group (COMMA? c+=criteria_group)* -> ^(CRITERIA_GROUP_LIST $c+)
 	;
 
 criterion
