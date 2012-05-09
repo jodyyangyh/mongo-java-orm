@@ -94,6 +94,8 @@ tokens {
 	DELETE_ACTION;
 	
 	FIELD_LIST;
+	HINT_FIELD;
+	SORT_FILED;
 	UPDATE_OPERATIONS;
 	
 	ARRAY;
@@ -159,18 +161,18 @@ function_criterion
 
 /** hint **/
 hint
-	: HINT NATURAL -> ^(HINT NATURAL)
-	| HINT string -> ^(HINT string)
+	: HINT NATURAL direction? -> ^(HINT NATURAL direction?)
+	| HINT string direction? -> ^(HINT string direction?)
 	| HINT f+=hint_field (COMMA? f+=hint_field)* -> ^(HINT $f+) 
 	;
 
 hint_field
-	: field_name direction -> ^(field_name direction)
+	: field_name direction -> ^(HINT_FIELD field_name direction?)
 	;
 
 /** action **/
 action
-	: (select_action | explain_action | delete_action | update_action | fam_action | fad_action)
+	: (select_action | explain_action | delete_action | update_action | fam_action | fad_action) -> ^(ACTION select_action? explain_action? delete_action? update_action? fam_action? fad_action?)
 	;
 
 // explain
@@ -180,7 +182,7 @@ explain_action
 
 // select
 select_action
-	: SELECT select_fields hint? sort_field_list? pagination? -> ^(SELECT_ACTION select_fields? hint? sort_field_list? pagination?)
+	: SELECT select_fields hint? sort_field_list? pagination? -> ^(SELECT_ACTION select_fields hint? sort_field_list? pagination?)
 	;
 
 select_fields 
@@ -297,7 +299,7 @@ sort_field_list
 	;
 
 sort_field
-	: field_name direction
+	: field_name direction? -> ^(SORT_FILED field_name direction?)
 	;
 
 /** general **/

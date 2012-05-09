@@ -26,7 +26,7 @@ public @interface Property {
 	 * take on the annotated property's name.
 	 * @return
 	 */
-	String field();
+	String field() default "";
 
 	/**
 	 * Optionally specifies the type that should
@@ -34,7 +34,7 @@ public @interface Property {
 	 * method's return type is used.
 	 * @return
 	 */
-	Class<?> type();
+	Class<?> type() default void.class;
 
 	/**
 	 * Optionally specifies the type parameters for
@@ -42,7 +42,7 @@ public @interface Property {
 	 * {@link #type()} (or the type that is inferred).
 	 * @return
 	 */
-	Class<?>[] paramTypes();
+	Class<?>[] paramTypes() default {};
 
 	/**
 	 * Optionally specifies translation hints that
@@ -51,6 +51,6 @@ public @interface Property {
 	 * MongoDB document's field.
 	 * @return
 	 */
-	TranslationHint[] translationHints();
+	TranslationHint[] translationHints() default {};
 
 }

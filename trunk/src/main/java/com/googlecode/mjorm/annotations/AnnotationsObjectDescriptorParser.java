@@ -72,6 +72,10 @@ public class AnnotationsObjectDescriptorParser {
 			String name = getter.getName();
 			if (!name.startsWith("is") && !name.startsWith("get")) {
 				continue;
+			} else if (name.startsWith("is")) {
+				name = name.substring(2);
+			} else if (name.startsWith("get")) {
+				name = name.substring(3);
 			}
 			name = name.substring(0, 1).toLowerCase()+name.substring(1);
 
@@ -90,16 +94,16 @@ public class AnnotationsObjectDescriptorParser {
 			}
 
 			// "parse" data
-			String propField = property.field()!=null
+			String propField = !property.field().equals("")
 				? property.field()
 				: name;
-			Class<?> propClass = property.type()!=null
+			Class<?> propClass = !property.type().equals(void.class)
 				? property.type()
 				: getter.getReturnType();
-			Type propGenericType = property.type()!=null
+			Type propGenericType = !property.type().equals(void.class)
 				? property.type()
 				: getter.getGenericReturnType();
-			Class<?>[] propParamTypes = property.paramTypes()!=null
+			Class<?>[] propParamTypes = property.paramTypes().length>0
 				? property.paramTypes()
 				: getter.getParameterTypes();
 			boolean propIsIdentifier = (id!=null);

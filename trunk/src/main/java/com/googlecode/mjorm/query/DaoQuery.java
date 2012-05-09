@@ -7,22 +7,24 @@ import java.util.Map.Entry;
 
 import com.googlecode.mjorm.MongoDao;
 import com.googlecode.mjorm.ObjectIterator;
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
+import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 public class DaoQuery
 	extends AbstractQueryCriterion<DaoQuery> {
-	
-	private MongoDao mongoDao;
+
+	private DB db;
+	private ObjectMapper objectMapper;
 	private Map<String, Integer> sort;
 	private Map<String, Object> specials;
 	private Integer firstDocument;
 	private Integer maxDocuments;
 	private Integer batchSize;
-	private String hint;
+	private DBObject hint;
 	private Boolean snapShot;
 	private String comment;
 	private String collection;
@@ -41,15 +43,6 @@ public class DaoQuery
 	 * Creates the {@link DaoQuery}.
 	 */
 	public DaoQuery() {
-		this.clear();
-	}
-
-	/**
-	 * Creates the {@link DaoQuery}.
-	 * @param mongoDao the {@link MongoDao}
-	 */
-	public DaoQuery(MongoDao mongoDao) {
-		this.mongoDao = mongoDao;
 		this.clear();
 	}
 
@@ -77,8 +70,8 @@ public class DaoQuery
 	public void assertValid() {
 		if (collection==null) {
 			throw new IllegalStateException("collection must be specified");
-		} else if (mongoDao==null) {
-			throw new IllegalStateException("mongoDao must be specified");
+		} else if (db==null) {
+			throw new IllegalStateException("DB must be specified");
 		}
 	}
 
@@ -98,9 +91,33 @@ public class DaoQuery
 	 */
 	public <T> ObjectIterator<T> findObjects(Class<T> clazz) {
 		assertValid();
-		ObjectIterator<T> itr = mongoDao.findObjects(collection, toQueryObject(), clazz);
-		setupCursor(itr.getDBCursor());
-		return itr;
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		setupCursor(cursor);
+		return new ObjectIterator<T>(cursor, objectMapper, clazz);
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
+	 * @param clazz the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBCursor findObjects(DBObject fields) {
+		assertValid();
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(), fields);
+		setupCursor(cursor);
+		return cursor;
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
+	 * @param clazz the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBCursor findObjects() {
+		assertValid();
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		setupCursor(cursor);
+		return cursor;
 	}
 
 	/**
@@ -110,7 +127,33 @@ public class DaoQuery
 	 */
 	public <T> T findObject(Class<T> clazz) {
 		assertValid();
-		return mongoDao.findObject(collection, toQueryObject(), clazz);
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		setupCursor(cursor);
+		return objectMapper.mapFromDBObject(cursor.next(), clazz);
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
+	 * @param clazz the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBObject findObject(DBObject fields) {
+		assertValid();
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(), fields);
+		setupCursor(cursor);
+		return cursor.next();
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
+	 * @param clazz the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBObject findObject() {
+		assertValid();
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		setupCursor(cursor);
+		return cursor.next();
 	}
 
 	/**
@@ -120,7 +163,7 @@ public class DaoQuery
 	 */
 	public long countObjects() {
 		assertValid();
-		return mongoDao.countObjects(collection, toQueryObject());
+		return db.getCollection(collection).count(toQueryObject());
 	}
 
 
@@ -133,7 +176,7 @@ public class DaoQuery
 	@SuppressWarnings("unchecked")
 	public List<Object> distinct(String field) {
 		assertValid();
-		return mongoDao
+		return db
 			.getCollection(collection)
 			.distinct(field, toQueryObject());
 	}
@@ -148,7 +191,7 @@ public class DaoQuery
 	@SuppressWarnings("unchecked")
 	public <T> List<T> distinct(String field, Class<T> expected) {
 		assertValid();
-		return mongoDao
+		return db
 			.getCollection(collection)
 			.distinct(field, toQueryObject());
 	}
@@ -159,8 +202,7 @@ public class DaoQuery
 	 */
 	public DBObject explain() {
 		assertValid();
-		DBCursor cursor = mongoDao.getCollection(collection)
-			.find(toQueryObject());
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
 		setupCursor(cursor);
 		return cursor.explain();
 	}
@@ -298,8 +340,8 @@ public class DaoQuery
 	/**
 	 * @param hint the hint to set
 	 */
-	public DaoQuery setHint(String hint) {
-		this.hint = hint;
+	public DaoQuery setHint(String hint, int dir) {
+		this.hint = new BasicDBObject(hint, dir);
 		return self();
 	}
 
@@ -307,7 +349,7 @@ public class DaoQuery
 	 * @param hint the hint to set
 	 */
 	public DaoQuery setHint(DBObject hint) {
-		setHint(DBCollection.genIndexName(hint));
+		this.hint = hint;
 		return self();
 	}
 
@@ -346,8 +388,8 @@ public class DaoQuery
 	/**
 	 * @param mongoDao the mongoDao to set
 	 */
-	public DaoQuery setMongoDao(MongoDao mongoDao) {
-		this.mongoDao = mongoDao;
+	public DaoQuery setDB(DB db) {
+		this.db = db;
 		return self();
 	}
 
@@ -356,6 +398,14 @@ public class DaoQuery
 	 */
 	public DaoQuery setCursorVisitor(CursorVisitor cursorVisitor) {
 		this.cursorVisitor = cursorVisitor;
+		return self();
+	}
+
+	/**
+	 * @param objectMapper the objectMapper to set
+	 */
+	public DaoQuery setObjectMapper(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
 		return self();
 	}
 
@@ -371,8 +421,16 @@ public class DaoQuery
 	 * Returns the {@link MongoDao} that created this query.
 	 * @return the mongo dao
 	 */
-	public MongoDao getMongoDao() {
-		return mongoDao;
+	public DB getDB() {
+		return db;
+	}
+
+	/**
+	 * Returns the {@link ObjectMapper}.
+	 * @return the mongo dao
+	 */
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
 	}
 
 }

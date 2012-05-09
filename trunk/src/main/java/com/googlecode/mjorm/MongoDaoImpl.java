@@ -48,7 +48,9 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public DaoQuery createQuery() {
-		return new DaoQuery(this);
+		return new DaoQuery()
+			.setDB(this.db)
+			.setObjectMapper(this.objectMapper);
 	}
 
 	/**
