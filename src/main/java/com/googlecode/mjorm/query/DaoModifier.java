@@ -3,6 +3,7 @@ package com.googlecode.mjorm.query;
 import com.googlecode.mjorm.MongoDao;
 import com.googlecode.mjorm.query.modifiers.AbstractQueryModifiers;
 import com.mongodb.DBEncoder;
+import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
@@ -78,7 +79,7 @@ public class DaoModifier
 	 */
 	public WriteResult deleteObjects() {
 		assertValid();
-		return query.getMongoDao().getCollection(query.getCollection())
+		return query.getDB().getCollection(query.getCollection())
 			.remove(query.toQueryObject());
 	}
 
@@ -88,9 +89,10 @@ public class DaoModifier
 	 */
 	public <T> T findAndDelete(Class<T> clazz) {
 		assertValid();
-		return query.getMongoDao().findAndDelete(
-			query.getCollection(), query.toQueryObject(),
-			query.getSortDBObject(), clazz);
+		DBObject object = query.getDB().getCollection(query.getCollection())
+			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
+				true, null, false, false);
+		return query.getObjectMapper().mapFromDBObject(object, clazz);
 	}
 
 	/**
@@ -98,11 +100,21 @@ public class DaoModifier
 	 * @return the object found and modified
 	 * @param fields the fields to populate on the return object
 	 */
-	public <T> T findAndDelete(Class<T> clazz, String[] fields) {
+	public DBObject findAndDelete(DBObject fields) {
 		assertValid();
-		return query.getMongoDao().findAndDelete(
-			query.getCollection(), query.toQueryObject(),
-			query.getSortDBObject(), clazz, fields);
+		return query.getDB().getCollection(query.getCollection())
+			.findAndModify(query.toQueryObject(), fields, query.getSortDBObject(),
+				true, null, false, false);
+	}
+
+	/**
+	 * Performs a findAndDelete for the current query.
+	 * @return the object found and modified
+	 * @param fields the fields to populate on the return object
+	 */
+	public DBObject findAndDelete() {
+		assertValid();
+		return findAndDelete((DBObject)null);
 	}
 
 	/**
@@ -114,24 +126,10 @@ public class DaoModifier
 	 */
 	public <T> T findAndModify(boolean returnNew, boolean upsert, Class<T> clazz) {
 		assertValid();
-		return query.getMongoDao().findAndModify(
-			query.getCollection(), query.toQueryObject(), query.getSortDBObject(),
-			toModifierObject(), returnNew, upsert, clazz);
-	}
-
-	/**
-	 * Performs a findAndModify for the current query.
-	 * @param returnNew whether or not to return the new or old object
-	 * @param upsert create new if it doesn't exist
-	 * @param clazz the type of object
-	 * @param fields the fields to populate on the return object
-	 * @return the object
-	 */
-	public <T> T findAndModify(boolean returnNew, boolean upsert, Class<T> clazz, String[] fields) {
-		assertValid();
-		return query.getMongoDao().findAndModify(
-			query.getCollection(), query.toQueryObject(), query.getSortDBObject(),
-			toModifierObject(), returnNew, upsert, clazz, fields);
+		DBObject object = query.getDB().getCollection(query.getCollection())
+			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
+				false, toModifierObject(), returnNew, upsert);
+		return query.getObjectMapper().mapFromDBObject(object, clazz);
 	}
 
 	/**
@@ -143,10 +141,8 @@ public class DaoModifier
 	 */
 	public void update(boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
 		assertValid();
-		query.getMongoDao().update(
-			query.getCollection(), query.toQueryObject(),
-			toModifierObject(), upsert, multi,
-			concern, encoder);
+		query.getDB().getCollection(query.getCollection()).update(
+			query.toQueryObject(), toModifierObject(), upsert, multi, concern, encoder);
 	}
 
 	/**
