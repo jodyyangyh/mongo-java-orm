@@ -107,7 +107,7 @@ public class MqlInterpreterTest {
 	}
 
 	@Test
-	public void testSelect()
+	public void testSelect_withLimit()
 		throws Exception {
 
 		// populate the db
@@ -118,6 +118,8 @@ public class MqlInterpreterTest {
 	
 		// interpret
 		InterpreterResult res = interpreter.interpret(tree);
+
+		// verify
 		assertNotNull(res);
 		assertNotNull(res.getCursor());
 		assertNull(res.getObject());
@@ -125,6 +127,31 @@ public class MqlInterpreterTest {
 		assertEquals(2, people.size());
 		assertEquals("first0", people.get(0).get("firstName"));
 		assertEquals("first1", people.get(1).get("firstName"));
+
+	}
+
+	@Test
+	public void testSelect_withFields()
+		throws Exception {
+
+		// populate the db
+		addPeople(10);
+
+		// compile
+		Tree tree = interpreter.compile(ips("from people select firstName"));
+	
+		// interpret
+		InterpreterResult res = interpreter.interpret(tree);
+
+		// verify
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		List<DBObject> people = readAll(res.getCursor());
+		assertEquals(10, people.size());
+		for (int i=0; i<people.size(); i++) {
+			assertEquals(2, people.get(i).keySet().size());
+		}
 
 	}
 

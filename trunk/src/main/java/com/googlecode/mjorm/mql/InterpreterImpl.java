@@ -164,15 +164,97 @@ public class InterpreterImpl
 		actionTree = child(actionTree, 0);
 		switch (actionTree.getType()) {
 
-			// select action
+			// select
 			case MqlParser.SELECT_ACTION: {
 				return executeSelectAction(actionTree, query);
-				
 			}
+
+			// explain
+			case MqlParser.EXPLAIN_ACTION: {
+				return executeExplainAction(actionTree, query);
+			}
+
+			// delete
+			case MqlParser.DELETE_ACTION: {
+				return executeDeleteAction(actionTree, query);
+			}
+
+			// update
+			case MqlParser.UPDATE_ACTION: {
+				return executeUpdateAction(actionTree, query, false);
+			}
+
+			// update
+			case MqlParser.UPSERT_ACTION: {
+				return executeUpdateAction(actionTree, query, true);
+			}
+			
 			default:
 				throw new IllegalArgumentException(
 					"Unknown action type");
 		}
+	}
+
+	/**
+	 * Executes an update action.
+	 * @param action
+	 * @param query
+	 * @param upsert
+	 * @return
+	 */
+	private InterpreterResult executeUpdateAction(
+		CommonTree tree, DaoQuery query, boolean upsert) {
+
+		// atomic? multi?
+		Tree atomic = tree.getFirstChildWithType(MqlParser.ATOMIC);
+		Tree multi = tree.getFirstChildWithType(MqlParser.MULTI);
+
+		// read updateOperations
+		Tree updateTree = tree.getFirstChildWithType(MqlParser.UPDATE_OPERATIONS);
+		readModifiers(CommonTree.class.cast(updateTree), query);
+
+		// execute it
+		query.modify()
+			.setAtomic(atomic!=null)
+			.update(upsert, multi!=null);
+
+		// execute it
+		return new InterpreterResult(null, query.explain());
+	}
+
+	/**
+	 * Executes a delete action.
+	 * @param action
+	 * @param query
+	 * @return
+	 */
+	private InterpreterResult executeDeleteAction(CommonTree tree, DaoQuery query) {
+
+		// read hint
+		Tree atomic = tree.getFirstChildWithType(MqlParser.ATOMIC);
+		query.modify().setAtomic(atomic!=null).deleteObjects();
+
+		// execute it
+		return new InterpreterResult(null, query.explain());
+	}
+
+	/**
+	 * Executes an explain action.
+	 * @param action
+	 * @param query
+	 * @return
+	 */
+	private InterpreterResult executeExplainAction(CommonTree tree, DaoQuery query) {
+
+		// read hint
+		CommonTree hintTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.HINT));
+		if (hintTree!=null) {
+			readHint(hintTree, query);
+		}
+
+		// execute it
+		return new InterpreterResult(null, query.explain());
 	}
 
 	/**
@@ -182,13 +264,13 @@ public class InterpreterImpl
 	 * @return
 	 */
 	private InterpreterResult executeSelectAction(CommonTree tree, DaoQuery query) {
-		// what we're returning
-		InterpreterResult ret = null;
 
 		// get field list
-		List<String> fieldList = readFieldList(child(tree, 0));
+		CommonTree fieldListTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.FIELD_LIST));
+		List<String> fieldList = readFieldList(fieldListTree);
 		DBObject fields = null;
-		if (fieldList.size()>0 && fieldList.contains(MqlParser.STAR)) {
+		if (fieldList.size()>0) {
 			fields = new BasicDBObject();
 			for (String field : fieldList) {
 				fields.put(field, 1);
@@ -217,9 +299,22 @@ public class InterpreterImpl
 		}
 
 		// execute it
-		return new InterpreterResult(query.findObjects(), null);
+		return (fieldList.size()>0)
+			? new InterpreterResult(query.findObjects(fields), null)
+			: new InterpreterResult(query.findObjects(), null);
 	}
 
+	/**
+	 * Reads modifiers
+	 * @param tree
+	 * @param query
+	 */
+	private void readModifiers(CommonTree tree, DaoQuery query) {
+		assertTokenType(tree, MqlParser.UPDATE_OPERATIONS);
+		
+	}
+
+	
 	/**
 	 * Reads a sort.
 	 * @param tree
@@ -303,6 +398,9 @@ public class InterpreterImpl
 		assertTokenType(fieldList, MqlParser.FIELD_LIST);
 		List<String> ret = new ArrayList<String>(fieldList.getChildCount());
 		for (int i=0; i<fieldList.getChildCount(); i++) {
+			if (fieldList.getChild(i).getType()==MqlParser.STAR) {
+				continue;
+			}
 			ret.add(fieldList.getChild(i).getText());
 		}
 		return ret;

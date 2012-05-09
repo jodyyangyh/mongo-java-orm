@@ -11,6 +11,7 @@ public class DaoModifier
 	extends AbstractQueryModifiers<DaoModifier> {
 
 	private DaoQuery query;
+	private boolean atomic = false;
 
 	/**
 	 * Creates the {@link DaoModifier}.
@@ -70,7 +71,15 @@ public class DaoModifier
 	 */
 	public DaoModifier setQuery(DaoQuery query) {
 		this.query = query;
-		return this;
+		return self();
+	}
+
+	/**
+	 * @param atomic the atomic to set
+	 */
+	public DaoModifier setAtomic(boolean atomic) {
+		this.atomic = atomic;
+		return self();
 	}
 
 	/**
@@ -191,5 +200,19 @@ public class DaoModifier
 	public void upsertMulti() {
 		update(true, true);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DBObject toModifierObject() {
+		DBObject ret = super.toModifierObject();
+		if (this.atomic) {
+			ret.put("$atomic", true);
+		}
+		return ret;
+	}
+
+	
 
 }
