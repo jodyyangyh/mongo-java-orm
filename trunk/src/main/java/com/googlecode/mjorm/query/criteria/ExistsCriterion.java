@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFunction;
-import com.googlecode.mjorm.mql.MqlFunctionImpl;
+import com.googlecode.mjorm.mql.MqlCriterionFunction;
+import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBObject;
 
 public class ExistsCriterion
@@ -28,8 +28,8 @@ public class ExistsCriterion
 		return new BasicDBObject("$exists", value);
 	}
 
-	public static MqlFunction createFunction(final String functionName) {
-		return new MqlFunctionImpl() {
+	public static MqlCriterionFunction createFunction(final String functionName) {
+		return new AbstractMqlCriterionFunction() {
 			protected void init() {
 				setFunctionName(functionName);
 				setMinArgs(1);
@@ -48,8 +48,8 @@ public class ExistsCriterion
 		};
 	}
 
-	public static MqlFunction createNegatedFunction(final String functionName) {
-		return new MqlFunctionImpl() {
+	public static MqlCriterionFunction createNegatedFunction(final String functionName) {
+		return new AbstractMqlCriterionFunction() {
 			protected void init() {
 				setFunctionName(functionName);
 				setMinArgs(1);

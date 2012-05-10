@@ -29,6 +29,7 @@ public class DaoQuery
 	private String comment;
 	private String collection;
 	private CursorVisitor cursorVisitor;
+	private DaoModifier modifier;
 
 	/**
 	 * Allows for the visiting of the {@link DBCursor}
@@ -51,6 +52,9 @@ public class DaoQuery
 	 */
 	public void clear() {
 		super.clear();
+		if (modifier!=null) {
+			modifier.clear();
+		}
 		sort 			= new HashMap<String, Integer>();
 		specials 		= new HashMap<String, Object>();
 		firstDocument	= null;
@@ -61,6 +65,7 @@ public class DaoQuery
 		comment			= null;
 		collection		= null;
 		cursorVisitor	= null;
+		modifier		= null;
 	}
 
 	/**
@@ -81,7 +86,10 @@ public class DaoQuery
 	 * @return the {@link DaoModifier}
 	 */
 	public DaoModifier modify() {
-		return new DaoModifier(this);
+		if (modifier==null) {
+			modifier = new DaoModifier(this);
+		}
+		return modifier;
 	}
 
 	/**

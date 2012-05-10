@@ -20,8 +20,8 @@ public class InterpreterFactory {
 
 	private static InterpreterFactory DEFAULT_INSTANCE = null;
 
-	private Map<String, MqlFunction> documentFunctions 	= new HashMap<String, MqlFunction>();
-	private Map<String, MqlFunction> fieldFunctions = new HashMap<String, MqlFunction>();
+	private Map<String, MqlCriterionFunction> documentFunctions 	= new HashMap<String, MqlCriterionFunction>();
+	private Map<String, MqlCriterionFunction> fieldFunctions = new HashMap<String, MqlCriterionFunction>();
 
 	/**
 	 * Returns the default {@link InterpreterFactory} instance.
@@ -51,10 +51,10 @@ public class InterpreterFactory {
 	 */
 	public Interpreter create(DB db, ObjectMapper objectMapper) {
 		InterpreterImpl ret = new InterpreterImpl(db, objectMapper);
-		for (Entry<String, MqlFunction> entry : documentFunctions.entrySet()) {
+		for (Entry<String, MqlCriterionFunction> entry : documentFunctions.entrySet()) {
 			ret.registerDocumentFunction(entry.getValue());
 		}
-		for (Entry<String, MqlFunction> entry : fieldFunctions.entrySet()) {
+		for (Entry<String, MqlCriterionFunction> entry : fieldFunctions.entrySet()) {
 			ret.registerFieldFunction(entry.getValue());
 		}
 		return ret;
@@ -102,7 +102,7 @@ public class InterpreterFactory {
 	 * Registers a field function.
 	 * @param function
 	 */
-	public void registerFieldFunction(MqlFunction function) {
+	public void registerFieldFunction(MqlCriterionFunction function) {
 		fieldFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
@@ -110,7 +110,7 @@ public class InterpreterFactory {
 	 * Registers a document function.
 	 * @param function
 	 */
-	public void registerDocumentFunction(MqlFunction function) {
+	public void registerDocumentFunction(MqlCriterionFunction function) {
 		documentFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 

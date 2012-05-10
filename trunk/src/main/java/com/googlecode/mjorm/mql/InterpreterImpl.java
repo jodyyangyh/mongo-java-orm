@@ -18,6 +18,7 @@ import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
 import com.googlecode.mjorm.ObjectMapper;
+import com.googlecode.mjorm.query.DaoModifier;
 import com.googlecode.mjorm.query.DaoQuery;
 import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
@@ -33,6 +34,7 @@ import com.googlecode.mjorm.query.criteria.SimpleCriterion.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class InterpreterImpl
 	implements Interpreter {
@@ -59,8 +61,8 @@ public class InterpreterImpl
 
 	private DB db;
 	private ObjectMapper objectMapper;
-	private Map<String, MqlFunction> fieldFunctions;
-	private Map<String, MqlFunction> documentFunctions;
+	private Map<String, MqlCriterionFunction> fieldFunctions;
+	private Map<String, MqlCriterionFunction> documentFunctions;
 
 	/**
 	 * Creates it.
@@ -70,15 +72,15 @@ public class InterpreterImpl
 	public InterpreterImpl(DB db, ObjectMapper objectMapper) {
 		this.db 				= db;
 		this.objectMapper		= objectMapper;
-		this.documentFunctions	= new HashMap<String, MqlFunction>();
-		this.fieldFunctions		= new HashMap<String, MqlFunction>();
+		this.documentFunctions	= new HashMap<String, MqlCriterionFunction>();
+		this.fieldFunctions		= new HashMap<String, MqlCriterionFunction>();
 	}
 
 	/**
 	 * Registers a field function.
 	 * @param function
 	 */
-	public void registerFieldFunction(MqlFunction function) {
+	public void registerFieldFunction(MqlCriterionFunction function) {
 		fieldFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
@@ -86,7 +88,7 @@ public class InterpreterImpl
 	 * Registers a document function.
 	 * @param function
 	 */
-	public void registerDocumentFunction(MqlFunction function) {
+	public void registerDocumentFunction(MqlCriterionFunction function) {
 		documentFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
@@ -117,30 +119,34 @@ public class InterpreterImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public InterpreterResult interpret(Tree tree) {
+	public List<InterpreterResult> interpret(Tree tree) {
 		return interpret(tree, NO_PARAMS);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public InterpreterResult interpret(
-		Tree t, Map<String, Object> parameters) {
-		CommonTree tree = CommonTree.class.cast(t);
-	
-		// one command at a time for now
-		if (tree.getChildCount()>1) {
-			throw new IllegalArgumentException(
-				"Can only execute one statement at a time");
-			
-		} else if (tree.getChildCount()==0) {
-			throw new IllegalArgumentException(
-				"No executable statements were found");
-		}
-
-		// get command tree
+	public List<InterpreterResult> interpret(
+		Tree tree, Map<String, Object> parameters) {
 		assertTokenType(tree, MqlParser.COMMANDS);
-		tree = child(tree, 0);
+		List<InterpreterResult> ret = new ArrayList<InterpreterResult>();
+		for (int i=0; i<tree.getChildCount(); i++) {
+			ret.add(doInterpret(
+				CommonTree.class.cast(tree.getChild(i)), parameters));
+		}
+		return ret;
+	}
+
+
+	/**
+	 * Interprets a command tree.
+	 * @param t
+	 * @param parameters
+	 * @return
+	 */
+	private InterpreterResult doInterpret(
+		CommonTree tree, Map<String, Object> parameters) {
+		assertTokenType(tree, MqlParser.COMMAND);
 
 		// setup the query
 		DaoQuery query = new DaoQuery();
@@ -184,17 +190,88 @@ public class InterpreterImpl
 				return executeUpdateAction(actionTree, query, false);
 			}
 
-			// update
+			// upsert
 			case MqlParser.UPSERT_ACTION: {
 				return executeUpdateAction(actionTree, query, true);
 			}
-			
+
+			// find and modify
+			case MqlParser.FIND_AND_MODIFY: {
+				return executeFamAction(actionTree, query);
+			}
+
+			// find and delete
+			case MqlParser.FIND_AND_DELETE: {
+				return executeFadAction(actionTree, query);
+			}
+
+			// zomg we're all gunna die
 			default:
 				throw new IllegalArgumentException(
 					"Unknown action type");
 		}
 	}
 
+	/**
+	 * Executes a Find And Delete.
+	 * @param tree
+	 * @param query
+	 * @return
+	 */
+	private InterpreterResult executeFadAction(CommonTree tree, DaoQuery query) {
+
+		// get field list
+		CommonTree fieldListTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.FIELD_LIST));
+		DBObject fields = readFieldList(fieldListTree);
+
+		// read sort
+		CommonTree sortTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.SORT));
+		if (sortTree!=null) {
+			readSort(sortTree, query);
+		}
+
+		// execute it
+		return new InterpreterResult(
+			null, query.modify().findAndDelete(fields), null);
+	}
+
+	/**
+	 * Executes a Find And Modify.
+	 * @param tree
+	 * @param query
+	 * @return
+	 */
+	private InterpreterResult executeFamAction(CommonTree tree, DaoQuery query) {
+
+		Tree upsert = tree.getFirstChildWithType(MqlParser.UPSERT);
+		Tree returnTree = tree.getFirstChildWithType(MqlParser.RETURN);
+		boolean returnNew = (returnTree!=null)
+			? returnTree.getChild(0).getType()==MqlParser.NEW
+			: true;
+
+		// read updateOperations
+		Tree updateTree = tree.getFirstChildWithType(MqlParser.UPDATE_OPERATIONS);
+		readModifiers(CommonTree.class.cast(updateTree), query);
+
+		// get field list
+		CommonTree fieldListTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.FIELD_LIST));
+		DBObject fields = readFieldList(fieldListTree);
+
+		// read sort
+		CommonTree sortTree = CommonTree.class.cast(
+			tree.getFirstChildWithType(MqlParser.SORT));
+		if (sortTree!=null) {
+			readSort(sortTree, query);
+		}
+
+		// execute it
+		return new InterpreterResult(
+			null, query.modify().findAndModify(returnNew, upsert!=null, fields), null);
+	}
+	
 	/**
 	 * Executes an update action.
 	 * @param action
@@ -214,12 +291,12 @@ public class InterpreterImpl
 		readModifiers(CommonTree.class.cast(updateTree), query);
 
 		// execute it
-		query.modify()
+		WriteResult res = query.modify()
 			.setAtomic(atomic!=null)
 			.update(upsert, multi!=null);
 
 		// execute it
-		return new InterpreterResult(null, query.explain());
+		return new InterpreterResult(null, null, res);
 	}
 
 	/**
@@ -232,10 +309,15 @@ public class InterpreterImpl
 
 		// read hint
 		Tree atomic = tree.getFirstChildWithType(MqlParser.ATOMIC);
-		query.modify().setAtomic(atomic!=null).deleteObjects();
 
 		// execute it
-		return new InterpreterResult(null, query.explain());
+		WriteResult res = query
+			.modify()
+			.setAtomic(atomic!=null)
+			.deleteObjects();
+
+		// execute it
+		return new InterpreterResult(null, null, res);
 	}
 
 	/**
@@ -254,7 +336,7 @@ public class InterpreterImpl
 		}
 
 		// execute it
-		return new InterpreterResult(null, query.explain());
+		return new InterpreterResult(null, query.explain(), null);
 	}
 
 	/**
@@ -268,14 +350,7 @@ public class InterpreterImpl
 		// get field list
 		CommonTree fieldListTree = CommonTree.class.cast(
 			tree.getFirstChildWithType(MqlParser.FIELD_LIST));
-		List<String> fieldList = readFieldList(fieldListTree);
-		DBObject fields = null;
-		if (fieldList.size()>0) {
-			fields = new BasicDBObject();
-			for (String field : fieldList) {
-				fields.put(field, 1);
-			}
-		}
+		DBObject fields = readFieldList(fieldListTree);
 
 		// read hint
 		CommonTree hintTree = CommonTree.class.cast(
@@ -299,9 +374,9 @@ public class InterpreterImpl
 		}
 
 		// execute it
-		return (fieldList.size()>0)
-			? new InterpreterResult(query.findObjects(fields), null)
-			: new InterpreterResult(query.findObjects(), null);
+		return (fields!=null)
+			? new InterpreterResult(query.findObjects(fields), null, null)
+			: new InterpreterResult(query.findObjects(), null, null);
 	}
 
 	/**
@@ -311,6 +386,91 @@ public class InterpreterImpl
 	 */
 	private void readModifiers(CommonTree tree, DaoQuery query) {
 		assertTokenType(tree, MqlParser.UPDATE_OPERATIONS);
+
+		// get the modifer
+		DaoModifier modifier = query.modify();
+
+		// go through each operation
+		for (int i=0; i<tree.getChildCount(); i++) {
+			CommonTree modiferTree = child(tree, i);
+			String field = null;
+			Object value = null;
+
+			// add the operation to the query
+			switch(modiferTree.getType()) {
+				case MqlParser.INC:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.inc(field, Number.class.cast(value));
+					break;
+				case MqlParser.SET:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.set(field, value);
+					break;
+				case MqlParser.UNSET:
+					field = child(modiferTree, 0).getText();
+					modifier.unset(field);
+					break;
+				case MqlParser.PUSH:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.push(field, value);
+					break;
+				case MqlParser.PUSH_ALL:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.pushAll(field, Object[].class.cast(value));
+					break;
+				case MqlParser.ADD_TO_SET:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.addToSet(field, value);
+					break;
+				case MqlParser.ADD_TO_SET_EACH:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.addToSetEach(field, Object[].class.cast(value));
+					break;
+				case MqlParser.POP:
+					field = child(modiferTree, 0).getText();
+					modifier.pop(field);
+					break;
+				case MqlParser.SHIFT:
+					field = child(modiferTree, 0).getText();
+					modifier.pop(field);
+					break;
+				case MqlParser.PULL:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.pull(field, value);
+					break;
+				case MqlParser.PULL_ALL:
+					field = child(modiferTree, 0).getText();
+					value = readVariableLiteral(child(modiferTree, 1));
+					modifier.pullAll(field, Object[].class.cast(value));
+					break;
+				case MqlParser.RENAME:
+					field = child(modiferTree, 0).getText();
+					value = child(modiferTree, 1).getText();
+					modifier.rename(field, String.class.cast(value));
+					break;
+				case MqlParser.BITWISE:
+					Tree opTree = modiferTree.getChild(0);
+					field = child(modiferTree, 1).getText();
+					value = readVariableLiteral(child(modiferTree, 2));
+					if (opTree.getType()==MqlParser.AND) {
+						modifier.bitwiseAnd(field, Number.class.cast(value));
+					} else {
+						modifier.bitwiseOr(field, Number.class.cast(value));
+					}
+					break;
+				default:
+					throw new IllegalArgumentException(
+						"Unknown modifier:" +modiferTree.toString());
+			}
+			
+		}
 		
 	}
 
@@ -394,16 +554,17 @@ public class InterpreterImpl
 	 * @param fieldList
 	 * @return
 	 */
-	private List<String> readFieldList(CommonTree fieldList) {
+	private DBObject readFieldList(CommonTree fieldList) {
+		if (fieldList==null) { return null; }
 		assertTokenType(fieldList, MqlParser.FIELD_LIST);
-		List<String> ret = new ArrayList<String>(fieldList.getChildCount());
+		DBObject fields = new BasicDBObject();
 		for (int i=0; i<fieldList.getChildCount(); i++) {
 			if (fieldList.getChild(i).getType()==MqlParser.STAR) {
-				continue;
+				return null;
 			}
-			ret.add(fieldList.getChild(i).getText());
+			fields.put(fieldList.getChild(i).getText(), 1);
 		}
-		return ret;
+		return fields;
 	}
 
 	/**
@@ -439,17 +600,17 @@ public class InterpreterImpl
 				break;
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				fieldName = child(tree, 0).getText().trim().toLowerCase();
+				fieldName = child(tree, 0).getText().trim();
 				criterion = new FieldCriterion(fieldName, createCriterion(tree));
 				break;
 				
 			case MqlParser.COMPARE_CRITERION:
-				fieldName = child(tree, 0).getText().trim().toLowerCase();
+				fieldName = child(tree, 0).getText().trim();
 				criterion = new FieldCriterion(fieldName, createCriterion(tree));
 				break;
 				
 			case MqlParser.NEGATED_CRITERION:
-				fieldName = child(tree, 0).getChild(0).getText().trim().toLowerCase();
+				fieldName = child(tree, 0).getChild(0).getText().trim();
 				criterion = new NotCriterion(fieldName, createCriterion(child(tree, 0)));
 				break;
 				
@@ -503,7 +664,7 @@ public class InterpreterImpl
 	 * @return
 	 */
 	private Criterion readCriterionForFunctionCall(
-		CommonTree tree, Map<String, MqlFunction> functionTable) {
+		CommonTree tree, Map<String, MqlCriterionFunction> functionTable) {
 		assertTokenType(tree, MqlParser.FUNCTION_CALL);
 
 		// get the function name

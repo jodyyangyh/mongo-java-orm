@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.antlr.runtime.tree.Tree;
 import org.junit.After;
@@ -26,8 +25,6 @@ import com.mongodb.MongoURI;
 
 public class MqlInterpreterTest {
 
-	public static final Boolean DROP_DB_AFTER_TEST = true;
-
 	private InterpreterImpl interpreter;
 	private Mongo mongo;
 	private ObjectMapper objectMapper;
@@ -40,7 +37,10 @@ public class MqlInterpreterTest {
 		
 		// connect to mongo
 		mongo = new Mongo(new MongoURI("mongodb://localhost"));
-		dbName = "mjormTestDb"+((int)(new Random(System.currentTimeMillis()).nextFloat()*1000));
+		dbName = "mjorm_test_db";
+		for (String c : mongo.getDB(dbName).getCollectionNames()) {
+			mongo.getDB(dbName).getCollection(c).drop();
+		}
 		mongo.getDB(dbName).createCollection("people", new BasicDBObject());
 		collection = mongo.getDB(dbName).getCollection("people");
 		
@@ -59,19 +59,19 @@ public class MqlInterpreterTest {
 	public void tearDown() {
 		interpreter = null;
 		objectMapper = null;
-		if (DROP_DB_AFTER_TEST) {
-			mongo.dropDatabase(dbName);
-		}
+		mongo.dropDatabase(dbName);
 		mongo.close();
 		mongo = null;
 	}
 
 	private void addPerson(
 		String firstName, String lastName,
-		String street, String city, String state, String zip) {
+		String street, String city, String state, String zip, int num) {
 		DBObject object = BasicDBObjectBuilder.start()
 			.add("firstName", firstName)
 			.add("lastName", lastName)
+			.add("numbers", new Object[] {1,2,3})
+			.add("num", num)
 			.push("address")
 				.add("street", street)
 				.add("city", city)
@@ -85,7 +85,7 @@ public class MqlInterpreterTest {
 	private void addPeople(int num) {
 		for (int i=0; i<num; i++) {
 			addPerson(
-				"first"+i, "last"+1, "street"+1, "city"+1, "state"+1, "zip"+1);
+				"first"+i, "last"+i, "street"+i, "city"+i, "state"+i, "zip"+i, i);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class MqlInterpreterTest {
 		Tree tree = interpreter.compile(ips("from people select * limit 0, 2"));
 	
 		// interpret
-		InterpreterResult res = interpreter.interpret(tree);
+		InterpreterResult res = interpreter.interpret(tree).get(0);
 
 		// verify
 		assertNotNull(res);
@@ -141,7 +141,7 @@ public class MqlInterpreterTest {
 		Tree tree = interpreter.compile(ips("from people select firstName"));
 	
 		// interpret
-		InterpreterResult res = interpreter.interpret(tree);
+		InterpreterResult res = interpreter.interpret(tree).get(0);
 
 		// verify
 		assertNotNull(res);
@@ -151,8 +151,74 @@ public class MqlInterpreterTest {
 		assertEquals(10, people.size());
 		for (int i=0; i<people.size(); i++) {
 			assertEquals(2, people.get(i).keySet().size());
+			assertNotNull(people.get(i).get("_id"));
+			assertNotNull(people.get(i).get("firstName"));
 		}
 
+	}
+
+	@Test
+	public void testUpdate()
+		throws Exception {
+
+		// populate the db
+		addPeople(10);
+
+		// get value
+		Tree tree = interpreter.compile(ips(
+			"from people where firstName='first1' select *"));
+		InterpreterResult res = interpreter.interpret(tree).get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		List<DBObject> people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("first1", people.get(0).get("firstName"));
+
+		// update it
+		tree = interpreter.compile(ips(
+			"from people where firstName='first1' update "
+			+"set firstName='new first name' rename lastName somethingElse"));
+		res = interpreter.interpret(tree).get(0);
+
+		// get value
+		tree = interpreter.compile(ips(
+			"from people where firstName='new first name' select *"));
+		res = interpreter.interpret(tree).get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("new first name", people.get(0).get("firstName"));
+		assertEquals("last1", people.get(0).get("somethingElse"));
+		
+	}
+
+	@Test
+	public void testUpdateMultipleCommands()
+		throws Exception {
+
+		// populate the db
+		addPeople(10);
+
+		// get value
+		StringBuilder buff = new StringBuilder();
+		for (int i=0; i<100; i++) {
+			buff.append("from people where firstName='first1' update add to set numbers "+i+"; ");
+		}
+		Tree tree = interpreter.compile(ips(buff.toString()));
+		List<InterpreterResult> res = interpreter.interpret(tree);
+		assertNotNull(res);
+		assertEquals(100, res.size());
+		for (int i=0; i<100; i++) {
+			assertNull(res.get(i).getResult().getError());
+		}
+		
 	}
 
 }

@@ -1,7 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
-import com.googlecode.mjorm.mql.MqlFunction;
-import com.googlecode.mjorm.mql.MqlFunctionImpl;
+import com.googlecode.mjorm.mql.MqlCriterionFunction;
+import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBObject;
 
 public class SimpleCriterion
@@ -75,7 +75,7 @@ public class SimpleCriterion
 	}
 
 	/**	 
-	 * Creates an {@link MqlFunction} for the given {@link Operator}
+	 * Creates an {@link MqlCriterionFunction} for the given {@link Operator}
 	 * with the given restrictions.
 	 * @param operator
 	 * @param minArgs
@@ -84,11 +84,11 @@ public class SimpleCriterion
 	 * @param types
 	 * @return
 	 */
-	public static final MqlFunction createForOperator(
+	public static final MqlCriterionFunction createForOperator(
 		final String functionName, final Operator operator, 
 		final int minArgs, final int maxArgs, final int exactArgs,
 		final Class<?>... types) {
-		return new MqlFunctionImpl() {
+		return new AbstractMqlCriterionFunction() {
 			protected void init() {
 				setFunctionName(functionName);
 				setMinArgs(minArgs);

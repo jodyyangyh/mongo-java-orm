@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.googlecode.mjorm.mql.MqlFunction;
-import com.googlecode.mjorm.mql.MqlFunctionImpl;
+import com.googlecode.mjorm.mql.MqlCriterionFunction;
+import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.googlecode.mjorm.query.criteria.AbstractCriterion;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.googlecode.mjorm.query.criteria.Criterion;
@@ -80,31 +80,31 @@ public class QueryGroup
 		return list;
 	}
 
-	public static MqlFunction createMqlDocumentFunction(
+	public static MqlCriterionFunction createMqlDocumentFunction(
 		final String functionName, final String operatorName, final boolean allowQueryGroup, final boolean allowQuery) {
 		return createMqlDocumentFunction(
 			functionName, operatorName, allowQueryGroup, allowQuery, -1, -1, -1);
 	}
 
-	public static MqlFunction createMqlDocumentFunction(
+	public static MqlCriterionFunction createMqlDocumentFunction(
 		final String functionName, final String operatorName,
 		final int exactArgs, final int minArgs, final int maxArgs, final Class<?>... types) {
 		return createMqlDocumentFunction(
 			functionName, operatorName, false, false, exactArgs, minArgs, maxArgs, types);
 	}
 
-	public static MqlFunction createMqlDocumentFunction(
+	public static MqlCriterionFunction createMqlDocumentFunction(
 		final String functionName, final String operatorName,
 		final int exactArgs, final Class<?>... types) {
 		return createMqlDocumentFunction(
 			functionName, operatorName, false, false, exactArgs, -1, -1, types);
 	}
 
-	public static MqlFunction createMqlDocumentFunction(
+	public static MqlCriterionFunction createMqlDocumentFunction(
 		final String functionName, final String operatorName,
 		final boolean allowQueryGroup, final boolean allowQuery,
 		final int exactArgs, final int minArgs, final int maxArgs, final Class<?>... types) {
-		return new MqlFunctionImpl() {
+		return new AbstractMqlCriterionFunction() {
 			protected void init() {
 				setFunctionName(functionName);
 				setAllowQueryGroup(allowQueryGroup);

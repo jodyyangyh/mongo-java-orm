@@ -4,7 +4,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class FieldCriterion
-	extends DocumentCriterion {
+	extends AbstractCriterion
+	implements DocumentCriterion {
 
 	private String fieldName;
 	private Criterion criterion;
