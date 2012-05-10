@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.annotations.AnnotationsDescriptorObjectMapper;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -209,14 +210,25 @@ public class MqlInterpreterTest {
 		// get value
 		StringBuilder buff = new StringBuilder();
 		for (int i=0; i<100; i++) {
-			buff.append("from people where firstName='first1' update add to set numbers "+i+"; ");
+			buff.append("from people where firstName='first1' find and modify add to set numbers "+i+" select *; ");
 		}
 		Tree tree = interpreter.compile(ips(buff.toString()));
 		List<InterpreterResult> res = interpreter.interpret(tree);
 		assertNotNull(res);
 		assertEquals(100, res.size());
+		List<Integer> expect = new ArrayList<Integer>();
+		expect.add(1);
+		expect.add(2);
+		expect.add(3);
 		for (int i=0; i<100; i++) {
-			assertNull(res.get(i).getResult().getError());
+			DBObject obj = res.get(i).getObject();
+			if (i<1 || i>3) { // 1 through 3 were already in it
+				expect.add(i);
+			}
+			assertNotNull(obj);
+			assertNotNull(obj.get("numbers"));
+			BasicDBList numbers = BasicDBList.class.cast(obj.get("numbers"));
+			assertArrayEquals(expect.toArray(new Object[0]), numbers.toArray(new Object[0]));
 		}
 		
 	}
