@@ -13,6 +13,7 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
+import org.antlr.runtime.tree.CommonErrorNode;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
@@ -113,7 +114,25 @@ public class InterpreterImpl
 
 		// parse
 		MqlParser.start_return ast = parser.start();
-		return CommonTree.class.cast(ast.getTree());
+
+		// verify
+		CommonTree tree = CommonTree.class.cast(ast.getTree());
+		verifyTree(tree);
+
+		return tree;
+	}
+
+	private void verifyTree(CommonTree tree) {
+		if (CommonErrorNode.class.isInstance(tree)) {
+			CommonErrorNode error = CommonErrorNode.class.cast(tree);
+			throw new MqlException(
+				error.start.getLine(),
+				error.start.getCharPositionInLine(),
+				error.start.getText());
+		}
+		for (int i=0; i<tree.getChildCount(); i++) {
+			verifyTree(CommonTree.class.cast(tree.getChild(i)));
+		}
 	}
 
 	/**
@@ -196,18 +215,18 @@ public class InterpreterImpl
 			}
 
 			// find and modify
-			case MqlParser.FIND_AND_MODIFY: {
+			case MqlParser.FAM_ACTION: {
 				return executeFamAction(actionTree, query);
 			}
 
 			// find and delete
-			case MqlParser.FIND_AND_DELETE: {
+			case MqlParser.FAD_ACTION: {
 				return executeFadAction(actionTree, query);
 			}
 
 			// zomg we're all gunna die
 			default:
-				throw new IllegalArgumentException(
+				throw new MqlException(
 					"Unknown action type");
 		}
 	}
@@ -466,7 +485,7 @@ public class InterpreterImpl
 					}
 					break;
 				default:
-					throw new IllegalArgumentException(
+					throw new MqlException(
 						"Unknown modifier:" +modiferTree.toString());
 			}
 			
@@ -593,7 +612,7 @@ public class InterpreterImpl
 				String functionName = child(tree, 0).getChild(0).getText().trim().toLowerCase();
 				Criterion c = createCriterion(tree);
 				if (!DocumentCriterion.class.isInstance(c)) {
-					throw new IllegalArgumentException(
+					throw new MqlException(
 						"Document function '"+functionName+"' returned a Criterion other than a DocumentCriterion");
 				}
 				criterion = DocumentCriterion.class.cast(c);
@@ -646,7 +665,7 @@ public class InterpreterImpl
 			case MqlParser.NEGATED_CRITERION:
 				Criterion c = createCriterion(child(tree, 0));
 				if (!FieldCriterion.class.isInstance(c)) {
-					throw new IllegalArgumentException(
+					throw new MqlException(
 						"NOT requires FieldCriteiron");
 				}
 				return new NotCriterion(FieldCriterion.class.cast(c));
@@ -673,7 +692,7 @@ public class InterpreterImpl
 
 		// function not found
 		if (!functionTable.containsKey(functionName)) {
-			throw new IllegalArgumentException(
+			throw new MqlException(
 				"Unknown function: "+functionName);
 
 		// no arguments
@@ -745,7 +764,7 @@ public class InterpreterImpl
 				}
 				return vars;
 			default:
-				throw new IllegalArgumentException(
+				throw new MqlException(
 					"Unknown variable literal type "+tree.getType()+" with value "+text);
 		}
 	}
@@ -771,7 +790,7 @@ public class InterpreterImpl
 	 */
 	private void assertTokenType(Tree tree, int... types) {
 		if (tree==null) {
-			throw new IllegalArgumentException(
+			throw new MqlException(
 				"Got a null token when expecting a specific type");
 		}
 		int treeType = tree.getType();
@@ -780,7 +799,7 @@ public class InterpreterImpl
 				return;
 			}
 		}
-		throw new IllegalArgumentException(
+		throw new MqlException(
 			"Unknown token: "+tree.toString());
 	}
 
