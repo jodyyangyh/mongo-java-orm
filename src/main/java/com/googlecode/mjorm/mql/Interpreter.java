@@ -2,6 +2,7 @@ package com.googlecode.mjorm.mql;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
@@ -25,13 +26,13 @@ public interface Interpreter {
 	 * @param parameters
 	 * @return
 	 */
-	InterpreterResult interpret(Tree tree, Map<String, Object> parameters);
+	List<InterpreterResult> interpret(Tree tree, Map<String, Object> parameters);
 
 	/**
 	 * Interprets the given AST.
 	 * @param tree
 	 * @return
 	 */
-	InterpreterResult interpret(Tree tree);
+	List<InterpreterResult> interpret(Tree tree);
 
 }

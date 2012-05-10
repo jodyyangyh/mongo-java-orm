@@ -9,10 +9,10 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public abstract class AbstractCriterionBuilder<T extends AbstractCriterionBuilder<T>>
-	extends AbstractDBObjectCriterion {
+	extends AbstractCriterion {
 
-	protected Stack<String> propertyStack 					= new Stack<String>();
-	protected List<AbstractDBObjectCriterion> criteria 	= new ArrayList<AbstractDBObjectCriterion>();
+	protected Stack<String> propertyStack 			= new Stack<String>();
+	protected List<DocumentCriterion> criteria 	= new ArrayList<DocumentCriterion>();
 
 	protected abstract T self();
 
@@ -78,7 +78,7 @@ public abstract class AbstractCriterionBuilder<T extends AbstractCriterionBuilde
 		BasicDBObject ret = new BasicDBObject();
 
 		// loop through each criteria
-		for (AbstractDBObjectCriterion criterion : criteria) {
+		for (DocumentCriterion criterion : criteria) {
 
 			// merge the query
 			DBObjectUtil.merge(criterion.toQueryObject(), ret);

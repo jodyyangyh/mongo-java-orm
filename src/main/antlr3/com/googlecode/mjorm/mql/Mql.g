@@ -266,15 +266,15 @@ operation_add_to_set_each
 	;
 
 operation_add_to_set
-	: ADD_TO_SET^ field_name array
+	: ADD_TO_SET^ field_name variable_literal
 	;
 		
 operation_pop
-	: POP^ field_name variable_literal
+	: POP^ field_name
 	;
 	
 operation_shift
-	: SHIFT^ field_name variable_literal
+	: SHIFT^ field_name
 	;
 		
 operation_pull

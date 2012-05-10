@@ -5,7 +5,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class GroupedQueryCriterion
-	extends DocumentCriterion {
+	extends AbstractCriterion
+	implements DocumentCriterion {
 
 	public enum Group {
 		OR("$or"),

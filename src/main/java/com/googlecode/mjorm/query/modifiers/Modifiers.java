@@ -12,14 +12,14 @@ public class Modifiers {
 	/**
 	 * {@see AddToSetEachModifier}
 	 */
-	public static <T> AddToSetEachModifier addToSet(T[] values) {
+	public static <T> AddToSetEachModifier addToSetEach(T[] values) {
 		return new AddToSetEachModifier(values);
 	}
 
 	/**
 	 * {@see AddToSetEachModifier}
 	 */
-	public static <T> AddToSetEachModifier addToSet(Collection<T> values) {
+	public static <T> AddToSetEachModifier addToSetEach(Collection<T> values) {
 		return new AddToSetEachModifier(values);
 	}
 
@@ -131,7 +131,7 @@ public class Modifiers {
 	/**
 	 * {@see UnSetModifier}
 	 */
-	public static <T> UnSetModifier unset(T value) {
-		return new UnSetModifier(value);
+	public static UnSetModifier unset() {
+		return new UnSetModifier();
 	}
 }

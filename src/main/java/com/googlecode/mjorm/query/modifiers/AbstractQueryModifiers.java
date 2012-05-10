@@ -11,15 +11,15 @@ public abstract class AbstractQueryModifiers<T extends AbstractQueryModifiers<T>
 	/**
 	 * {@see AddToSetEachModifier}
 	 */
-	public <V> T addToSet(String property, V[] values) {
-		return add(property, Modifiers.addToSet(values));
+	public <V> T addToSetEach(String property, V[] values) {
+		return add(property, Modifiers.addToSetEach(values));
 	}
 
 	/**
 	 * {@see AddToSetEachModifier}
 	 */
-	public <V> T addToSet(String property, Collection<V>values) {
-		return add(property, Modifiers.addToSet(values));
+	public <V> T addToSetEach(String property, Collection<V>values) {
+		return add(property, Modifiers.addToSetEach(values));
 	}
 
 	/**
@@ -130,8 +130,8 @@ public abstract class AbstractQueryModifiers<T extends AbstractQueryModifiers<T>
 	/**
 	 * {@see UnSetModifier}
 	 */
-	public <V> T unset(String property, V value) {
-		return add(property, Modifiers.unset(value));
+	public <V> T unset(String property) {
+		return add(property, Modifiers.unset());
 	}
 
 }

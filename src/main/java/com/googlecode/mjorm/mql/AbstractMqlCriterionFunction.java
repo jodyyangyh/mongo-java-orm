@@ -4,7 +4,8 @@ import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.Criterion;
 
-public abstract class AbstractMqlFunction {
+public abstract class AbstractMqlCriterionFunction
+	implements MqlCriterionFunction {
 
 	private String functionName				= "unknown";
 	private boolean allowQueryGroup		= false;
@@ -16,7 +17,7 @@ public abstract class AbstractMqlFunction {
 	private boolean initialized			= false;
 	private boolean strictInitialization	= true;
 
-	public AbstractMqlFunction() {
+	public AbstractMqlCriterionFunction() {
 		initialized = false;
 		init();
 		if (functionName==null || functionName.trim().length()==0) {

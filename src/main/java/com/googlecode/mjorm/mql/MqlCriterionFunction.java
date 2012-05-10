@@ -4,7 +4,7 @@ import com.googlecode.mjorm.query.Query;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.Criterion;
 
-public interface MqlFunction {
+public interface MqlCriterionFunction {
 
 	Criterion createForQuery(Query query);
 

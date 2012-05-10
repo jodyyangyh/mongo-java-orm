@@ -2,8 +2,10 @@ package com.googlecode.mjorm.query;
 
 import com.googlecode.mjorm.MongoDao;
 import com.googlecode.mjorm.query.modifiers.AbstractQueryModifiers;
+import com.mongodb.DBCollection;
 import com.mongodb.DBEncoder;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
@@ -142,16 +144,51 @@ public class DaoModifier
 	}
 
 	/**
+	 * Performs a findAndModify for the current query.
+	 * @param returnNew whether or not to return the new or old object
+	 * @param upsert create new if it doesn't exist
+	 * @param fields the fields to return
+	 * @return the object
+	 */
+	public DBObject findAndModify(boolean returnNew, boolean upsert, DBObject fields) {
+		assertValid();
+		return query.getDB().getCollection(query.getCollection())
+			.findAndModify(query.toQueryObject(), fields, query.getSortDBObject(),
+				false, toModifierObject(), returnNew, upsert);
+	}
+
+	/**
+	 * Performs a findAndModify for the current query.
+	 * @param returnNew whether or not to return the new or old object
+	 * @param upsert create new if it doesn't exist
+	 * @param fields the fields to return
+	 * @return the object
+	 */
+	public DBObject findAndModify(boolean returnNew, boolean upsert) {
+		assertValid();
+		return findAndModify(returnNew, upsert, (DBObject)null);
+	}
+
+	/**
 	 * Performs an update with the current modifier object.
 	 * @param upsert
 	 * @param multi
 	 * @param concern
 	 * @param encoder
 	 */
-	public void update(boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
+	public WriteResult update(boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
 		assertValid();
-		query.getDB().getCollection(query.getCollection()).update(
-			query.toQueryObject(), toModifierObject(), upsert, multi, concern, encoder);
+		DBCollection collection = query.getDB().getCollection(query.getCollection());
+		if (concern==null) {
+			concern = collection.getWriteConcern();
+		}
+		WriteResult result = collection.update(
+			query.toQueryObject(), toModifierObject(),
+			upsert, multi, concern, encoder);
+		if (result.getError()!=null) {
+			throw new MongoException(result.getError());
+		}
+		return result;
 	}
 
 	/**
@@ -160,8 +197,8 @@ public class DaoModifier
 	 * @param multi
 	 * @param concern
 	 */
-	public void update(boolean upsert, boolean multi, WriteConcern concern) {
-		update(upsert, multi, concern, null);
+	public WriteResult update(boolean upsert, boolean multi, WriteConcern concern) {
+		return update(upsert, multi, concern, null);
 	}
 
 	/**
@@ -169,36 +206,36 @@ public class DaoModifier
 	 * @param upsert
 	 * @param multi
 	 */
-	public void update(boolean upsert, boolean multi) {
-		update(upsert, multi, null, null);
+	public WriteResult update(boolean upsert, boolean multi) {
+		return update(upsert, multi, null, null);
 	}
 
 	/**
 	 * Performs a single update.
 	 */
-	public void update() {
-		update(false, false);
+	public WriteResult update() {
+		return update(false, false);
 	}
 
 	/**
 	 * Performs a multi update.
 	 */
-	public void updateMulti() {
-		update(false, true);
+	public WriteResult updateMulti() {
+		return update(false, true);
 	}
 
 	/**
 	 * Performs a single upsert.
 	 */
-	public void upsert() {
-		update(true, false);
+	public WriteResult upsert() {
+		return update(true, false);
 	}
 
 	/**
 	 * Performs a multi upsert.
 	 */
-	public void upsertMulti() {
-		update(true, true);
+	public WriteResult upsertMulti() {
+		return update(true, true);
 	}
 
 	/**
