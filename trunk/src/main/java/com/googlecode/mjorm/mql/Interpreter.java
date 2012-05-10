@@ -11,7 +11,7 @@ import org.antlr.runtime.tree.Tree;
 public interface Interpreter {
 
 	/**
-	 * Compiles the given code return the AST.
+	 * Compiles the given code and returns the AST.
 	 * @param ips
 	 * @return
 	 * @throws IOException
@@ -21,7 +21,8 @@ public interface Interpreter {
 		throws IOException, RecognitionException;
 
 	/**
-	 * Interprets the given AST.
+	 * Interprets the given AST and returns an {@link InterpreterResult}
+	 * for each command that was executed.
 	 * @param tree
 	 * @param parameters
 	 * @return
@@ -29,7 +30,8 @@ public interface Interpreter {
 	List<InterpreterResult> interpret(Tree tree, Map<String, Object> parameters);
 
 	/**
-	 * Interprets the given AST.
+	 * Interprets the given AST and returns an {@link InterpreterResult}
+	 * for each command that was executed.
 	 * @param tree
 	 * @return
 	 */
