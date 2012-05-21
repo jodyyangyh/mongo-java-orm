@@ -26,6 +26,7 @@ import com.mongodb.MongoURI;
 
 public class MqlInterpreterTest {
 
+	private boolean canTest;
 	private InterpreterImpl interpreter;
 	private Mongo mongo;
 	private ObjectMapper objectMapper;
@@ -37,7 +38,17 @@ public class MqlInterpreterTest {
 		throws Exception {
 		
 		// connect to mongo
-		mongo = new Mongo(new MongoURI("mongodb://localhost"));
+		try {
+			mongo = new Mongo(new MongoURI("mongodb://localhost"));
+			mongo.getDatabaseNames();
+			canTest = true;
+		} catch(Throwable t) {
+			System.err.println("Unable to run MongoDB integration tests: "+t.getMessage());
+			t.printStackTrace();
+			canTest = false;
+			return;
+		}
+
 		dbName = "mjorm_test_db";
 		for (String c : mongo.getDB(dbName).getCollectionNames()) {
 			mongo.getDB(dbName).getCollection(c).drop();
@@ -58,6 +69,7 @@ public class MqlInterpreterTest {
 
 	@After
 	public void tearDown() {
+		if (!canTest) { return; }
 		interpreter = null;
 		objectMapper = null;
 		mongo.dropDatabase(dbName);
@@ -110,6 +122,7 @@ public class MqlInterpreterTest {
 	@Test
 	public void testSelect_withLimit()
 		throws Exception {
+		if (!canTest) { return; }
 
 		// populate the db
 		addPeople(10);
@@ -134,6 +147,7 @@ public class MqlInterpreterTest {
 	@Test
 	public void testSelect_withFields()
 		throws Exception {
+		if (!canTest) { return; }
 
 		// populate the db
 		addPeople(10);
@@ -161,6 +175,7 @@ public class MqlInterpreterTest {
 	@Test
 	public void testUpdate()
 		throws Exception {
+		if (!canTest) { return; }
 
 		// populate the db
 		addPeople(10);
@@ -203,6 +218,7 @@ public class MqlInterpreterTest {
 	@Test
 	public void testUpdateMultipleCommands()
 		throws Exception {
+		if (!canTest) { return; }
 
 		// populate the db
 		addPeople(10);
