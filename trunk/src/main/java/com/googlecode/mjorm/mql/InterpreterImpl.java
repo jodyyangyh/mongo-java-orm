@@ -4,6 +4,7 @@ package com.googlecode.mjorm.mql;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,8 @@ import com.mongodb.WriteResult;
 public class InterpreterImpl
 	implements Interpreter {
 
-	private static final Map<String, Object> NO_PARAMS = new HashMap<String, Object>();
+	private static final Map<String, Object> NO_PARAMS
+		= Collections.unmodifiableMap(new HashMap<String, Object>());
 
 	private static final CommonTreeAdaptor ADAPTER = new CommonTreeAdaptor() {
 		public Object create(Token payload) {
@@ -145,13 +147,31 @@ public class InterpreterImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<InterpreterResult> interpret(Tree tree, Object... parameters) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		for (int i=0; i<parameters.length; i++) {
+			params.put(i+"", parameters[i]);
+		}
+		return interpret(tree, params);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<InterpreterResult> interpret(
 		Tree tree, Map<String, Object> parameters) {
 		assertTokenType(tree, MqlParser.COMMANDS);
+
+		// prepare an execution context
+		ExecutionContext ctx = new ExecutionContext();
+		ctx.params = parameters;
+		ctx.currentParameterIndex = 0;
+
+		// execute
 		List<InterpreterResult> ret = new ArrayList<InterpreterResult>();
 		for (int i=0; i<tree.getChildCount(); i++) {
 			ret.add(doInterpret(
-				CommonTree.class.cast(tree.getChild(i)), parameters));
+				CommonTree.class.cast(tree.getChild(i)), ctx));
 		}
 		return ret;
 	}
@@ -164,7 +184,7 @@ public class InterpreterImpl
 	 * @return
 	 */
 	private InterpreterResult doInterpret(
-		CommonTree tree, Map<String, Object> parameters) {
+		CommonTree tree, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.COMMAND);
 
 		// setup the query
@@ -178,7 +198,7 @@ public class InterpreterImpl
 		// read criteria
 		CommonTree actionTree = null;
 		if (child(tree, 1).getType()==MqlParser.CRITERIA) {
-			readCriteria(child(tree, 1), query);
+			readCriteria(child(tree, 1), query, ctx);
 			actionTree = child(tree, 2);
 		} else {
 			actionTree = child(tree, 1);
@@ -191,7 +211,7 @@ public class InterpreterImpl
 
 			// select
 			case MqlParser.SELECT_ACTION: {
-				return executeSelectAction(actionTree, query);
+				return executeSelectAction(actionTree, query, ctx);
 			}
 
 			// explain
@@ -206,17 +226,17 @@ public class InterpreterImpl
 
 			// update
 			case MqlParser.UPDATE_ACTION: {
-				return executeUpdateAction(actionTree, query, false);
+				return executeUpdateAction(actionTree, query, false, ctx);
 			}
 
 			// upsert
 			case MqlParser.UPSERT_ACTION: {
-				return executeUpdateAction(actionTree, query, true);
+				return executeUpdateAction(actionTree, query, true, ctx);
 			}
 
 			// find and modify
 			case MqlParser.FAM_ACTION: {
-				return executeFamAction(actionTree, query);
+				return executeFamAction(actionTree, query, ctx);
 			}
 
 			// find and delete
@@ -226,8 +246,7 @@ public class InterpreterImpl
 
 			// zomg we're all gunna die
 			default:
-				throw new MqlException(
-					"Unknown action type");
+				throw new MqlException("Unknown action type");
 		}
 	}
 
@@ -262,7 +281,7 @@ public class InterpreterImpl
 	 * @param query
 	 * @return
 	 */
-	private InterpreterResult executeFamAction(CommonTree tree, DaoQuery query) {
+	private InterpreterResult executeFamAction(CommonTree tree, DaoQuery query, ExecutionContext ctx) {
 
 		Tree upsert = tree.getFirstChildWithType(MqlParser.UPSERT);
 		Tree returnTree = tree.getFirstChildWithType(MqlParser.RETURN);
@@ -272,7 +291,7 @@ public class InterpreterImpl
 
 		// read updateOperations
 		Tree updateTree = tree.getFirstChildWithType(MqlParser.UPDATE_OPERATIONS);
-		readModifiers(CommonTree.class.cast(updateTree), query);
+		readModifiers(CommonTree.class.cast(updateTree), query, ctx);
 
 		// get field list
 		CommonTree fieldListTree = CommonTree.class.cast(
@@ -299,7 +318,7 @@ public class InterpreterImpl
 	 * @return
 	 */
 	private InterpreterResult executeUpdateAction(
-		CommonTree tree, DaoQuery query, boolean upsert) {
+		CommonTree tree, DaoQuery query, boolean upsert, ExecutionContext ctx) {
 
 		// atomic? multi?
 		Tree atomic = tree.getFirstChildWithType(MqlParser.ATOMIC);
@@ -307,7 +326,7 @@ public class InterpreterImpl
 
 		// read updateOperations
 		Tree updateTree = tree.getFirstChildWithType(MqlParser.UPDATE_OPERATIONS);
-		readModifiers(CommonTree.class.cast(updateTree), query);
+		readModifiers(CommonTree.class.cast(updateTree), query, ctx);
 
 		// execute it
 		WriteResult res = query.modify()
@@ -364,7 +383,8 @@ public class InterpreterImpl
 	 * @param query
 	 * @return
 	 */
-	private InterpreterResult executeSelectAction(CommonTree tree, DaoQuery query) {
+	private InterpreterResult executeSelectAction(
+		CommonTree tree, DaoQuery query, ExecutionContext ctx) {
 
 		// get field list
 		CommonTree fieldListTree = CommonTree.class.cast(
@@ -389,7 +409,7 @@ public class InterpreterImpl
 		CommonTree limitTree = CommonTree.class.cast(
 			tree.getFirstChildWithType(MqlParser.LIMIT));
 		if (limitTree!=null) {
-			readLimit(limitTree, query);
+			readLimit(limitTree, query, ctx);
 		}
 
 		// execute it
@@ -403,7 +423,7 @@ public class InterpreterImpl
 	 * @param tree
 	 * @param query
 	 */
-	private void readModifiers(CommonTree tree, DaoQuery query) {
+	private void readModifiers(CommonTree tree, DaoQuery query, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.UPDATE_OPERATIONS);
 
 		// get the modifer
@@ -419,12 +439,13 @@ public class InterpreterImpl
 			switch(modiferTree.getType()) {
 				case MqlParser.INC:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
+					assertType(value, modiferTree, Number.class);
 					modifier.inc(field, Number.class.cast(value));
 					break;
 				case MqlParser.SET:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
 					modifier.set(field, value);
 					break;
 				case MqlParser.UNSET:
@@ -433,22 +454,24 @@ public class InterpreterImpl
 					break;
 				case MqlParser.PUSH:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
 					modifier.push(field, value);
 					break;
 				case MqlParser.PUSH_ALL:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
+					assertType(value, modiferTree, Object[].class);
 					modifier.pushAll(field, Object[].class.cast(value));
 					break;
 				case MqlParser.ADD_TO_SET:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
 					modifier.addToSet(field, value);
 					break;
 				case MqlParser.ADD_TO_SET_EACH:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
+					assertType(value, modiferTree, Object[].class);
 					modifier.addToSetEach(field, Object[].class.cast(value));
 					break;
 				case MqlParser.POP:
@@ -461,12 +484,13 @@ public class InterpreterImpl
 					break;
 				case MqlParser.PULL:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
 					modifier.pull(field, value);
 					break;
 				case MqlParser.PULL_ALL:
 					field = child(modiferTree, 0).getText();
-					value = readVariableLiteral(child(modiferTree, 1));
+					value = readVariableLiteral(child(modiferTree, 1), ctx);
+					assertType(value, modiferTree, Object[].class);
 					modifier.pullAll(field, Object[].class.cast(value));
 					break;
 				case MqlParser.RENAME:
@@ -477,7 +501,8 @@ public class InterpreterImpl
 				case MqlParser.BITWISE:
 					Tree opTree = modiferTree.getChild(0);
 					field = child(modiferTree, 1).getText();
-					value = readVariableLiteral(child(modiferTree, 2));
+					value = readVariableLiteral(child(modiferTree, 2), ctx);
+					assertType(value, modiferTree, Number.class);
 					if (opTree.getType()==MqlParser.AND) {
 						modifier.bitwiseAnd(field, Number.class.cast(value));
 					} else {
@@ -499,21 +524,21 @@ public class InterpreterImpl
 	 * @param tree
 	 * @param query
 	 */
-	private void readLimit(CommonTree tree, DaoQuery query) {
+	private void readLimit(CommonTree tree, DaoQuery query, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.LIMIT);
 
-		int start 	= 0;
-		int end 	= 0;
-
 		if (tree.getChildCount()==1) {
-			end = Integer.parseInt(tree.getChild(0).getText());
+			Object num = readVariableLiteral(child(tree, 0), ctx);
+			assertType(num, tree, Number.class);
+			query.setMaxDocuments(Number.class.cast(num).intValue());
+			
 		} else {
-			start = Integer.parseInt(tree.getChild(0).getText());
-			end = Integer.parseInt(tree.getChild(1).getText());
+			Object start = readVariableLiteral(child(tree, 0), ctx);
+			Object num = readVariableLiteral(child(tree, 1), ctx);
+			assertType(num, tree, Number.class);
+			query.setFirstDocument(Number.class.cast(start).intValue());
+			query.setMaxDocuments(Number.class.cast(num).intValue());
 		}
-
-		query.setFirstDocument(start);
-		query.setMaxDocuments(end);
 	}
 
 	/**
@@ -591,10 +616,10 @@ public class InterpreterImpl
 	 * @param tree
 	 * @param query
 	 */
-	private void readCriteria(CommonTree tree, AbstractQueryCriterion<?> query) {
+	private void readCriteria(CommonTree tree, AbstractQueryCriterion<?> query, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.CRITERIA);
 		for (int i=0; i<tree.getChildCount(); i++) {
-			readCriterion(child(tree, i), query);
+			readCriterion(child(tree, i), query, ctx);
 		}
 	}
 
@@ -604,13 +629,13 @@ public class InterpreterImpl
 	 * @param tree
 	 * @param query
 	 */
-	private void readCriterion(CommonTree tree, AbstractQueryCriterion<?> query) {
+	private void readCriterion(CommonTree tree, AbstractQueryCriterion<?> query, ExecutionContext ctx) {
 		DocumentCriterion criterion = null;
 		String fieldName = null;
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
 				String functionName = child(tree, 0).getChild(0).getText().trim().toLowerCase();
-				Criterion c = createCriterion(tree);
+				Criterion c = createCriterion(tree, ctx);
 				if (!DocumentCriterion.class.isInstance(c)) {
 					throw new MqlException(
 						"Document function '"+functionName+"' returned a Criterion other than a DocumentCriterion");
@@ -620,17 +645,17 @@ public class InterpreterImpl
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
 				fieldName = child(tree, 0).getText().trim();
-				criterion = new FieldCriterion(fieldName, createCriterion(tree));
+				criterion = new FieldCriterion(fieldName, createCriterion(tree, ctx));
 				break;
 				
 			case MqlParser.COMPARE_CRITERION:
 				fieldName = child(tree, 0).getText().trim();
-				criterion = new FieldCriterion(fieldName, createCriterion(tree));
+				criterion = new FieldCriterion(fieldName, createCriterion(tree, ctx));
 				break;
 				
 			case MqlParser.NEGATED_CRITERION:
 				fieldName = child(tree, 0).getChild(0).getText().trim();
-				criterion = new NotCriterion(fieldName, createCriterion(child(tree, 0)));
+				criterion = new NotCriterion(fieldName, createCriterion(child(tree, 0), ctx));
 				break;
 				
 			default:
@@ -644,26 +669,27 @@ public class InterpreterImpl
 	 * @param tree
 	 * @return
 	 */
-	private Criterion createCriterion(CommonTree tree) {
+	private Criterion createCriterion(CommonTree tree, ExecutionContext ctx) {
 		switch (tree.getType()) {
 			case MqlParser.DOCUMENT_FUNCTION_CRITERION:
-				return readCriterionForFunctionCall(child(tree, 0), documentFunctions);
+				return readCriterionForFunctionCall(child(tree, 0), documentFunctions, ctx);
 				
 			case MqlParser.FIELD_FUNCTION_CRITERION:
-				return readCriterionForFunctionCall(child(tree, 1), fieldFunctions);
+				return readCriterionForFunctionCall(child(tree, 1), fieldFunctions, ctx);
 				
 			case MqlParser.COMPARE_CRITERION:
 				String op = child(tree, 1).getText();
-				Object value = readVariableLiteral(child(tree, 2));
+				Object value = readVariableLiteral(child(tree, 2), ctx);
 				if (op.equals("=")) {
 					return new EqualsCriterion(value);
 				} else if (op.equals("=~")) {
+					assertType(value, tree, Pattern.class);
 					return new RegexCriterion(Pattern.class.cast(value));
 				}
 				return new SimpleCriterion(comparisonOperators.get(op), value);
 				
 			case MqlParser.NEGATED_CRITERION:
-				Criterion c = createCriterion(child(tree, 0));
+				Criterion c = createCriterion(child(tree, 0), ctx);
 				if (!FieldCriterion.class.isInstance(c)) {
 					throw new MqlException(
 						"NOT requires FieldCriteiron");
@@ -683,7 +709,7 @@ public class InterpreterImpl
 	 * @return
 	 */
 	private Criterion readCriterionForFunctionCall(
-		CommonTree tree, Map<String, MqlCriterionFunction> functionTable) {
+		CommonTree tree, Map<String, MqlCriterionFunction> functionTable, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.FUNCTION_CALL);
 
 		// get the function name
@@ -702,18 +728,18 @@ public class InterpreterImpl
 		// criteria arguments
 		} else if (child(tree, 1).getType()==MqlParser.CRITERIA) {
 			Query query = new Query();
-			readCriteria(child(tree, 1), query);
+			readCriteria(child(tree, 1), query, ctx);
 			ret = functionTable.get(functionName).createForQuery(query);
 
 		// criteria arguments
 		} else if (child(tree, 1).getType()==MqlParser.CRITERIA_GROUP_LIST) {
 			QueryGroup queryGroup = new QueryGroup();
-			readCriteriaGroupList(child(tree, 1), queryGroup);
+			readCriteriaGroupList(child(tree, 1), queryGroup, ctx);
 			ret = functionTable.get(functionName).createForQueryGroup(queryGroup);
 
 		// variable list arguments
 		} else if (child(tree, 1).getType()==MqlParser.VARIABLE_LIST) {
-			Object[] arguments = readVariableList(child(tree, 1));
+			Object[] arguments = readVariableList(child(tree, 1), ctx);
 			ret = functionTable.get(functionName).createForArguments(arguments);
 		}
 
@@ -721,7 +747,7 @@ public class InterpreterImpl
 		return ret;
 	}
 
-	private QueryGroup readCriteriaGroupList(CommonTree tree, QueryGroup queryGroup) {
+	private QueryGroup readCriteriaGroupList(CommonTree tree, QueryGroup queryGroup, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.CRITERIA_GROUP_LIST);
 		if (queryGroup==null) {
 			queryGroup = new QueryGroup();
@@ -729,7 +755,7 @@ public class InterpreterImpl
 		for (int i=0; i<tree.getChildCount(); i++) {
 			CommonTree groupCommonTree = child(tree, i);
 			Query query = new Query();
-			readCriteria(child(groupCommonTree, 0), query);
+			readCriteria(child(groupCommonTree, 0), query, ctx);
 			queryGroup.add(query);
 		}
 		return queryGroup;
@@ -740,9 +766,12 @@ public class InterpreterImpl
 	 * @param tree
 	 * @return
 	 */
-	private Object readVariableLiteral(CommonTree tree) {
+	private Object readVariableLiteral(CommonTree tree, ExecutionContext ctx) {
 		String text = tree.getText();
 		switch (tree.getType()){
+			case MqlParser.PARAMETER:
+				String name = child(tree, 0).getText();
+				return ctx.getParameter(name, tree);
 			case MqlParser.REGEX:
 				return Pattern.compile(text);
 			case MqlParser.INTEGER:
@@ -760,7 +789,7 @@ public class InterpreterImpl
 			case MqlParser.ARRAY:
 				Object[] vars = new Object[child(tree, 0).getChildCount()];
 				for (int i=0; i<vars.length; i++) {
-					vars[i] = readVariableLiteral(child(child(tree, 0), i));
+					vars[i] = readVariableLiteral(child(child(tree, 0), i), ctx);
 				}
 				return vars;
 			default:
@@ -774,11 +803,11 @@ public class InterpreterImpl
 	 * @param tree
 	 * @return
 	 */
-	private Object[] readVariableList(CommonTree tree) {
+	private Object[] readVariableList(CommonTree tree, ExecutionContext ctx) {
 		assertTokenType(tree, MqlParser.VARIABLE_LIST);
 		Object[] ret = new Object[tree.getChildCount()];
 		for (int i=0; i<ret.length; i++) {
-			ret[i] = readVariableLiteral(child(tree, i));
+			ret[i] = readVariableLiteral(child(tree, i), ctx);
 		}
 		return ret;
 	}
@@ -803,14 +832,68 @@ public class InterpreterImpl
 			"Unknown token: "+tree.toString());
 	}
 
+	/**
+	 * Returns the child tree at the given index.
+	 * @param tree
+	 * @param idx
+	 * @return
+	 */
 	private CommonTree child(Tree tree, int idx) {
 		return CommonTree.class.cast(tree.getChild(idx));
 	}
 
+	/**
+	 * Check to see if a tree is a string.
+	 * @param tree
+	 * @return
+	 */
 	private boolean isString(Tree tree) {
 		return (tree!=null && (
 			tree.getType()==MqlParser.DOUBLE_QUOTED_STRING
 			|| tree.getType()==MqlParser.SINGLE_QUOTED_STRING));
+	}
+
+	/**
+	 * Ensures that a variable was an expected type.
+	 * @param value
+	 * @param tree
+	 * @param types
+	 */
+	private void assertType(Object value, CommonTree tree, Class<?>... types) {
+		if (value==null) {
+			return;
+		}
+		for (Class<?> type : types) {
+			if (type.isInstance(value)) {
+				return;
+			}
+		}
+		throw new MqlException(
+			tree.getLine(),
+			tree.getCharPositionInLine(),
+			tree.getText(), "Unexpected variable type");
+	}
+
+	/**
+	 * A simple execution context.
+	 */
+	private class ExecutionContext {
+		private Map<String, Object> params		= NO_PARAMS;
+		private int currentParameterIndex 		= 0;
+		private Object getParameter(String name, CommonTree tree) {
+			if (name.equals("?")) {
+				name = currentParameterIndex+"";
+				currentParameterIndex++;
+			}
+			if (!params.containsKey(name)) {
+				throw new MqlException(
+					tree.getLine(),
+					tree.getCharPositionInLine(),
+					tree.getText(),
+					"Parameter "+name+" was not found");
+			}
+			return params.get(name);
+		}
 	}
 
 }

@@ -35,6 +35,14 @@ public interface Interpreter {
 	 * @param tree
 	 * @return
 	 */
+	List<InterpreterResult> interpret(Tree tree, Object... parameters);
+
+	/**
+	 * Interprets the given AST and returns an {@link InterpreterResult}
+	 * for each command that was executed.
+	 * @param tree
+	 * @return
+	 */
 	List<InterpreterResult> interpret(Tree tree);
 
 }
