@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.mql;
 
+import org.antlr.runtime.tree.CommonTree;
+
 @SuppressWarnings("serial")
 public class MqlException
 	extends RuntimeException {
@@ -16,8 +18,24 @@ public class MqlException
 		super(message, exception);
 	}
 
+	public MqlException(CommonTree tree) {
+		this(tree.getLine(), tree.getCharPositionInLine(), tree.getText());
+	}
+
+	public MqlException(CommonTree tree, String message) {
+		this(tree.getLine(), tree.getCharPositionInLine(), tree.getText(), message);
+	}
+
+	public MqlException(CommonTree tree, Exception exception) {
+		this(tree.getLine(), tree.getCharPositionInLine(), tree.getText(), exception);
+	}
+
 	public MqlException(int line, int col, String near) {
 		super("Error on line: "+line+" column: "+col+" near: "+near);
+	}
+
+	public MqlException(int line, int col, String near, String message) {
+		super(message+" on line: "+line+" column: "+col+" near: "+near);
 	}
 
 	public MqlException(int line, int col, String near, Exception exception) {

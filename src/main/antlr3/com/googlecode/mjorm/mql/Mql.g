@@ -7,6 +7,8 @@ options {
 }
 
 tokens {
+	QUESTION_MARK	= '?';
+	COLON		= ':';
 	SEMI_COLON    	= ';';
 	STAR          	= '*';
 	BACK_SLASH    	= '\\';
@@ -99,6 +101,7 @@ tokens {
 	UPDATE_OPERATIONS;
 	
 	ARRAY;
+	PARAMETER;
 	VARIABLE_LIST;
 	FUNCTION_CALL;
 }
@@ -191,7 +194,7 @@ select_fields
 	;
 
 pagination
- 	: LIMIT s=integer (COMMA e=integer)? -> ^(LIMIT $s $e?)
+ 	: LIMIT (s=integer | s=parameter) (COMMA e=integer)? -> ^(LIMIT $s $e?)
  	;
 
 // find and modify
@@ -325,9 +328,9 @@ comparison_operator
 	;
 
 variable_literal
-	: (regex | string | bool | number | array)
+	: (parameter | regex | string | bool | number | array)
 	;
-		
+
 variable_list
 	: v+=variable_literal (COMMA v+=variable_literal)* -> ^(VARIABLE_LIST $v+)
 	;
@@ -366,6 +369,18 @@ string
 
 bool
 	: (TRUE | FALSE)
+	;
+
+parameter
+	: (named_parameter | indexed_parameter) -> ^(PARAMETER named_parameter? indexed_parameter?)
+	;
+
+named_parameter
+	: COLON SCHEMA_IDENTIFIER -> SCHEMA_IDENTIFIER
+	;
+
+indexed_parameter
+	: QUESTION_MARK
 	;
 
 /**

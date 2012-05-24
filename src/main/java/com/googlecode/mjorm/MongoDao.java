@@ -1,5 +1,6 @@
 package com.googlecode.mjorm;
 
+import com.googlecode.mjorm.mql.Statement;
 import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
@@ -12,6 +13,14 @@ import com.mongodb.WriteConcern;
  * An interface for working with mapped objects in mongo.
  */
 public interface MongoDao {
+
+	/**
+	 * Creates a {@link Statement} from the given mql code
+	 * and returns it.
+	 * @param mql the MQL code
+	 * @return the {@link Statement}
+	 */
+	Statement createStatement(String mql);
 
 	/**
 	 * Creates a {@link DaoQuery} and returns it.

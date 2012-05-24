@@ -1,11 +1,15 @@
 package com.googlecode.mjorm;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 
+import com.googlecode.mjorm.mql.MqlException;
+import com.googlecode.mjorm.mql.Statement;
+import com.googlecode.mjorm.mql.StatementImpl;
 import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -42,6 +46,18 @@ public class MongoDaoImpl
 	 */
 	public MongoDaoImpl() {
 		this(null, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Statement createStatement(String mql) {
+		try {
+			return new StatementImpl(
+				new ByteArrayInputStream(mql.getBytes()), db, objectMapper);
+		} catch(Exception e) {
+			throw new MqlException(e);
+		}
 	}
 
 	/**

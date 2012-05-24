@@ -6,7 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.runtime.tree.Tree;
 import org.junit.After;
@@ -246,6 +248,105 @@ public class MqlInterpreterTest {
 			BasicDBList numbers = BasicDBList.class.cast(obj.get("numbers"));
 			assertArrayEquals(expect.toArray(new Object[0]), numbers.toArray(new Object[0]));
 		}
+		
+	}
+
+	@Test
+	public void testUpdateWithNamedParams()
+		throws Exception {
+		if (!canTest) { return; }
+
+		// populate the db
+		addPeople(10);
+
+		// compile
+		Tree tree = interpreter.compile(ips(
+			"from people where firstName=:firstName select *"));
+		
+		
+		// interpret
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("firstName", "first1");
+		InterpreterResult res = interpreter.interpret(tree, params).get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		List<DBObject> people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("first1", people.get(0).get("firstName"));
+
+		// update it
+		tree = interpreter.compile(ips(
+			"from people where firstName=:firstName update "
+			+"set firstName=:newFirstName rename lastName somethingElse"));
+		params.clear();
+		params.put("firstName", "first1");
+		params.put("newFirstName", "new first name");
+		res = interpreter.interpret(tree, params).get(0);
+
+		// get value
+		tree = interpreter.compile(ips(
+			"from people where firstName=:newFirstName select *"));
+		params.clear();
+		params.put("newFirstName", "new first name");
+		res = interpreter.interpret(tree, params).get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("new first name", people.get(0).get("firstName"));
+		assertEquals("last1", people.get(0).get("somethingElse"));
+		
+	}
+
+	@Test
+	public void testUpdateWithIndexedParams()
+		throws Exception {
+		if (!canTest) { return; }
+
+		// populate the db
+		addPeople(10);
+
+		// compile
+		Tree tree = interpreter.compile(ips(
+			"from people where firstName=? select *"));
+		
+		
+		// interpret
+		InterpreterResult res = interpreter.interpret(tree, "first1").get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		List<DBObject> people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("first1", people.get(0).get("firstName"));
+
+		// update it
+		tree = interpreter.compile(ips(
+			"from people where firstName=? update "
+			+"set firstName=? rename lastName somethingElse"));
+		res = interpreter.interpret(tree, "first1", "new first name").get(0);
+
+		// get value
+		tree = interpreter.compile(ips(
+			"from people where firstName=? select *"));
+		res = interpreter.interpret(tree, "new first name").get(0);
+
+		// assert
+		assertNotNull(res);
+		assertNotNull(res.getCursor());
+		assertNull(res.getObject());
+		people = readAll(res.getCursor());
+		assertEquals(1, people.size());
+		assertEquals("new first name", people.get(0).get("firstName"));
+		assertEquals("last1", people.get(0).get("somethingElse"));
 		
 	}
 
