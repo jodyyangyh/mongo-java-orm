@@ -46,9 +46,9 @@ public class XmlDescriptorObjectMapperTest {
 	@Test
 	public void testTranslateToAndFromDBObject()
 		throws Exception {
-		addMapping("/com/googlecode/mjorm/AnnotatedAddress.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
 		addMapping("/com/googlecode/mjorm/City.mongo.xml");
-		addMapping("/com/googlecode/mjorm/AnnotatedPerson.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
 		addMapping("/com/googlecode/mjorm/State.mongo.xml");
 		addMapping("/com/googlecode/mjorm/SuperDuperOverride.mongo.xml");
 
@@ -110,8 +110,8 @@ public class XmlDescriptorObjectMapperTest {
 	@Test
 	public void testTranslateToAndFromDBObject_SuperDuper()
 		throws Exception {
-		addMapping("/com/googlecode/mjorm/AnnotatedAddress.mongo.xml");
-		addMapping("/com/googlecode/mjorm/AnnotatedPerson.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
 		addMapping("/com/googlecode/mjorm/SuperDuperOverride.mongo.xml");
 		
 		SuperDuper superDuper = new SuperDuper();
@@ -202,8 +202,8 @@ public class XmlDescriptorObjectMapperTest {
 	@Test
 	public void testTranslateToAndFromDBObject_Maps_And_Collections()
 		throws Exception {
-		addMapping("/com/googlecode/mjorm/AnnotatedAddress.mongo.xml");
-		addMapping("/com/googlecode/mjorm/AnnotatedPerson.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
+		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
 		addMapping("/com/googlecode/mjorm/SuperDuper.mongo.xml");
 
 		Person p1 = new Person(); p1.setFirstName("p1");
