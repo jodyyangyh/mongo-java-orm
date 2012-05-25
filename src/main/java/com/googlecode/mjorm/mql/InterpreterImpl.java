@@ -126,11 +126,7 @@ public class InterpreterImpl
 
 	private void verifyTree(CommonTree tree) {
 		if (CommonErrorNode.class.isInstance(tree)) {
-			CommonErrorNode error = CommonErrorNode.class.cast(tree);
-			throw new MqlException(
-				error.start.getLine(),
-				error.start.getCharPositionInLine(),
-				error.start.getText());
+			throw new MqlException(tree);
 		}
 		for (int i=0; i<tree.getChildCount(); i++) {
 			verifyTree(CommonTree.class.cast(tree.getChild(i)));
@@ -773,7 +769,7 @@ public class InterpreterImpl
 				String name = child(tree, 0).getText();
 				return ctx.getParameter(name, tree);
 			case MqlParser.REGEX:
-				return Pattern.compile(text);
+				return Pattern.compile(text.substring(1, text.length()-1));
 			case MqlParser.INTEGER:
 				return new Integer(text);
 			case MqlParser.DECIMAL:
@@ -868,10 +864,7 @@ public class InterpreterImpl
 				return;
 			}
 		}
-		throw new MqlException(
-			tree.getLine(),
-			tree.getCharPositionInLine(),
-			tree.getText(), "Unexpected variable type");
+		throw new MqlException(tree, "Unexpected variable type");
 	}
 
 	/**
@@ -886,11 +879,7 @@ public class InterpreterImpl
 				currentParameterIndex++;
 			}
 			if (!params.containsKey(name)) {
-				throw new MqlException(
-					tree.getLine(),
-					tree.getCharPositionInLine(),
-					tree.getText(),
-					"Parameter "+name+" was not found");
+				throw new MqlException(tree, "Parameter "+name+" was not found");
 			}
 			return params.get(name);
 		}

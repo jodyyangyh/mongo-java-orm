@@ -194,7 +194,7 @@ select_fields
 	;
 
 pagination
- 	: LIMIT (s=integer | s=parameter) (COMMA e=integer)? -> ^(LIMIT $s $e?)
+ 	: LIMIT (si=integer | sp=parameter) (COMMA (ei=integer | ep=parameter))? -> ^(LIMIT $si? $sp? $ei? $ep?)
  	;
 
 // find and modify
@@ -428,8 +428,8 @@ SCHEMA_IDENTIFIER
 	;
 
 REGEX
-	: FORWARD_SLASH (ESCAPE | ~(BACK_SLASH | FORWARD_SLASH))* FORWARD_SLASH
-	;
+  : FORWARD_SLASH (ESCAPE | ~(BACK_SLASH | FORWARD_SLASH))* FORWARD_SLASH
+  ;
 	
 DOUBLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
 	: DOUBLE_QUOTE (ESCAPE_EVALUATED[buf] | i = ~(BACK_SLASH | DOUBLE_QUOTE) { buf.appendCodePoint(i); })* DOUBLE_QUOTE { setText(buf.toString()); }
