@@ -48,4 +48,11 @@ public class AnnotationsDescriptorObjectMapperFactoryBean
 		this.typeTranslators = typeTranslators;
 	}
 
+	/**
+	 * @param annotatedClasses the annotatedClasses to set
+	 */
+	protected void setAnnotatedClasses(Class<?>[] annotatedClasses) {
+		this.annotatedClasses = annotatedClasses;
+	}
+
 }
