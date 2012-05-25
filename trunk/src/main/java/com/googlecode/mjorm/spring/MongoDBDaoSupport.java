@@ -162,7 +162,7 @@ public class MongoDBDaoSupport
 	}
 
 	/**
-	 * @param dbName the dbName to set
+	 * @param DB_NAME the DB_NAME to set
 	 */
 	public void setDbName(String dbName) {
 		this.dbName = dbName;

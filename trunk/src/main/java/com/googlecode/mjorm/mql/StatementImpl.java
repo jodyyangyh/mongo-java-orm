@@ -89,7 +89,10 @@ public class StatementImpl
 	 * {@inheritDoc}
 	 */
 	public DBCursor execute() {
-		InterpreterResult res = executeInternal(true, false, false);
+		InterpreterResult res = executeInternal();
+		if (res.getCursor()==null) {
+			throw new MqlException("Expected a DBCursor and din't get one");
+		}
 		return res.getCursor();
 	}
 
@@ -97,8 +100,16 @@ public class StatementImpl
 	 * {@inheritDoc}
 	 */
 	public DBObject executeSingle() {
-		InterpreterResult res = executeInternal(false, true, false);
-		return res.getObject();
+		InterpreterResult res = executeInternal();
+		if (res.getObject()!=null) {
+			return res.getObject();
+		} else if (res.getCursor()!=null) {
+			DBCursor cursor = res.getCursor();
+			DBObject ret = (cursor.hasNext()) ? cursor.next() : null;
+			cursor.close();
+			return ret;
+		}
+		throw new MqlException("Expected a DBCursor or DBObject and din't get one");
 	}
 
 	/**
@@ -119,7 +130,7 @@ public class StatementImpl
 	 * {@inheritDoc}
 	 */
 	public void executeUpdate() {
-		executeInternal(false, false, true);
+		executeInternal();
 	}
 
 
@@ -128,8 +139,7 @@ public class StatementImpl
 	 * last {@link InterpreterResult}.
 	 * @return
 	 */
-	private InterpreterResult executeInternal(
-		boolean expectCursor, boolean expectObject, boolean expectWriteResult) {
+	private InterpreterResult executeInternal() {
 		List<InterpreterResult> res = interpreter.interpret(tree, parameters);
 		if (res.isEmpty()) {
 			throw new MqlException("No InterpreterResult was returned");
@@ -138,27 +148,7 @@ public class StatementImpl
 				"interpretation returned more than one "
 				+"InterpreterResult, using the last");
 		}
-		InterpreterResult ret = res.get(res.size()-1);
-		if (!expectCursor && ret.getCursor()!=null) {
-			LOGGER.warning("Wasn't expecting a cursor");
-		}
-		if (!expectObject && ret.getObject()!=null) {
-			LOGGER.warning("Wasn't expecting an object");
-		}
-		if (!expectWriteResult && ret.getResult()!=null) {
-			LOGGER.warning("Wasn't expecting a WriteResult");
-		}
-		
-		if (expectCursor && ret.getCursor()==null) {
-			throw new MqlException("Expected a cursor, didn't get one");
-		}
-		if (expectObject && ret.getObject()==null) {
-			throw new MqlException("Expected an object, didn't get one");
-		}
-		if (expectWriteResult && ret.getResult()==null) {
-			throw new MqlException("Expected a WriteResult, didn't get one");
-		}
-		return ret;
+		return res.get(res.size()-1);
 	}
 
 }

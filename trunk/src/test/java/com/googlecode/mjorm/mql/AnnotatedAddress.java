@@ -4,7 +4,7 @@ import com.googlecode.mjorm.annotations.Entity;
 import com.googlecode.mjorm.annotations.Property;
 
 @Entity
-public class Address {
+public class AnnotatedAddress {
 	private String street;
 	private String city;
 	private String state;

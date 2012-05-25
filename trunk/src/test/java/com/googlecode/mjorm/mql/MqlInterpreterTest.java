@@ -2,9 +2,6 @@ package com.googlecode.mjorm.mql;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,110 +12,25 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.googlecode.mjorm.ObjectMapper;
-import com.googlecode.mjorm.annotations.AnnotationsDescriptorObjectMapper;
+import com.googlecode.mjorm.AbstractMongoDBIntegrationTest;
 import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import com.mongodb.MongoURI;
 
-public class MqlInterpreterTest {
-
-	private boolean canTest;
-	private InterpreterImpl interpreter;
-	private Mongo mongo;
-	private ObjectMapper objectMapper;
-	private String dbName;
-	private DBCollection collection;
+public class MqlInterpreterTest
+	extends AbstractMongoDBIntegrationTest {
 
 	@Before
 	public void setUp()
 		throws Exception {
-		
-		// connect to mongo
-		try {
-			mongo = new Mongo(new MongoURI("mongodb://localhost"));
-			mongo.getDatabaseNames();
-			canTest = true;
-		} catch(Throwable t) {
-			System.err.println("Unable to run MongoDB integration tests: "+t.getMessage());
-			t.printStackTrace();
-			canTest = false;
-			return;
-		}
-
-		dbName = "mjorm_test_db";
-		for (String c : mongo.getDB(dbName).getCollectionNames()) {
-			mongo.getDB(dbName).getCollection(c).drop();
-		}
-		mongo.getDB(dbName).createCollection("people", new BasicDBObject());
-		collection = mongo.getDB(dbName).getCollection("people");
-		
-		// create objectMapper
-		AnnotationsDescriptorObjectMapper mapper = new AnnotationsDescriptorObjectMapper();
-		mapper.addClass(Person.class);
-		mapper.addClass(Address.class);
-		objectMapper = mapper;
-
-		// create interpreter
-		interpreter = (InterpreterImpl)InterpreterFactory
-			.getDefaultInstance().create(mongo.getDB(dbName), objectMapper);
+		super.setUpDb();
+		super.setupObjectMapper();
+		super.setupInterpreter();
 	}
 
 	@After
-	public void tearDown() {
-		if (!canTest) { return; }
-		interpreter = null;
-		objectMapper = null;
-		mongo.dropDatabase(dbName);
-		mongo.close();
-		mongo = null;
-	}
-
-	private void addPerson(
-		String firstName, String lastName,
-		String street, String city, String state, String zip, int num) {
-		DBObject object = BasicDBObjectBuilder.start()
-			.add("firstName", firstName)
-			.add("lastName", lastName)
-			.add("numbers", new Object[] {1,2,3})
-			.add("num", num)
-			.push("address")
-				.add("street", street)
-				.add("city", city)
-				.add("state", state)
-				.add("zipCode", zip)
-				.pop()
-			.get();
-		collection.insert(object);
-	}
-
-	private void addPeople(int num) {
-		for (int i=0; i<num; i++) {
-			addPerson(
-				"first"+i, "last"+i, "street"+i, "city"+i, "state"+i, "zip"+i, i);
-		}
-	}
-
-	private InputStream rs(String resource)
-		throws IOException {
-		return getClass().getResourceAsStream(resource);
-	}
-
-	private InputStream ips(String command) {
-		return new ByteArrayInputStream(command.getBytes());
-	}
-
-	private List<DBObject> readAll(DBCursor cursor) {
-		List<DBObject> ret = new ArrayList<DBObject>();
-		while (cursor.hasNext()) {
-			ret.add(cursor.next());
-		}
-		return ret;
+	public void tearDown()
+		throws Exception {
+		super.tearDown();
 	}
 
 	@Test

@@ -164,9 +164,6 @@ public class QueryTest {
 			)
 		;
 
-		System.out.println(query1.toString());
-		System.out.println(query2.toString());
-
 		assertEquals(query1.toString(), query2.toString());
 	}
 

@@ -5,11 +5,11 @@ import com.googlecode.mjorm.annotations.Id;
 import com.googlecode.mjorm.annotations.Property;
 
 @Entity
-public class Person {
+public class AnnotatedPerson {
 	private String id;
 	private String firstName;
 	private String lastName;
-	private Address address;
+	private AnnotatedAddress address;
 
 	@Id
 	@Property
@@ -40,11 +40,11 @@ public class Person {
 	}
 
 	@Property
-	public Address getAddress() {
+	public AnnotatedAddress getAddress() {
 		return address;
 	}
 
-	public void setAddress(Address address) {
+	public void setAddress(AnnotatedAddress address) {
 		this.address = address;
 	}
 	

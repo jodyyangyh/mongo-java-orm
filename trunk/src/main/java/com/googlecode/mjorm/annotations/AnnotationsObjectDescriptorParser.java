@@ -64,6 +64,7 @@ public class AnnotationsObjectDescriptorParser {
 
 		// create an object descriptor
 		ObjectDescriptor desc = new ObjectDescriptor();
+		desc.setType(clazz);
 
 		// get all of the methods
 		for (Method getter : clazz.getMethods()) {
