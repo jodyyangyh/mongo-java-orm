@@ -127,7 +127,7 @@ FROM
    action
 }}}
 
-=== Actions ===
+== Actions ==
 An MQL query is not complete with an action.  The following actions are supported:
   * select - query for documents
   * explain - return a document with a query execution plan
@@ -136,7 +136,7 @@ An MQL query is not complete with an action.  The following actions are supporte
   * find and modify - modify documents and return them
   * find and delete - delete objects and return them
 
-==== explain ====
+=== explain ===
 Explain is the most simple action and has the following structure:
 
 {{{
@@ -157,7 +157,7 @@ FROM
    EXPLAIN
 }}}
 
-==== select ====
+=== select ===
 Select is used to return documents from the database and has the following structure:
 
 {{{
@@ -184,22 +184,22 @@ FROM
    LIMIT 15, 100
 }}}
 
-==== delete ====
+=== delete ===
 TODO: document
 
-==== update ====
+=== update ===
 TODO: document
 
-==== find and modify ====
+=== find and modify ===
 TODO: document
 
-==== find and delete ====
+=== find and delete ===
 TODO: document
 
-=== Common constructs ===
+== Common constructs ==
 Some query constructs are used across many actions.
 
-==== hints ====
+=== hints ===
 Hints are used to help the database determine the best index to use when querying and have the following structure:
 
 {{{
@@ -233,7 +233,7 @@ FROM
    HINT name ASC, dateUpdated DESC
 }}}
 
-==== sorting ====
+=== sorting ===
 Sorting changes the order in which documents are returned (or modified depending on the action)
 
 {{{
@@ -248,7 +248,7 @@ FROM
    SORT name ASC, age DESC
 }}}
 
-==== pagination\limit ====
+=== pagination\limit ===
 Pagination limits the number of documents returned or affected by a query and has the following structure:
 
 {{{
