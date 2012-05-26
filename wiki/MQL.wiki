@@ -184,6 +184,17 @@ FROM
    LIMIT 15, 100
 }}}
 
+==== delete ====
+TODO: document
+
+==== update ====
+TODO: document
+
+==== find and modify ====
+TODO: document
+
+==== find and delete ====
+TODO: document
 
 === Common constructs ===
 Some query constructs are used across many actions.
