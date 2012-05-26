@@ -4,6 +4,10 @@
 
 This page describes the MQL language.  For information on how to use MQL see the MJORM home page, api documentation and\or {{{Statement}}} interface.
 
+<g:plusone size="medium"></g:plusone>
+
+<wiki:toc />
+
 
 = MJORM Query Language =
 MJORM Query Language (or MQL - pronounced "Michael") allows for SQL (Structured Query Language) like querying of a MongoDB database.  An MQL query can contain many commands separated by a semi colon.
