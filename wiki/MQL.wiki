@@ -36,6 +36,7 @@ Variable literals used in MQL come in the following flavors:
 || boolean || true, false ||
 || integer || 1, -1, 200 ||
 || decimal || 1.1, -2.3, 234.64 ||
+|| hex number || 0xfe01, 0xA2 ||
 || array || [1, 2, 3], ['hello', 'world'], [[1,2], ['multi', 'dimensional']] ||
 
 
