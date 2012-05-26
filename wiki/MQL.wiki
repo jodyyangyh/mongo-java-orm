@@ -31,7 +31,7 @@ FROM
 === Conditions ===
 Conditions are optionally separated by a comma.  There are 3 types of query conditions: field comparison, field function and document function:
 
-=== field comparison ===
+=== field comparison conditions ===
 MQL supports the following field comparison operators:
   * > - greater than
   * >= - greater than or equal
@@ -54,6 +54,51 @@ FROM
        description =~ /^Distance: [0-9]+/
    action
 }}}
+
+=== field function conditions ===
+Field function conditions generally perform some sort of operation on a field not possible with a simple comparision.  MQL supports the following field function conditions:
+  * exists - checks for the presence of the field
+  * not_exists - checks for the absence of a field
+  * between - checks to see if a field is between a specific range
+  * elemMatch - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $elemMatch]
+  * mod - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $mod]
+  * size - checks the size of the field
+  * type - checks the [http://www.mongodb.org/display/DOCS/Advanced+Queries type] of the field
+  * in - checks that the field contains one of the values specified
+  * nin - checks that the field doesn't contain any of the values specified
+  * all - checks that the field contains all of the values specified
+
+{{{
+FROM
+   collection_name
+   WHERE
+       age exists()
+       height not_exists()
+       weight between(150, 175)
+       author elemMatch(firstName='john', lastName='doe')
+       name mod(1, 2)
+       tags size(10)
+       whatever type(10)
+       names in('john', 'jacob', 'jingleheimer')
+       somethingElse nin('a value', 10)
+       otherTags all('fun', 'intersting')
+   action
+}}}
+
+{{{
+FROM
+   collection_name
+   WHERE
+       age > 10
+       height >= 12
+       weight < 150
+       length <= 25
+       name != "Jalopy"
+       size <> 15
+       description =~ /^Distance: [0-9]+/
+   action
+}}}
+
 
 === document functions ===
 Document functions define conditions that are used on the document as a whole, the following document functions are available:
