@@ -99,15 +99,17 @@ FROM
    action
 }}}
 
+=== field condition negation ===
+field function conditions and field comparison conditions can be negated with the {{{NOT}}} keyword.
 
-=== document functions ===
-Document functions define conditions that are used on the document as a whole, the following document functions are available:
-
-==== or ====
 {{{
 FROM
    collection_name
    WHERE
-       or
+       not age > 10
+       not name =~ /something/
    action
 }}}
+
+=== document functions ===
+Document functions define conditions that are used on the document as a whole, the following document functions are available:
