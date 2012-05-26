@@ -9,7 +9,6 @@ This page describes the MQL language.  For information on how to use MQL see the
 = Table of contents =
 <wiki:toc />
 
-
 = MJORM Query Language =
 MJORM Query Language (or MQL - pronounced "Michael") allows for SQL (Structured Query Language) like querying of a MongoDB database.  An MQL query can contain many commands separated by a semi colon.
 
@@ -28,8 +27,20 @@ FROM
   * _condition_ is a query condition that must be met
   * _action_ is the action to perform on the documents in the collection specified that match the specified conditions (or all documents if no conditions are specified)
 
+=== Variable literals ===
+Variable literals used in MQL come in the following flavors:
+|| *type* || *example* ||
+|| parameter || :parameterName, ? ||
+|| regular expression || /expression/ ||
+|| string || 'a value', "double quoted as well" ||
+|| boolean || true, false ||
+|| integer || 1, -1, 200 ||
+|| decimal || 1.1, -2.3, 234.64 ||
+|| array || [1, 2, 3], ['hello', 'world'], [[1,2], ['multi', 'dimensional']] ||
+
+
 === Conditions ===
-Conditions are optionally separated by a comma.  There are 3 types of query conditions: field comparison, field function and document function:
+Conditions are optionally separated by a comma.  There are 3 types of query conditions: field comparison, field function and document function.  Because MQL queries are essentially converted to a {{{DBObject}}} query they still suffer from the same limitations as the traditional query approach for fields in that a field may be only used once for comparisons, but may sometimes be used multiple times for functions.  This limitation may be lifted at some point if MJORM uses a lower level BSON protocol for querying MongoDB (in BSON, it's perfectly acceptable to use the same field on an object twice - but because the 10gen library's {{{DBObject}}} uses a {{{Map}}} this is impossible without trickery and violation of the {{{Map}}} interface's contract).
 
 === field comparison conditions ===
 MQL supports the following field comparison operators:
@@ -97,5 +108,21 @@ FROM
    action
 }}}
 
-=== document functions ===
-Document functions define conditions that are used on the document as a whole, the following document functions are available:
+=== document function conditions ===
+Document functions define conditions that are used on the document as a whole or contain field conditions.  The following document functions are available:
+  * or - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $or]
+  * nor - performs a [http://www.mongodb.org/display/DOCS/Advanced+Queries $nor]
+  * and - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $and]
+  * predicate - enables the use of a javascript for a [http://www.mongodb.org/display/DOCS/Advanced+Queries $where] statement
+
+
+{{{
+FROM
+   collection_name
+   WHERE
+       or(x=1, y=2, name='jets')
+       nor(a=1, b=3, name=~ /whatever/)
+       and(h=1, i=2, name in(10, 1, 3))
+       predicate('this.x > 2 && this.y * 2 == 14');
+   action
+}}}
