@@ -1,4 +1,5 @@
 #summary MQL MJORM Query Langauge
+#labels Featured,Phase-Implementation
 
 <g:plusone size="medium"></g:plusone>
 
