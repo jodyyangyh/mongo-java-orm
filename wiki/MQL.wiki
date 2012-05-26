@@ -1,0 +1,63 @@
+#summary MQL MJORM Query Langauge
+
+= Introduction =
+
+This page describes the MQL language.  For information on how to use MQL see the MJORM home page, api documentation and\or {{{Statement}}} interface.
+
+
+= MJORM Query Language =
+MJORM Query Language (or MQL - pronounced "Michael") allows for SQL (Structured Query Language) like querying of a MongoDB database.  An MQL query can contain many commands separated by a semi colon.
+
+== Command ==
+An MQL command has the following structure:
+
+{{{
+FROM
+   collection_name
+   [WHERE 
+     condition [, condition ...]]
+   action
+}}}
+
+  * _collection_name_ is the name of the collection that is being operated on.
+  * _condition_ is a query condition that must be met
+  * _action_ is the action to perform on the documents in the collection specified that match the specified conditions (or all documents if no conditions are specified)
+
+=== Conditions ===
+Conditions are optionally separated by a comma.  There are 3 types of query conditions: field comparison, field function and document function:
+
+=== field comparison ===
+MQL supports the following field comparison operators:
+  * > - greater than
+  * >= - greater than or equal
+  * < - less than
+  * <= - less than or equal
+  * != - not equal
+  * <> - not equal
+  * =~ - regular expression matching
+
+{{{
+FROM
+   collection_name
+   WHERE
+       age > 10
+       height >= 12
+       weight < 150
+       length <= 25
+       name != "Jalopy"
+       size <> 15
+       description =~ /^Distance: [0-9]+/
+   action
+}}}
+
+=== document functions ===
+Document functions define conditions that are used on the document as a whole, the following document functions are available:
+
+==== or ====
+{{{
+FROM
+   collection_name
+   WHERE
+       or
+   action
+}}}
