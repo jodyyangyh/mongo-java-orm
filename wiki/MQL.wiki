@@ -1,11 +1,12 @@
 #summary MQL MJORM Query Langauge
 
+<g:plusone size="medium"></g:plusone>
+
 = Introduction =
 
 This page describes the MQL language.  For information on how to use MQL see the MJORM home page, api documentation and\or {{{Statement}}} interface.
 
-<g:plusone size="medium"></g:plusone>
-
+= Table of contents =
 <wiki:toc />
 
 
