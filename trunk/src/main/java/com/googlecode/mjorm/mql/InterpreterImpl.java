@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
@@ -117,7 +116,7 @@ public class InterpreterImpl
 		RecognitionException {
 
 		// create the lexer and parser
-		MqlLexer lexer 				= new MqlLexer(new ANTLRInputStream(ips));
+		MqlLexer lexer 				= new MqlLexer(new ANTLRUpperCaseInputStream(ips));
 		CommonTokenStream tokens 	= new CommonTokenStream(lexer);
 		MqlParser parser 			= new MqlParser(tokens);
 
@@ -794,9 +793,9 @@ public class InterpreterImpl
 			case MqlParser.DECIMAL:
 				return new Double(text);
 			case MqlParser.DOUBLE_QUOTED_STRING:
-				return text;
+				return evaluateString(text);
 			case MqlParser.SINGLE_QUOTED_STRING:
-				return text;
+				return evaluateString(text);
 			case MqlParser.TRUE:
 				return Boolean.TRUE;
 			case MqlParser.FALSE:
@@ -811,6 +810,71 @@ public class InterpreterImpl
 				throw new MqlException(
 					"Unknown variable literal type "+tree.getType()+" with value "+text);
 		}
+	}
+
+	/**
+	 * Evaluates a string.
+	 * @param text
+	 * @return
+	 */
+	private String evaluateString(String text) {
+		text = text.substring(1, text.length()-1);
+		int s=0;
+		while (s<text.length()) {
+			int idx = -1;
+			
+			idx = text.indexOf("\\n", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\n"+text.substring(idx+2);
+				s = idx+"\n".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\r", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\r"+text.substring(idx+2);
+				s = idx+"\r".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\t", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\t"+text.substring(idx+2);
+				s = idx+"\t".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\b", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\b"+text.substring(idx+2);
+				s = idx+"\b".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\f", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\f"+text.substring(idx+2);
+				s = idx+"\f".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\\"", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"\""+text.substring(idx+2);
+				s = idx+"\"".length();
+				continue;
+			}
+			
+			idx = text.indexOf("\\'", s);
+			if (idx!=-1) {
+				text = text.substring(0, idx)+"'"+text.substring(idx+2);
+				s = idx+"'".length();
+				continue;
+			}
+			
+			break;
+		}
+		return text;
 	}
 
 	/**

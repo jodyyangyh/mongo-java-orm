@@ -8,8 +8,8 @@ options {
 }
 
 tokens {
-	QUESTION_MARK	= '?';
-	COLON		= ':';
+	QUESTION_MARK	  = '?';
+	COLON		        = ':';
 	SEMI_COLON    	= ';';
 	STAR          	= '*';
 	BACK_SLASH    	= '\\';
@@ -20,7 +20,7 @@ tokens {
 	MINUS         	= '-';
 	GT            	= '>';
 	LT            	= '<';
-	LT_GT		= '<>';
+	LT_GT		        = '<>';
 	GT_EQUALS     	= '>=';
 	LT_EQUALS     	= '<=';
 	L_PAREN       	= '(';
@@ -29,45 +29,45 @@ tokens {
 	R_BRACKET     	= ']';
 	MATCHES       	= '=~';
 	DOT           	= '.';
-	TRUE          	= 'true';
-	FALSE         	= 'false';
-	FROM          	= 'from';
-	WHERE         	= 'where';
-	SKIP          	= 'skip';
-	LIMIT         	= 'limit';
-	NOT           	= 'not';
-	SELECT       	= 'select';
-	DELETE       	= 'delete';
-	UPDATE        	= 'update';
-	EXPLAIN       	= 'explain';
-	HINT          	= 'hint';
-	NATURAL       	= 'natural';
-	ATOMIC        	= 'atomic';
-	INC           	= 'inc';
-	UPSERT        	= 'upsert';
-	MULTI         	= 'multi';
-	UNSET         	= 'unset';
-	SET           	= 'set';
-	POP           	= 'pop';
-	SHIFT         	= 'shift';
-	PUSH          	= 'push';
-	EACH          	= 'each';
-	PULL          	= 'pull';
-	RENAME        	= 'rename';
-	BITWISE       	= 'bitwise';
-	SORT          	= 'sort';
-	ASC           	= 'asc';
-	DESC          	= 'desc';
-	RETURN        	= 'return';
-	NEW           	= 'new';
-	OLD           	= 'old';
-	OR            	= 'or';
-	AND           	= 'and';
-	ALL		= 'all';
+	TRUE          	= 'TRUE';
+	FALSE         	= 'FALSE';
+	FROM          	= 'FROM';
+	WHERE         	= 'WHERE';
+	SKIP          	= 'SKIP';
+	LIMIT         	= 'LIMIT';
+	NOT           	= 'NOT';
+	SELECT          = 'SELECT';
+	DELETE       	  = 'DELETE';
+	UPDATE        	= 'UPDATE';
+	EXPLAIN       	= 'EXPLAIN';
+	HINT          	= 'HINT';
+	NATURAL       	= 'NATURAL';
+	ATOMIC        	= 'ATOMIC';
+	INC           	= 'INC';
+	UPSERT        	= 'UPSERT';
+	MULTI         	= 'MULTI';
+	UNSET         	= 'UNSET';
+	SET           	= 'SET';
+	POP           	= 'POP';
+	SHIFT         	= 'SHIFT';
+	PUSH          	= 'PUSH';
+	EACH          	= 'EACH';
+	PULL          	= 'PULL';
+	RENAME        	= 'RENAME';
+	BITWISE       	= 'BITWISE';
+	SORT          	= 'SORT';
+	ASC           	= 'ASC';
+	DESC          	= 'DESC';
+	RETURN        	= 'RETURN';
+	NEW           	= 'NEW';
+	OLD           	= 'OLD';
+	OR            	= 'OR';
+	AND           	= 'AND';
+	ALL		          = 'ALL';
 	
-	FIND_AND_MODIFY	= 'find and modify';
-	FIND_AND_DELETE	= 'find and delete';
-	ADD_TO_SET	= 'add to set';
+	FIND_AND_MODIFY	= 'FIND AND MODIFY';
+	FIND_AND_DELETE	= 'FIND AND DELETE';
+	ADD_TO_SET	    = 'ADD TO SET';
 	
 
 	COMMANDS;
@@ -400,14 +400,6 @@ fragment DIGIT
 	: ('0'..'9')
 	;
 
-fragment SINGLE_QUOTE
-	: '\''
-	;
-
-fragment DOUBLE_QUOTE
-	: '\"'
-	;
-
 INTEGER
 	: DIGIT+
 	;
@@ -435,35 +427,19 @@ SCHEMA_IDENTIFIER
 REGEX
   : FORWARD_SLASH (ESCAPE | ~(BACK_SLASH | FORWARD_SLASH))* FORWARD_SLASH
   ;
-	
-DOUBLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: DOUBLE_QUOTE (ESCAPE_EVALUATED[buf] | i = ~(BACK_SLASH | DOUBLE_QUOTE) { buf.appendCodePoint(i); })* DOUBLE_QUOTE { setText(buf.toString()); }
-	;
-	    
-SINGLE_QUOTED_STRING @init { final StringBuilder buf = new StringBuilder(); }
-	: '\'' (ESCAPE_EVALUATED[buf] | i = ~(BACK_SLASH | SINGLE_QUOTE) { buf.appendCodePoint(i); })* SINGLE_QUOTE { setText(buf.toString()); }
-	;
-
-fragment ESCAPE_EVALUATED[StringBuilder buf]
-	: '\\'
-	  ( 
-		'n'		{buf.append("\n");}
-	        | 'r' 		{buf.append("\r");}
-	        | 't'		{buf.append("\t");}
-	        | 'b'		{buf.append("\b");}
-	        | 'f'		{buf.append("\f");}
-	        | '"'		{buf.append("\"");}
-	        | '\'' 		{buf.append("\'");}
-	        | FORWARD_SLASH {buf.append("/"); }
-	        | BACK_SLASH 	{buf.append("\\");}
-	        | 'u' i=HEX_DIGIT j=HEX_DIGIT k=HEX_DIGIT l=HEX_DIGIT   {setText(i.getText()+j.getText()+k.getText()+l.getText());}
-	  )
-	;
-
-fragment ESCAPE
-	: '\\' ( 'n' | 'r' | 't' | 'b' | 'f' | '"' | '\'' | FORWARD_SLASH | BACK_SLASH | 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT)
-	;
+  
+DOUBLE_QUOTED_STRING
+    :   '"' (ESCAPE | ~( '\\' | '"' ))* '"' 
+    ;
+  
+SINGLE_QUOTED_STRING
+    :   '\'' (ESCAPE | ~( '\\' | '\'' ))* '\'' 
+    ;
 
 WHITESPACE
 	: ( '\t' | ' ' | '\r' | '\n' )+ {skip();}
 	;
+
+fragment ESCAPE
+  : '\\' ( 'N' | 'R' | 'T' | 'B' | 'F' | '"' | '\'' | '\\')
+  ;
