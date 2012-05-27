@@ -2,6 +2,8 @@ package com.googlecode.mjorm.mql;
 
 import static org.junit.Assert.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -199,6 +201,34 @@ public class StatementImplTest
 		AnnotatedPerson obj = st.executeSingle(AnnotatedPerson.class);
 		assertNotNull(obj);
 		assertEquals("new first name", obj.getFirstName());
+	}
+
+	@Test
+	public void testExecuteUpdate_WithFunction()
+		throws Exception{
+
+		// add 3 people
+		super.addPeople(3);
+
+		// create statement
+		StatementImpl st = super.createStatement(
+			"from people where firstName=:firstName update set aDate=date('1979-07-02 01:02:03') set aNowDate=now()");
+		st.setParameter("firstName", "first1");
+		st.executeUpdate();
+
+		// try again
+		st = super.createStatement("from people where firstName=:firstName select *");
+		st.setParameter("firstName", "first1");
+		DBObject obj = st.executeSingle();
+		assertNotNull(obj);
+		assertNotNull(obj.get("aDate"));
+		assertNotNull(obj.get("aNowDate"));
+		Date date = Date.class.cast(obj.get("aDate"));
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		assertEquals(1979, cal.get(Calendar.YEAR));
+		assertEquals(Calendar.JULY, cal.get(Calendar.MONTH));
+		assertEquals(2, cal.get(Calendar.DAY_OF_MONTH));
 	}
 
 }

@@ -16,7 +16,7 @@ import com.googlecode.mjorm.AbstractMongoDBIntegrationTest;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
 
-public class MqlInterpreterTest
+public class InterpreterTest
 	extends AbstractMongoDBIntegrationTest {
 
 	@Before

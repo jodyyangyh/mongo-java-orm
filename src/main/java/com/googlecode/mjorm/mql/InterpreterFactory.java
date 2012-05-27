@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.googlecode.mjorm.ObjectMapper;
+import com.googlecode.mjorm.mql.functions.DateVariableFunction;
+import com.googlecode.mjorm.mql.functions.NowVariableFunction;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
@@ -21,7 +23,8 @@ public class InterpreterFactory {
 	private static InterpreterFactory DEFAULT_INSTANCE = null;
 
 	private Map<String, MqlCriterionFunction> documentFunctions 	= new HashMap<String, MqlCriterionFunction>();
-	private Map<String, MqlCriterionFunction> fieldFunctions = new HashMap<String, MqlCriterionFunction>();
+	private Map<String, MqlCriterionFunction> fieldFunctions 		= new HashMap<String, MqlCriterionFunction>();
+	private Map<String, MqlVariableFunction> variableFunctions		= new HashMap<String, MqlVariableFunction>();
 
 	/**
 	 * Returns the default {@link InterpreterFactory} instance.
@@ -57,6 +60,9 @@ public class InterpreterFactory {
 		for (Entry<String, MqlCriterionFunction> entry : fieldFunctions.entrySet()) {
 			ret.registerFieldFunction(entry.getValue());
 		}
+		for (Entry<String, MqlVariableFunction> entry : variableFunctions.entrySet()) {
+			ret.registerVariableFunction(entry.getValue());
+		}
 		return ret;
 	}
 
@@ -75,11 +81,19 @@ public class InterpreterFactory {
 	}
 
 	/**
+	 * Clears variable functions.
+	 */
+	public void clearVariableFunctions() {
+		variableFunctions.clear();
+	}
+
+	/**
 	 * Clears all functions.
 	 */
 	public void clearFunctions() {
 		clearFieldFunctions();
 		clearDocumentFunctions();
+		clearVariableFunctions();
 	}
 
 	/**
@@ -99,6 +113,14 @@ public class InterpreterFactory {
 	}
 
 	/**
+	 * Removes a specific variable function.
+	 * @param name
+	 */
+	public void removeVariableFunction(String name) {
+		variableFunctions.remove(name.trim().toLowerCase());
+	}
+
+	/**
 	 * Registers a field function.
 	 * @param function
 	 */
@@ -112,6 +134,14 @@ public class InterpreterFactory {
 	 */
 	public void registerDocumentFunction(MqlCriterionFunction function) {
 		documentFunctions.put(function.getName().trim().toLowerCase(), function);
+	}
+
+	/**
+	 * Registers a variable function.
+	 * @param function
+	 */
+	public void registerVariableFunction(MqlVariableFunction function) {
+		variableFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
 	/**
@@ -136,5 +166,9 @@ public class InterpreterFactory {
 		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("nor", "$nor", true, true));
 		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("and", "$and", true, true));
 		registerDocumentFunction(QueryGroup.createMqlDocumentFunction("predicate", "$where", 1));
+
+		// variable functions
+		registerVariableFunction(DateVariableFunction.INSTANCE);
+		registerVariableFunction(NowVariableFunction.INSTANCE);
 	}
 }
