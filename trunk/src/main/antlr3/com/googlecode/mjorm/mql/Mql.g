@@ -4,6 +4,7 @@ grammar Mql;
 options {
 	output			= AST;
 	ASTLabelType	= CommonTree;
+	backtrack    = true;
 }
 
 tokens {
@@ -328,7 +329,7 @@ comparison_operator
 	;
 
 variable_literal
-	: (parameter | regex | string | bool | number | array)
+	: (parameter | regex | string | bool | number | array | variable_function_call)
 	;
 
 variable_list
@@ -338,6 +339,10 @@ variable_list
 function_call
 	: function_name L_PAREN (criteria_group_list| criteria | variable_list)? R_PAREN -> ^(FUNCTION_CALL function_name criteria_group_list? criteria? variable_list?)
 	;
+
+variable_function_call
+  : function_name L_PAREN variable_list? R_PAREN -> ^(FUNCTION_CALL function_name variable_list?)
+  ;
 
 integer
 	: (SIGNED_INTEGER | INTEGER)

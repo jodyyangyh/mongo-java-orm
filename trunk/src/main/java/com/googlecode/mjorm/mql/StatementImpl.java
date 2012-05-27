@@ -37,7 +37,7 @@ public class StatementImpl
 	public StatementImpl(InputStream mql, DB db, ObjectMapper objectMapper)
 		throws IOException, RecognitionException {
 		try {
-			this.interpreter = new InterpreterImpl(db, objectMapper);
+			this.interpreter = InterpreterFactory.getDefaultInstance().create(db, objectMapper);
 			this.tree = interpreter.compile(mql);
 		} catch(Exception e) {
 			throw new MqlException(e);

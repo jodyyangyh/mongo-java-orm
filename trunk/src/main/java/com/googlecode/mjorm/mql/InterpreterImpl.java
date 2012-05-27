@@ -66,6 +66,7 @@ public class InterpreterImpl
 	private ObjectMapper objectMapper;
 	private Map<String, MqlCriterionFunction> fieldFunctions;
 	private Map<String, MqlCriterionFunction> documentFunctions;
+	private Map<String, MqlVariableFunction> variableFunctions;
 
 	/**
 	 * Creates it.
@@ -77,6 +78,7 @@ public class InterpreterImpl
 		this.objectMapper		= objectMapper;
 		this.documentFunctions	= new HashMap<String, MqlCriterionFunction>();
 		this.fieldFunctions		= new HashMap<String, MqlCriterionFunction>();
+		this.variableFunctions	= new HashMap<String, MqlVariableFunction>();
 	}
 
 	/**
@@ -93,6 +95,14 @@ public class InterpreterImpl
 	 */
 	public void registerDocumentFunction(MqlCriterionFunction function) {
 		documentFunctions.put(function.getName().trim().toLowerCase(), function);
+	}
+
+	/**
+	 * Registers a variable function.
+	 * @param function
+	 */
+	public void registerVariableFunction(MqlVariableFunction function) {
+		variableFunctions.put(function.getName().trim().toLowerCase(), function);
 	}
 
 	/**
@@ -765,6 +775,15 @@ public class InterpreterImpl
 	private Object readVariableLiteral(CommonTree tree, ExecutionContext ctx) {
 		String text = tree.getText();
 		switch (tree.getType()){
+			case MqlParser.FUNCTION_CALL:
+				String functionName = child(tree, 0).getText().trim().toLowerCase();
+				if (!variableFunctions.containsKey(functionName)) {
+					throw new MqlException(
+						"Unknown function: "+functionName);
+				}
+				Object[] args = tree.getChildCount()>1
+					? readVariableList(child(tree, 1), ctx) : new Object[0];
+				return variableFunctions.get(functionName).invoke(args);
 			case MqlParser.PARAMETER:
 				String name = child(tree, 0).getText();
 				return ctx.getParameter(name, tree);
