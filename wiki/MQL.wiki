@@ -39,6 +39,14 @@ Variable literals used in MQL come in the following flavors:
 || decimal || 1.1, -2.3, 234.64 ||
 || hex number || 0xfe01, 0xA2 ||
 || array || [1, 2, 3], ['hello', 'world'], [[1,2], ['multi', 'dimensional']] ||
+|| function || date('2012-01-01 00:00:01'), now() ||
+
+==== functions ====
+Functions that provide values as variable literals are easily added to MQL.  By default the following functions are available:
+
+|| *name* || *arguments* || *return* || *description ||
+|| now() || none || Date || returns the current date and time ||
+|| date(...) || long or string || Date || Returns the date and time represented by the value passed to it ||
 
 === Conditions ===
 Conditions are optionally separated by a comma.  There are 3 types of query conditions: field comparison, field function and document function.  Because MQL queries are essentially converted to a {{{DBObject}}} query they still suffer from the same limitations as the traditional query approach for fields in that a field may be only used once for comparisons, but may sometimes be used multiple times for functions.  This limitation may be lifted at some point if MJORM uses a lower level BSON protocol for querying MongoDB (in BSON, it's perfectly acceptable to use the same field on an object twice - but because the 10gen library's {{{DBObject}}} uses a {{{Map}}} this is impossible without trickery and violation of the {{{Map}}} interface's contract).
