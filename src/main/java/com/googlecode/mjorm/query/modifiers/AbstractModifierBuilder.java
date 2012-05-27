@@ -101,6 +101,15 @@ public abstract class AbstractModifierBuilder<T extends AbstractModifierBuilder<
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	public String toString() {
+		Object queryObj = toModifierObject();
+		return (queryObj!=null) ? queryObj.toString() : "null";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public DBObject toModifierObject() {
 
 		// the return object

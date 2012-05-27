@@ -48,7 +48,7 @@ public class StatementImplTest
 		assertEquals(3, objs.size());
 
 		// try again
-		st = super.createStatement("from people where firstName =~ /first[1|2]/ select *");
+		st = super.createStatement("FROM people WHERE firstName =~ /first[1|2]/ select *");
 		cursor = st.execute();
 		assertNotNull(cursor);
 		objs = super.readAll(cursor);
@@ -212,7 +212,7 @@ public class StatementImplTest
 
 		// create statement
 		StatementImpl st = super.createStatement(
-			"from people where firstName=:firstName update set aDate=date('1979-07-02 01:02:03') set aNowDate=now()");
+			"from people where firstName=:firstName update set aDate=date('1979-07-02 01:02:03') set aNowDate=now() set testing='line\\nbreak'");
 		st.setParameter("firstName", "first1");
 		st.executeUpdate();
 
@@ -223,6 +223,8 @@ public class StatementImplTest
 		assertNotNull(obj);
 		assertNotNull(obj.get("aDate"));
 		assertNotNull(obj.get("aNowDate"));
+		assertNotNull(obj.get("testing"));
+		assertEquals("line\nbreak", obj.get("testing"));
 		Date date = Date.class.cast(obj.get("aDate"));
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
