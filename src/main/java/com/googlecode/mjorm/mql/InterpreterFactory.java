@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.functions.DateVariableFunction;
 import com.googlecode.mjorm.mql.functions.NowVariableFunction;
+import com.googlecode.mjorm.mql.functions.ObjectIdVariableFunction;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
@@ -170,5 +171,6 @@ public class InterpreterFactory {
 		// variable functions
 		registerVariableFunction(DateVariableFunction.INSTANCE);
 		registerVariableFunction(NowVariableFunction.INSTANCE);
+		registerVariableFunction(ObjectIdVariableFunction.INSTANCE);
 	}
 }

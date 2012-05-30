@@ -357,7 +357,7 @@ public class InterpreterImpl
 		WriteResult res = query
 			.modify()
 			.setAtomic(atomic!=null)
-			.deleteObjects();
+			.delete();
 
 		// execute it
 		return new InterpreterResult(null, null, res);

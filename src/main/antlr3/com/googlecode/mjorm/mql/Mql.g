@@ -219,7 +219,7 @@ delete_action
 // update
 update_action
 	: ATOMIC? UPDATE MULTI? update_operation_list -> ^(UPDATE_ACTION ATOMIC? MULTI? update_operation_list)
-	| ATOMIC? UPSERT MULTI? update_operation_list -> ^(UPSERT_ACTION ATOMIC? MULTI? update_operation_list)
+	| ATOMIC? UPSERT update_operation_list -> ^(UPSERT_ACTION ATOMIC? update_operation_list)
 	;
 	
 update_operation_list
