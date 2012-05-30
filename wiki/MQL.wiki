@@ -53,13 +53,14 @@ Conditions are optionally separated by a comma.  There are 3 types of query cond
 
 === field comparison conditions ===
 MQL supports the following field comparison operators:
-  * > - greater than
-  * >= - greater than or equal
-  * < - less than
-  * <= - less than or equal
-  * != - not equal
-  * <> - not equal
-  * =~ - regular expression matching
+|| *operator* || *name* ||
+|| > || greater than ||
+|| >= || greater than or equal ||
+|| < || less than ||
+|| <= || less than or equal ||
+|| != || not equal ||
+|| <> || not equal ||
+|| =~ || regular expression matching ||
 
 {{{
 FROM
@@ -77,16 +78,17 @@ FROM
 
 === field function conditions ===
 Field function conditions generally perform some sort of operation on a field not possible with a simple comparision.  MQL supports the following field function conditions:
-  * exists - checks for the presence of the field
-  * not_exists - checks for the absence of a field
-  * between - checks to see if a field is between a specific range
-  * elemMatch - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $elemMatch]
-  * mod - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $mod]
-  * size - checks the size of the field
-  * type - checks the [http://www.mongodb.org/display/DOCS/Advanced+Queries type] of the field
-  * in - checks that the field contains one of the values specified
-  * nin - checks that the field doesn't contain any of the values specified
-  * all - checks that the field contains all of the values specified
+|| *name* || *description* ||
+|| exists || checks for the presence of the field ||
+|| not_exists || checks for the absence of a field ||
+|| between || checks to see if a field is between a specific range ||
+|| elemMatch || performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $elemMatch] ||
+|| mod || performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $mod] ||
+|| size || checks the size of the field ||
+|| type || checks the [http://www.mongodb.org/display/DOCS/Advanced+Queries type] of the field ||
+|| in || checks that the field contains one of the values specified ||
+|| nin || checks that the field doesn't contain any of the values specified ||
+|| all || checks that the field contains all of the values specified ||
 
 {{{
 FROM
@@ -119,11 +121,11 @@ FROM
 
 === document function conditions ===
 Document functions define conditions that are used on the document as a whole or contain field conditions.  The following document functions are available:
-  * or - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $or]
-  * nor - performs a [http://www.mongodb.org/display/DOCS/Advanced+Queries $nor]
-  * and - performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $and]
-  * predicate - enables the use of a javascript for a [http://www.mongodb.org/display/DOCS/Advanced+Queries $where] statement
-
+|| *name* || *description* ||
+|| or || performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $or] ||
+|| nor || performs a [http://www.mongodb.org/display/DOCS/Advanced+Queries $nor] ||
+|| and || performs an [http://www.mongodb.org/display/DOCS/Advanced+Queries $and] ||
+|| predicate || enables the use of a javascript for a [http://www.mongodb.org/display/DOCS/Advanced+Queries $where] statement ||
 
 {{{
 FROM
