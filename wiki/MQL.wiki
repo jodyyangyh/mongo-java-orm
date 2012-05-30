@@ -140,12 +140,13 @@ FROM
 
 == Actions ==
 An MQL query is not complete with an action.  The following actions are supported:
-  * select - query for documents
-  * explain - return a document with a query execution plan
-  * delete - delete documents
-  * update - update documents
-  * find and modify - modify documents and return them
-  * find and delete - delete objects and return them
+|| *action* || description ||
+|| select || query for documents ||
+|| explain || return a document with a query execution plan ||
+|| delete || delete documents ||
+|| update || update documents ||
+|| find and modify || modify documents and return them ||
+|| find and delete || delete objects and return them ||
 
 === explain ===
 Explain is the most simple action and has the following structure:
