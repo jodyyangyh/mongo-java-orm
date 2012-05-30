@@ -139,7 +139,7 @@ FROM
 }}}
 
 == Actions ==
-An MQL query is not complete with an action.  The following actions are supported:
+An MQL query is not complete without an action.  The following actions are supported:
 || *action* || description ||
 || select || query for documents ||
 || explain || return a document with a query execution plan ||
