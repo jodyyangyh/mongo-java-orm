@@ -389,7 +389,13 @@ FROM
 Some query constructs are used across many actions.
 
 === update operations ===
-TODO: document
+Update operations are used with actions that modify an existing (or new in the case of upsert) document or documents.  Below is a list of update operations:
+
+|| *name* || *example* || *description* ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24inc inc] || inc fieldName 1 || Increments the given field name by the given number, negative numbers decrement ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24set set] || set fieldName 'newValue' || Gives the field a new value ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24unset unset] || unset fieldName || Unsets (removes) the given field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24push push] || push fieldName 'underwear' || Adds a value to a given field ||
 
 === hints ===
 Hints are used to help the database determine the best index to use when querying and have the following structure:
