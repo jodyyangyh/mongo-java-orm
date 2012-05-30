@@ -313,10 +313,76 @@ FROM
 }}}
 
 === find and modify ===
-TODO: document
+Find and modify is used to atomically modify a document and return it and has the following structure:
+
+{{{
+FROM
+   collection_name
+   [WHERE 
+     condition [, condition ...]]
+   [UPSERT] FIND AND MODIFY RETURN {NEW | OLD}
+   [update_operation_list]
+   SELECT { * | field_name [, field_name ...] }
+   [sort]
+}}}
+
+For example:
+{{{
+FROM
+    collection_name
+    WHERE name='iPhone Review'
+    FIND AND MODIFY RETURN NEW
+    INC viewCount 1
+    SELECT *
+    SORT rating DESC
+}}}
+
+Or to return the object before modification:
+{{{
+FROM
+    collection_name
+    WHERE name='iPhone Review'
+    FIND AND MODIFY RETURN OLD
+    INC viewCount 1
+    SELECT *
+    SORT rating DESC
+}}}
+
+find and modify also supports upsert:
+{{{
+FROM
+    collection_name
+    WHERE name='iPhone Review'
+    UPSERT FIND AND MODIFY RETURN OLD
+    INC viewCount 1
+    SELECT *
+    SORT rating DESC
+}}}
+
 
 === find and delete ===
-TODO: document
+Find and delete is similar to find and modify except that it deletes the document rather than modifying it and always returns the "old" document (since there isn't a new one).  It has the following structure:
+
+{{{
+FROM
+   collection_name
+   [WHERE 
+     condition [, condition ...]]
+   FIND AND DELETE
+   SELECT { * | field_name [, field_name ...] }
+   [sort]
+}}}
+
+for example:
+{{{
+FROM
+    collection_name
+    WHERE name='iPhone Review'
+    FIND AND DELETE
+    SELECT *
+    SORT rating ASC
+}}}
+
 
 == Common constructs ==
 Some query constructs are used across many actions.
