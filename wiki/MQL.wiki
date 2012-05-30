@@ -156,7 +156,7 @@ FROM
    EXPLAIN [hint]
 }}}
 
-An explain query merely returns a {{{DBObject}}} containing the query execution plan as defined by the database.  Hints are used to give the database hints as to which indexes to use and are defined in greater detail for the select command.
+An explain query merely returns a {{{DBObject}}} containing the query execution plan as defined by the database.  Hints are used to give the database hints as to which indexes to use and are defined in greater detail in the [Common Constructs] section of this document.
 
 example:
 {{{
