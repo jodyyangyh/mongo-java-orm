@@ -396,6 +396,16 @@ Update operations are used with actions that modify an existing (or new in the c
 || [http://www.mongodb.org/display/DOCS/Updating#Updating-%24set set] || set fieldName 'newValue' || Gives the field a new value ||
 || [http://www.mongodb.org/display/DOCS/Updating#Updating-%24unset unset] || unset fieldName || Unsets (removes) the given field ||
 || [http://www.mongodb.org/display/DOCS/Updating#Updating-%24push push] || push fieldName 'underwear' || Adds a value to a given field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24pushAll push all] || push all fieldName ['val1', 2, 'val3'] || Adds values to a given field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24addToSetand%24each add to set] || add to set fieldName 'value' || Adds a value to a given field if the value doesn't already exist ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24addToSetand%24each add to set each] || add to set fieldName each ['val', 'another', 3] || Adds each value to the given field if they don't already exist ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24pop pop] || pop fieldName || Removes the last element in an array field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24pop shift] || shift fieldName || Removes the first element in an array field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24pull pull] || pull fieldName 'aValue' || Removes all occurrences of the value from the given array field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24pullAll pull all] || pull all fieldName ['a val', 'another', 10] || Removes each occurrence of the values from the given array field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24rename rename] || rename fieldName newName || Renames an existing field ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24bit bitwise or] || bitwise or fieldName 210 || Applys a bitwise OR to the given field name using the given integer ||
+|| [http://www.mongodb.org/display/DOCS/Updating#Updating-%24bit bitwise and] || bitwise and fieldName 210 || Applys a bitwise AND to the given field name using the given integer ||
 
 === hints ===
 Hints are used to help the database determine the best index to use when querying and have the following structure:
