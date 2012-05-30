@@ -88,7 +88,7 @@ public class DaoModifier
 	 * Removes the objects matched by this query.
 	 * @return the {@link WriteResult}
 	 */
-	public WriteResult deleteObjects() {
+	public WriteResult delete() {
 		assertValid();
 		return query.getDB().getCollection(query.getCollection())
 			.remove(query.toQueryObject());
