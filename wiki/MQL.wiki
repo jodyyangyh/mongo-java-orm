@@ -203,7 +203,7 @@ FROM collection_name SELECT *
 }}}
 
 === delete ===
-The delete action deletes the documents matching the condition portion of the query from the given collection name.  The delete action has the following structure:
+The delete action deletes the documents matching the condition portion of the query from the given collection name and has the following structure:
 
 {{{
 FROM
@@ -234,7 +234,61 @@ FROM
 }}}
 
 === update ===
-TODO: document
+The update action modifies the documents matching the condition portion of the query in the given collection name and has the following structure:
+
+{{{
+FROM
+   collection_name
+   [WHERE 
+     condition [, condition ...]]
+   [ATOMIC] [UPDATE | UPSERT] [MULTI] [update_operation_list]
+}}}
+
+The update_operation_list is defined in the Common constructs section of this document.
+
+example:
+{{{
+FROM
+    collection_name
+    WHERE age=1
+    UPDATE MULTI
+      set newBorn=false
+      set type='toddler'
+      unset baby
+}}}
+
+updates can also be atomic:
+{{{
+FROM
+    collection_name
+    WHERE age=1
+    ATOMIC UPDATE MULTI
+      set newBorn=false
+      set type='toddler'
+      unset baby
+}}}
+
+they can also be performed against only the first matching document (removing MULTI):
+{{{
+FROM
+    collection_name
+    WHERE age=1
+    UPDATE
+      set newBorn=false
+      set type='toddler'
+      unset baby
+}}}
+
+or as an upsert (multi is optional here as well):
+{{{
+FROM
+    collection_name
+    WHERE age=1
+    UPSERT
+      set newBorn=false
+      set type='toddler'
+      unset baby
+}}}
 
 === find and modify ===
 TODO: document
@@ -244,6 +298,9 @@ TODO: document
 
 == Common constructs ==
 Some query constructs are used across many actions.
+
+=== update operations ===
+TODO: document
 
 === hints ===
 Hints are used to help the database determine the best index to use when querying and have the following structure:
