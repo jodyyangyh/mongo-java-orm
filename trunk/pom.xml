@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.googlecode</groupId>
 	<artifactId>mongo-java-orm</artifactId>
-	<version>0.16-SNAPSHOT</version>
+	<version>1.0-RC1</version>
 	<name>ORM Framework for Mongo and Java</name>
 	<packaging>jar</packaging>
 	<url>http://code.google.com/p/mongo-java-orm/</url>
@@ -23,9 +23,9 @@
      | scm configuration
      +-->
 	<scm>
-		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/trunk/</connection>
-		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/trunk/</developerConnection>
-		<url>http://mongo-java-orm.googlecode.com/svn/trunk/</url>
+		<connection>scm:svn:http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-1.0-RC1</connection>
+		<developerConnection>scm:svn:https://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-1.0-RC1</developerConnection>
+		<url>http://mongo-java-orm.googlecode.com/svn/tags/mongo-java-orm-1.0-RC1</url>
 	</scm>
 
 	<repositories>
@@ -93,7 +93,7 @@
 						<configuration>
 							<target name="generate-sources">
 								<ant antfile="${basedir}/antlr3.build.xml" inheritAll="true" inheritRefs="true">
-									<target name="generate-sources"/>
+									<target name="generate-sources" />
 								</ant>
 							</target>
 						</configuration>
@@ -230,7 +230,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute></execute>
+										<execute />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
