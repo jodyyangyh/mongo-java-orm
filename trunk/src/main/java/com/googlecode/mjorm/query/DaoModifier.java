@@ -13,7 +13,9 @@ public class DaoModifier
 	extends AbstractQueryModifiers<DaoModifier> {
 
 	private DaoQuery query;
-	private boolean atomic = false;
+	private boolean atomic 			= false;
+	private WriteConcern writeConcern 	= null;
+	private DBEncoder dbEncoder			= null;
 
 	/**
 	 * Creates the {@link DaoModifier}.
@@ -81,6 +83,22 @@ public class DaoModifier
 	 */
 	public DaoModifier setAtomic(boolean atomic) {
 		this.atomic = atomic;
+		return self();
+	}
+
+	/**
+	 * @param writeConcern the writeConcern to set
+	 */
+	public DaoModifier setWriteConcern(WriteConcern writeConcern) {
+		this.writeConcern = writeConcern;
+		return self();
+	}
+
+	/**
+	 * @param dbEncoder the dbEncoder to set
+	 */
+	public DaoModifier setDBEncoder(DBEncoder dbEncoder) {
+		this.dbEncoder = dbEncoder;
 		return self();
 	}
 
@@ -173,41 +191,21 @@ public class DaoModifier
 	 * Performs an update with the current modifier object.
 	 * @param upsert
 	 * @param multi
-	 * @param concern
-	 * @param encoder
 	 */
-	public WriteResult update(boolean upsert, boolean multi, WriteConcern concern, DBEncoder encoder) {
+	public WriteResult update(boolean upsert, boolean multi) {
 		assertValid();
 		DBCollection collection = query.getDB().getCollection(query.getCollection());
+		WriteConcern concern = writeConcern;
 		if (concern==null) {
 			concern = collection.getWriteConcern();
 		}
 		WriteResult result = collection.update(
 			query.toQueryObject(), toModifierObject(),
-			upsert, multi, concern, encoder);
+			upsert, multi, concern, dbEncoder);
 		if (result.getError()!=null) {
 			throw new MongoException(result.getError());
 		}
 		return result;
-	}
-
-	/**
-	 * Performs an update with the current modifier object.
-	 * @param upsert
-	 * @param multi
-	 * @param concern
-	 */
-	public WriteResult update(boolean upsert, boolean multi, WriteConcern concern) {
-		return update(upsert, multi, concern, null);
-	}
-
-	/**
-	 * Performs an update with the current modifier object.
-	 * @param upsert
-	 * @param multi
-	 */
-	public WriteResult update(boolean upsert, boolean multi) {
-		return update(upsert, multi, null, null);
 	}
 
 	/**

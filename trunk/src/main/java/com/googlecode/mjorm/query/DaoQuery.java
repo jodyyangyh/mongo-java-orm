@@ -252,7 +252,7 @@ public class DaoQuery
 	}
 
 	/**
-	 * Creats and returns the DBObject representing
+	 * Creates and returns the DBObject representing
 	 * the sort for this query.
 	 * @return the sort
 	 */
