@@ -125,9 +125,7 @@ public class QueryGroup
 			}
 			@Override
 			protected Criterion doCreate(Object[] values) {
-				return  (values.length==1)
-					? new FieldCriterion(operatorName, new EqualsCriterion(values[0]))
-					: new FieldCriterion(operatorName, new EqualsCriterion(values));
+				return new FieldCriterion(operatorName, new EqualsCriterion(values));
 			}
 		};
 	}

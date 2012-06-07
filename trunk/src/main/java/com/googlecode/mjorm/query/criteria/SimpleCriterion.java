@@ -56,22 +56,7 @@ public class SimpleCriterion
 	 * {@inheritDoc}
 	 */
 	public Object toQueryObject() {
-		Object optimalValue = null;
-		
-		if (operator.equals(Operator.IN.getOperatorString())) {
-			optimalValue = Criteria.optimalArrayValue(value, true);
-			
-		} else if (operator.equals(Operator.NIN.getOperatorString())) {
-			optimalValue = Criteria.optimalArrayValue(value, true);
-			
-		} else if (operator.equals(Operator.ALL.getOperatorString())) {
-			optimalValue = Criteria.optimalArrayValue(value, true);
-			
-		} else {
-			optimalValue = value;
-		}
-		
-		return new BasicDBObject(operator, optimalValue);
+		return new BasicDBObject(operator, value);
 	}
 
 	/**	 
