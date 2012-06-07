@@ -3,7 +3,7 @@
   <groupId>com.googlecode</groupId>
   <artifactId>mongo-java-orm</artifactId>
   <versioning>
-    <release>1.0-RC1</release>
+    <release>1.0-RC2</release>
     <versions>
       <version>0.1-SNAPSHOT</version>
       <version>0.2</version>
@@ -33,7 +33,8 @@
       <version>0.15</version>
       <version>0.16-SNAPSHOT</version>
       <version>1.0-RC1</version>
+      <version>1.0-RC2</version>
     </versions>
-    <lastUpdated>20120530230748</lastUpdated>
+    <lastUpdated>20120607183833</lastUpdated>
   </versioning>
 </metadata>
