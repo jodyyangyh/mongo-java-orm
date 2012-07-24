@@ -1,8 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.googlecode.mjorm.query.Query;
