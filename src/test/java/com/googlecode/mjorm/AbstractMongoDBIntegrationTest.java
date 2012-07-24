@@ -43,7 +43,7 @@ public abstract class AbstractMongoDBIntegrationTest {
 		// attempt for wahtever reason - so we give it 10 attempts
 		for (int i=1; true; i++) {
 			try {
-				mongo = new Mongo(new MongoURI("mongodb://localhost"));
+				mongo = new Mongo(new MongoURI("mongodb://127.0.0.1"));
 				mongo.getDatabaseNames();
 				db = mongo.getDB(DB_NAME);
 				canTest = true;
