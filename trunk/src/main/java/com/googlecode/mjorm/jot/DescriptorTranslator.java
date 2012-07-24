@@ -54,6 +54,8 @@ public class DescriptorTranslator
 						ObjectId autoGenId = new ObjectId();
 						prop.set(pojo, autoGenId.toStringMongod());
 						ret.put("_id", autoGenId);
+					} else if (value!=null && ObjectId.class.isInstance(value)) {
+						ret.put("_id", ObjectId.class.cast(value));
 					} else if (value!=null) {
 						ret.put("_id", new ObjectId(String.class.cast(value)));
 					}
