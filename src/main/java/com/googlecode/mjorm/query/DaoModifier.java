@@ -199,8 +199,12 @@ public class DaoModifier
 		if (concern==null) {
 			concern = collection.getWriteConcern();
 		}
+		DBObject criteria = query.toQueryObject();
+		if (this.atomic) {
+			criteria.put("$atomic", 1);
+		}
 		WriteResult result = collection.update(
-			query.toQueryObject(), toModifierObject(),
+			criteria, toModifierObject(),
 			upsert, multi, concern, dbEncoder);
 		if (result.getError()!=null) {
 			throw new MongoException(result.getError());
@@ -241,11 +245,7 @@ public class DaoModifier
 	 */
 	@Override
 	public DBObject toModifierObject() {
-		DBObject ret = super.toModifierObject();
-		if (this.atomic) {
-			ret.put("$atomic", true);
-		}
-		return ret;
+		return super.toModifierObject();
 	}
 
 	
