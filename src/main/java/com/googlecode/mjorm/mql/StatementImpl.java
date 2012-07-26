@@ -49,40 +49,45 @@ public class StatementImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setParameters(Map<String, Object> params) {
+	public Statement setParameters(Map<String, Object> params) {
 		parameters.clear();
 		parameters.putAll(params);
+		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setParameters(Object... params) {
+	public Statement setParameters(Object... params) {
 		parameters.clear();
 		for (int i=0; i<params.length; i++) {
 			parameters.put(i+"", params[i]);
 		}
+		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setParameter(String name, Object param) {
+	public Statement setParameter(String name, Object param) {
 		parameters.put(name, param);
+		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setParameter(int index, Object param) {
+	public Statement setParameter(int index, Object param) {
 		parameters.put(index+"", param);
+		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void clearParameters() {
+	public Statement clearParameters() {
 		parameters.clear();
+		return this;
 	}
 
 	/**
