@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.googlecode</groupId>
+  <artifactId>mongo-java-orm</artifactId>
+  <version>1.0-RC5-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20120726.234222</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20120726234222</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>1.0-RC5-20120726.234222-1</value>
+        <updated>20120726234222</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>1.0-RC5-20120726.234222-1</value>
+        <updated>20120726234222</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
