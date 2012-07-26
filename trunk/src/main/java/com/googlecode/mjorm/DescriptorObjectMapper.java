@@ -10,12 +10,19 @@ import com.googlecode.mjorm.jot.DescriptorTranslator;
 public class DescriptorObjectMapper
 	extends AbstractObjectMapper {
 
+	private ObjectDescriptorRegistry registry;
+
+	public DescriptorObjectMapper() {
+		registry = new ObjectDescriptorRegistry();
+		super.registerConverter(new DescriptorTranslator(registry));
+	}
+
 	/**
 	 * Registers a new {@link ObjectDescriptor}.
 	 * @param descriptor the {@link ObjectDescriptor]
 	 */
 	protected void registerObjectDescriptor(ObjectDescriptor descriptor) {
-		super.registerConverter(new DescriptorTranslator(descriptor));
+		registry.registerDescriptor(descriptor);
 	}
 
 }

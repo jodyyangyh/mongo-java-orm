@@ -13,6 +13,11 @@ public class ObjectDescriptor {
 	private Map<String, PropertyDescriptor> properties
 		= new HashMap<String, PropertyDescriptor>();
 
+	private String discriminatorName;
+	private String discriminatorType;
+	private Map<Object, ObjectDescriptor> subClassObjectDescriptors
+		= new HashMap<Object, ObjectDescriptor>();
+
 	/**
 	 * @return the type
 	 */
@@ -24,7 +29,73 @@ public class ObjectDescriptor {
 	 * @param type the type to set
 	 */
 	public void setType(Class<?> objectClass) {
-		this.type = objectClass;
+		this.type	= objectClass;
+	}
+
+	/**
+	 * @return the discriminator
+	 */
+	public String getDiscriminatorName() {
+		return discriminatorName;
+	}
+
+	/**
+	 * @param discriminator the discriminator to set
+	 */
+	public void setDiscriminatorName(String discriminatorName) {
+		this.discriminatorName = discriminatorName;
+	}
+
+	/**
+	 * @return the discriminatorType
+	 */
+	public String getDiscriminatorType() {
+		return discriminatorType;
+	}
+
+	/**
+	 * @param discriminatorType the discriminatorType to set
+	 */
+	public void setDiscriminatorType(String discriminatorType) {
+		this.discriminatorType = discriminatorType;
+	}
+
+	/**
+	 * Indicates whether or not this {@link ObjectDescriptor} has
+	 * sub classes that are mapped via a discriminator.
+	 * @return
+	 */
+	public boolean hasSubClasses() {
+		return !subClassObjectDescriptors.isEmpty();
+	}
+
+	/**
+	 * Adds a sub ObjectDescriptor for the given discriminator.
+	 * @param discriminator the discriminator
+	 * @param descriptor the descriptor
+	 */
+	public void addSubClassObjectDescriptor(Object discriminator, ObjectDescriptor descriptor) {
+		if (type==null) {
+			throw new MappingException(
+				"ObjectDescriptors without a type cann't have subclass ObjectDescriptors");
+		} else if (subClassObjectDescriptors.containsKey(discriminator)) {
+			throw new MappingException(
+				"ObjectDescriptor for discriminator "+discriminator+" already exists");
+		} else if (!type.isAssignableFrom(descriptor.getType())) {
+			throw new MappingException(
+				"ObjectDescriptor for discriminator "+discriminator
+				+" does not inherit from "+descriptor.getType());
+		}
+		subClassObjectDescriptors.put(discriminator, descriptor);
+	}
+
+	/**
+	 * Returns the {@link ObjectDescriptor} for the given discriminator
+	 * @param discriminator the discriminator
+	 * @return the {@link ObjectDescriptor}
+	 */
+	public ObjectDescriptor getSubClassObjectDescriptor(Object discriminator) {
+		return subClassObjectDescriptors.get(discriminator);
 	}
 
 	/**
