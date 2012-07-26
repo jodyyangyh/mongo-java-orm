@@ -26,6 +26,12 @@
         <value>1.0-RC5-20120726.234222-1</value>
         <updated>20120726234222</updated>
       </snapshotVersion>
+      <snapshotVersion>
+        <classifier>javadoc</classifier>
+        <extension>jar</extension>
+        <value>1.0-RC5-20120726.234222-1</value>
+        <updated>20120726234222</updated>
+      </snapshotVersion>
     </snapshotVersions>
   </versioning>
 </metadata>
