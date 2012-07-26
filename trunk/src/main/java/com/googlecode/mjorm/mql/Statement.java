@@ -12,32 +12,32 @@ public interface Statement {
 	 * Sets the named parameters uses by this statement.
 	 * @param params
 	 */
-	void setParameters(Map<String, Object> params);
+	Statement setParameters(Map<String, Object> params);
 
 	/**
 	 * Sets the indexed parameters used by this statement.
 	 * @param params
 	 */
-	void setParameters(Object... params);
+	Statement setParameters(Object... params);
 
 	/**
 	 * Sets a parameter by it's name.
 	 * @param name
 	 * @param param
 	 */
-	void setParameter(String name, Object param);
+	Statement setParameter(String name, Object param);
 
 	/**
 	 * Sets a parameter by it's index
 	 * @param index t
 	 * @param param
 	 */
-	void setParameter(int index, Object param);
+	Statement setParameter(int index, Object param);
 
 	/**
 	 * Clears all of the set parameters.
 	 */
-	void clearParameters();
+	Statement clearParameters();
 
 	/**
 	 * Executes the statement expecting results.
