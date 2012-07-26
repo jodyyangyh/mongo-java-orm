@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.googlecode.jot.ReflectionUtil;
+import com.googlecode.mjorm.DiscriminatorType;
 import com.googlecode.mjorm.MappingException;
+import com.googlecode.mjorm.MappingUtil;
 import com.googlecode.mjorm.ObjectDescriptor;
 import com.googlecode.mjorm.PropertyDescriptor;
 
@@ -25,10 +27,10 @@ public class AnnotationsObjectDescriptorParser {
 	 * @param classes the classes to parse
 	 * @return the {@link ObjectDescriptor}s
 	 */
-	public List<ObjectDescriptor> parseClasses(Collection<Class<?>> classes) {
+	public List<ObjectDescriptor> parseClasses(Class<?>... classes) {
 		List<ObjectDescriptor> ret = new ArrayList<ObjectDescriptor>();
 		for (Class<?> clazz : classes) {
-			ret.add(parseClass(clazz));
+			ret.add(parseClass(clazz, ret));
 		}
 		return ret;
 	}
@@ -39,12 +41,8 @@ public class AnnotationsObjectDescriptorParser {
 	 * @param classes the classes to parse
 	 * @return the {@link ObjectDescriptor}s
 	 */
-	public List<ObjectDescriptor> parseClasses(Class<?>... classes) {
-		List<ObjectDescriptor> ret = new ArrayList<ObjectDescriptor>();
-		for (Class<?> clazz : classes) {
-			ret.add(parseClass(clazz));
-		}
-		return ret;
+	public List<ObjectDescriptor> parseClasses(Collection<Class<?>> classes) {
+		return parseClasses(classes.toArray(new Class<?>[0]));
 	}
 
 	/**
@@ -53,7 +51,7 @@ public class AnnotationsObjectDescriptorParser {
 	 * @param clazz the class to parse
 	 * @return the {@link ObjectDescriptor}
 	 */
-	public ObjectDescriptor parseClass(Class<?> clazz) {
+	private ObjectDescriptor parseClass(Class<?> clazz, List<ObjectDescriptor> descriptors) {
 
 		// get the entity annotation
 		Entity entity = clazz.getAnnotation(Entity.class);
@@ -62,9 +60,16 @@ public class AnnotationsObjectDescriptorParser {
 				clazz.getName()+" does not have an "+Entity.class.getName()+" annotation");
 		}
 
+		// parse entity date
+		String discriminatorName = entity.discriminatorName();
+		DiscriminatorType discriminatorType = entity.discriminatorType();
+		SubClass[] subClasses = entity.subClasses();
+
 		// create an object descriptor
 		ObjectDescriptor desc = new ObjectDescriptor();
 		desc.setType(clazz);
+		desc.setDiscriminatorName(discriminatorName);
+		desc.setDiscriminatorType(discriminatorType.toString());
 
 		// get all of the methods
 		for (Method getter : clazz.getMethods()) {
@@ -133,6 +138,21 @@ public class AnnotationsObjectDescriptorParser {
 
 			// add to descriptor
 			desc.addPropertyDescriptor(prop);
+		}
+
+		// parse subclasses
+		for (SubClass subClassAnot : subClasses) {
+
+			// get discriminator value
+			Object discriminatorValue = MappingUtil.parseDiscriminator(
+				subClassAnot.discriminiatorValue(), discriminatorType);
+
+			// parse sub class
+			ObjectDescriptor subClass = parseClass(subClassAnot.entityClass(), descriptors);
+
+			// add subclass
+			desc.addSubClassObjectDescriptor(discriminatorValue, subClass);
+			descriptors.add(subClass);
 		}
 
 		// return it

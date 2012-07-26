@@ -86,6 +86,29 @@ public class DBObjectUtil {
 	}
 
 	/**
+	 * Gets a nested property of an obect.
+	 * @param dbObject the object
+	 * @param name the property
+	 * @return the object
+	 */
+	public static Object getNestedProperty(DBObject dbObject, String name) {
+		String[] names = name.split("\\.");
+		Object ret = null;
+		boolean hasMore = false;
+		for (int i=0; i<names.length; i++) {
+			hasMore = i < names.length-1;
+			ret = dbObject.get(names[i]);
+			if (hasMore && DBObject.class.isInstance(ret)) {
+				dbObject = DBObject.class.cast(ret);
+			} else if (hasMore) {
+				throw new IllegalArgumentException(
+					"Property "+name+" could not be followed");
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * Resolves merge conflicts during
 	 * {@link DBObjectUtil#merge(DBObject, DBObject, MergeConflictResolver).
 	 */
