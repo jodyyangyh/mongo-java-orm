@@ -108,8 +108,13 @@ public class DaoModifier
 	 */
 	public WriteResult delete() {
 		assertValid();
+		DBCollection collection = query.getDB().getCollection(query.getCollection());
+		WriteConcern concern = writeConcern;
+		if (concern==null) {
+			concern = collection.getWriteConcern();
+		}
 		return query.getDB().getCollection(query.getCollection())
-			.remove(query.toQueryObject());
+			.remove(query.toQueryObject(), concern, dbEncoder);
 	}
 
 	/**
