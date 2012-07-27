@@ -158,8 +158,8 @@ public class XmlObjectDescriptorParser {
 				? propertyEl.getAttribute("column") : propName;
 
 			// find the getter and setter.
-			Method propSetter = ReflectionUtil.findSetter(objClass, propName, propClass);
-			Method propGetter = ReflectionUtil.findGetter(objClass, propName, propClass);
+			Method propSetter = ReflectionUtil.findSetter(objClass, propName);
+			Method propGetter = ReflectionUtil.findGetter(objClass, propName);
 			if (propGetter==null || propSetter==null) {
 				throw new IllegalArgumentException(
 					"Unable to find getter or setter named "+propName+" for: "+objClass);
@@ -181,7 +181,7 @@ public class XmlObjectDescriptorParser {
 			// get parameter types
 			NodeList parameterTypeEls = (NodeList)xpath.evaluate(
 				"./type-param", propertyEl, XPathConstants.NODESET);
-			Class<?>[] propParamTypes = new Class<?>[parameterTypeEls.getLength()];
+			Type[] propParamTypes = new Type[parameterTypeEls.getLength()];
 			for (int k=0; k<parameterTypeEls.getLength(); k++) {
 				Element parameterTypeEl = (Element)parameterTypeEls.item(k);
 				propParamTypes[k] = Class.forName(parameterTypeEl.getAttribute("class"));

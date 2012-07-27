@@ -106,7 +106,7 @@ public class DaoQuery
 
 	/**
 	 * Executes the query and returns objects of the given type.
-	 * @param clazz the type of objects to return
+	 * @param fields the fields to return
 	 * @return the iterator.
 	 */
 	public DBCursor findObjects(DBObject fields) {
@@ -114,6 +114,19 @@ public class DaoQuery
 		DBCursor cursor = db.getCollection(collection).find(toQueryObject(), fields);
 		setupCursor(cursor);
 		return cursor;
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
+	 * @param fields the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBCursor findObjects(String... fields) {
+		DBObject dbObject = new BasicDBObject();
+		for (String field : fields) {
+			dbObject.put(field, 1);
+		}
+		return findObjects(dbObject);
 	}
 
 	/**
