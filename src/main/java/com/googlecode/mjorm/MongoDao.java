@@ -38,6 +38,16 @@ public interface MongoDao {
 	<T> T createObject(String collection, T object);
 
 	/**
+	 * Creates the object in the given collection.
+	 * @param <T> the type
+	 * @param collection the collection
+	 * @param object the object to create
+	 * @param conern the WriteConcern
+	 * @return the created object
+	 */
+	<T> T createObject(String collection, T object, WriteConcern conern);
+
+	/**
 	 * Creates the given objects in the given collection.
 	 * @param <T> the type
 	 * @param collection the collection
@@ -45,6 +55,16 @@ public interface MongoDao {
 	 * @return the created objects
 	 */
 	<T> T[] createObjects(String collection, T[] objects);
+
+	/**
+	 * Creates the given objects in the given collection.
+	 * @param <T> the type
+	 * @param collection the collection
+	 * @param objects the objects to create
+	 * @param conern the WriteConcern
+	 * @return the created objects
+	 */
+	<T> T[] createObjects(String collection, T[] objects, WriteConcern conern);
 
 	/**
 	 * Maps and returns an object from the given collection.
@@ -74,6 +94,16 @@ public interface MongoDao {
 	 * @param o the object
 	 */
 	void updateObject(String collection, String id, Object o);
+
+	/**
+	 * Updates the object with the given id in the given
+	 * collection.
+	 * @param collection the collection
+	 * @param id the id
+	 * @param conern the WriteConcern
+	 * @param o the object
+	 */
+	void updateObject(String collection, String id, Object o, WriteConcern concern);
 
 	/**
 	 * Deletes the object with the given id from the
@@ -137,13 +167,27 @@ public interface MongoDao {
 	 * Saves a partial object.
 	 * @param <T> the partial object type
 	 * @param collection the collection
+	 * @param id the document's id
+	 * @param name the name
+	 * @param data the data to save
+	 * @param upsert the upsert
+	 * @param conern the WriteConcern
+	 */
+	<T> void savePartialObject(
+		String collection, String id, String name, T data, boolean upsert, WriteConcern concern);
+
+	/**
+	 * Saves a partial object.
+	 * @param <T> the partial object type
+	 * @param collection the collection
 	 * @param query the query
 	 * @param name the name
 	 * @param data the data to save
 	 * @param upsert the upsert
+	 * @param conern the WriteConcern
 	 */
 	<T> void savePartialObject(
-		String collection, DBObject query, String name, T data, boolean upsert);
+		String collection, DBObject query, String name, T data, boolean upsert, WriteConcern concern);
 
 	/**
 	 * Deletes a partial object.
