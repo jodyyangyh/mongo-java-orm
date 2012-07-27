@@ -76,13 +76,13 @@ public class ObjectDescriptor {
 	 */
 	public void addSubClassObjectDescriptor(Object discriminator, ObjectDescriptor descriptor) {
 		if (type==null) {
-			throw new MappingException(
+			throw new MjormException(
 				"ObjectDescriptors without a type cann't have subclass ObjectDescriptors");
 		} else if (subClassObjectDescriptors.containsKey(discriminator)) {
-			throw new MappingException(
+			throw new MjormException(
 				"ObjectDescriptor for discriminator "+discriminator+" already exists");
 		} else if (!type.isAssignableFrom(descriptor.getType())) {
-			throw new MappingException(
+			throw new MjormException(
 				"ObjectDescriptor for discriminator "+discriminator
 				+" does not inherit from "+descriptor.getType());
 		}

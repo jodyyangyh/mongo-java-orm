@@ -11,7 +11,7 @@ import java.util.Map;
 
 import com.googlecode.jot.ReflectionUtil;
 import com.googlecode.mjorm.DiscriminatorType;
-import com.googlecode.mjorm.MappingException;
+import com.googlecode.mjorm.MjormException;
 import com.googlecode.mjorm.MappingUtil;
 import com.googlecode.mjorm.ObjectDescriptor;
 import com.googlecode.mjorm.PropertyDescriptor;
@@ -57,7 +57,7 @@ public class AnnotationsObjectDescriptorParser {
 		// get the entity annotation
 		Entity entity = clazz.getAnnotation(Entity.class);
 		if (entity==null) {
-			throw new MappingException(
+			throw new MjormException(
 				clazz.getName()+" does not have an "+Entity.class.getName()+" annotation");
 		}
 
@@ -94,7 +94,7 @@ public class AnnotationsObjectDescriptorParser {
 			// find pd
 			java.beans.PropertyDescriptor pd = methodMap.get(method);
 			if (pd==null) {
-				throw new MappingException(
+				throw new MjormException(
 					method.getName()+" is not not a valid bean method.");
 			}
 

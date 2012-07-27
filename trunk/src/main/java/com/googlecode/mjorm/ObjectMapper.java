@@ -13,19 +13,19 @@ public interface ObjectMapper {
 	 * @param <T> the type
 	 * @param dbObject the {@link DBObject}
 	 * @param objectClass the {@link Class} of the object to translate to
-	 * @throws MappingException on error
+	 * @throws MjormException on error
 	 * @return the java object
 	 */
 	<T> T mapFromDBObject(DBObject dbObject, Class<T> objectClass)
-		throws MappingException;
+		throws MjormException;
 
 	/**
 	 * Translates the given java object into a {@link DBObject}.
 	 * @param <T> the type
 	 * @param object the java object
-	 * @throws MappingException on error
+	 * @throws MjormException on error
 	 * @return the {@link DBObject}
 	 */
 	<T> DBObject mapToDBObject(T object)
-		throws MappingException;
+		throws MjormException;
 }
