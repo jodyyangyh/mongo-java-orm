@@ -80,11 +80,11 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T createObject(String collection, T object) {
+	public <T> T createObject(String collection, T object, WriteConcern concern) {
 		DBObject dbObject;
 		try {
 			dbObject = objectMapper.mapToDBObject(object);
-			getCollection(collection).insert(dbObject);
+			getCollection(collection).insert(dbObject, concern);
 			return (T)objectMapper.mapFromDBObject(dbObject, object.getClass());
 		} catch (Exception e) {
 			throw new MappingException(e);
@@ -94,14 +94,28 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	public <T> T createObject(String collection, T object) {
+		return createObject(collection, object, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public <T> T[] createObjects(String collection, T[] objects) {
+		return createObject(collection, objects, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T[] createObjects(String collection, T[] objects, WriteConcern concern) {
 		DBObject[] dbObjects = new DBObject[objects.length];
 		try {
 			for (int i=0; i<objects.length; i++) {
 				dbObjects[i] = objectMapper.mapToDBObject(objects[i]);
 			}
-			getCollection(collection).insert(dbObjects);
+			getCollection(collection).insert(dbObjects, concern);
 			T[] ret = (T[])Array.newInstance(objects[0].getClass(), objects.length);
 			for (int i=0; i<objects.length; i++) {
 				ret[i] = (T)objectMapper.mapFromDBObject(dbObjects[i], objects[i].getClass());
@@ -182,7 +196,7 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public <T> void savePartialObject(
-		String collection, String id, String name, T data, boolean upsert) {
+		String collection, String id, String name, T data, boolean upsert, WriteConcern concern) {
 		savePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, data, upsert);
 	}
 
@@ -190,7 +204,24 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public <T> void savePartialObject(
+		String collection, String id, String name, T data, boolean upsert) {
+		savePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)),
+			name, data, upsert, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> void savePartialObject(
 		String collection, DBObject query, String name, T data, boolean upsert) {
+		savePartialObject(collection, query, name, data, upsert, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> void savePartialObject(
+		String collection, DBObject query, String name, T data, boolean upsert, WriteConcern concern) {
 
 		// the value we're storing
 		Object value = null;
@@ -207,7 +238,7 @@ public class MongoDaoImpl
 		// save it
 		getCollection(collection).update(
 			query, new BasicDBObject("$set", new BasicDBObject(name, value)),
-			upsert, false);
+			upsert, false, concern);
 	}
 
 	/**
@@ -307,6 +338,20 @@ public class MongoDaoImpl
 		} catch (Exception e) {
 			throw new MappingException(e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateObject(String collection, String id, Object o, WriteConcern concern) {
+		DBObject dbObject;
+		try {
+			dbObject = objectMapper.mapToDBObject(o);
+		} catch (Exception e) {
+			throw new MappingException(e);
+		}
+		 getCollection(collection).update(
+				new BasicDBObject("_id", new ObjectId(id)), dbObject, false, false, concern);
 	}
 
 	/**
