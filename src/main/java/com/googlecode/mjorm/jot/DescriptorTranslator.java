@@ -8,7 +8,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import com.googlecode.mjorm.DBObjectUtil;
-import com.googlecode.mjorm.MappingException;
+import com.googlecode.mjorm.MjormException;
 import com.googlecode.mjorm.ObjectDescriptor;
 import com.googlecode.mjorm.ObjectDescriptorRegistry;
 import com.googlecode.mjorm.PropertyDescriptor;
@@ -53,7 +53,7 @@ public class DescriptorTranslator
 		// get the descriptors
 		List<ObjectDescriptor> descriptors = registry.getDescriptorsForType(pojo.getClass());
 		if (descriptors.isEmpty()) {
-			throw new MappingException("Unable to find ObjectDescriptor for "+pojo.getClass());
+			throw new MjormException("Unable to find ObjectDescriptor for "+pojo.getClass());
 		}
 
 		// loop through each descriptor
@@ -86,7 +86,7 @@ public class DescriptorTranslator
 					}
 
 				} catch (Exception e) {
-					throw new MappingException(
+					throw new MjormException(
 						"Error mapping property "+prop.getName()
 						+" of class "+descriptor.getType(), e);
 				}
@@ -107,7 +107,7 @@ public class DescriptorTranslator
 		// get the descriptors
 		LinkedList<ObjectDescriptor> descriptors = registry.getDescriptorsForType(desiredType);
 		if (descriptors.isEmpty()) {
-			throw new MappingException("Unable to find ObjectDescriptor for "+desiredType);
+			throw new MjormException("Unable to find ObjectDescriptor for "+desiredType);
 		}
 
 		// get descriptor
@@ -125,7 +125,7 @@ public class DescriptorTranslator
 		if (discriminator!=null) {
 			ObjectDescriptor subClass = descriptor.getSubClassObjectDescriptor(discriminator);
 			if (subClass==null && Modifier.isAbstract(descriptor.getType().getModifiers())) {
-				throw new MappingException(
+				throw new MjormException(
 					"Sublcass for discriminiator value "+discriminator
 					+" was not found on abstract ObjectDescriptor for "
 					+ descriptor.getType().getName());
@@ -140,7 +140,7 @@ public class DescriptorTranslator
 		try {
 			ret = ReflectionUtil.instantiate(descriptor.getType());
 		} catch (Exception e) {
-			throw new MappingException(
+			throw new MjormException(
 				"Error creating class: "+desiredType, e);
 		}
 
@@ -168,7 +168,7 @@ public class DescriptorTranslator
 					}
 	
 				} catch (Exception e) {
-					throw new MappingException(
+					throw new MjormException(
 						"Error mapping property "+prop.getName()
 						+" of class "+descriptor.getType(), e);
 				}

@@ -4,7 +4,7 @@ package com.googlecode.mjorm;
  * An unchecked exception.
  */
 @SuppressWarnings("serial")
-public class MappingException
+public class MjormException
 	extends RuntimeException {
 
 	/**
@@ -12,7 +12,7 @@ public class MappingException
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public MappingException() {
+	public MjormException() {
 		super();
 	}
 
@@ -24,7 +24,7 @@ public class MappingException
 	 * @param message the detail message. The detail message is saved for later
 	 *        retrieval by the {@link #getMessage()} method.
 	 */
-	public MappingException(String message) {
+	public MjormException(String message) {
 		super(message);
 	}
 
@@ -43,7 +43,7 @@ public class MappingException
 	 *        and indicates that the cause is nonexistent or unknown.)
 	 * @since 1.4
 	 */
-	public MappingException(String message, Throwable cause) {
+	public MjormException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -59,7 +59,7 @@ public class MappingException
 	 *        and indicates that the cause is nonexistent or unknown.)
 	 * @since 1.4
 	 */
-	public MappingException(Throwable cause) {
+	public MjormException(Throwable cause) {
 		super(cause);
 	}
 }

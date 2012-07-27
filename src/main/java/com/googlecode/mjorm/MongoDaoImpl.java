@@ -87,7 +87,7 @@ public class MongoDaoImpl
 			getCollection(collection).insert(dbObject, concern);
 			return (T)objectMapper.mapFromDBObject(dbObject, object.getClass());
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 	}
 
@@ -121,7 +121,7 @@ public class MongoDaoImpl
 				ret[i] = (T)objectMapper.mapFromDBObject(dbObjects[i], objects[i].getClass());
 			}
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 		return null;
 	}
@@ -300,7 +300,7 @@ public class MongoDaoImpl
 		try {
 			query = objectMapper.mapToDBObject(example);
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 		return findObjects(collection, query, clazz);
 	}
@@ -313,7 +313,7 @@ public class MongoDaoImpl
 		try {
 			return objectMapper.mapFromDBObject(dbObject, clazz);
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 	}
 
@@ -349,7 +349,7 @@ public class MongoDaoImpl
 		try {
 			return objectMapper.mapFromDBObject(dbObject, clazz);
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 	}
 
@@ -371,7 +371,7 @@ public class MongoDaoImpl
 			}
 			return ret.toArray((T[])Array.newInstance(clazz, 0));
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 	}
 
@@ -383,7 +383,7 @@ public class MongoDaoImpl
 		try {
 			dbObject = objectMapper.mapToDBObject(o);
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 		 getCollection(collection).update(
 				new BasicDBObject("_id", new ObjectId(id)), dbObject, false, false, concern);
@@ -397,7 +397,7 @@ public class MongoDaoImpl
 		try {
 			dbObject = objectMapper.mapToDBObject(o);
 		} catch (Exception e) {
-			throw new MappingException(e);
+			throw new MjormException(e);
 		}
 		 getCollection(collection).update(new BasicDBObject("_id", new ObjectId(id)), dbObject);
 	}

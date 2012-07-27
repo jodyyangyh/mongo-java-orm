@@ -25,9 +25,9 @@ public class MappingUtil {
 				case STRING: return value;
 			}
 		} catch(Exception e) {
-			throw new MappingException("Error parsing discrininator", e);
+			throw new MjormException("Error parsing discrininator", e);
 		}
-		throw new MappingException(
+		throw new MjormException(
 			"Error determining discriminator type for "+type);
 	}
 
