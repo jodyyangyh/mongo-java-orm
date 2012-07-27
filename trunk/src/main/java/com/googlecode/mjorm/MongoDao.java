@@ -114,6 +114,15 @@ public interface MongoDao {
 	void deleteObject(String collection, String id);
 
 	/**
+	 * Deletes the object with the given id from the
+	 * given collection.
+	 * @param collection the collection
+	 * @param conern the WriteConcern
+	 * @param id the id
+	 */
+	void deleteObject(String collection, String id, WriteConcern concern);
+
+	/**
 	 * Deletes the objects matching the given query from
 	 * the given collection.
 	 * @param collection the collection
@@ -125,9 +134,27 @@ public interface MongoDao {
 	 * Deletes the objects matching the given query from
 	 * the given collection.
 	 * @param collection the collection
+	 * @param conern the WriteConcern
+	 * @param query the query
+	 */
+	void deleteObjects(String collection, DBObject query, WriteConcern concern);
+
+	/**
+	 * Deletes the objects matching the given query from
+	 * the given collection.
+	 * @param collection the collection
 	 * @param ids the ids of the objects to delete
 	 */
 	void deleteObjects(String collection, String[] ids);
+
+	/**
+	 * Deletes the objects matching the given query from
+	 * the given collection.
+	 * @param collection the collection
+	 * @param conern the WriteConcern
+	 * @param ids the ids of the objects to delete
+	 */
+	void deleteObjects(String collection, String[] ids, WriteConcern concern);
 
 	/**
 	 * Returns a partial object.
@@ -200,10 +227,28 @@ public interface MongoDao {
 	/**
 	 * Deletes a partial object.
 	 * @param collection the collection
+	 * @param id the document's id
+	 * @param name the name
+	 * @param conern the WriteConcern
+	 */
+	void deletePartialObject(String collection, String id, String name, WriteConcern concern);
+
+	/**
+	 * Deletes a partial object.
+	 * @param collection the collection
 	 * @param query the query
 	 * @param name the name
 	 */
 	void deletePartialObject(String collection, DBObject query, String name);
+
+	/**
+	 * Deletes a partial object.
+	 * @param collection the collection
+	 * @param query the query
+	 * @param name the name
+	 * @param conern the WriteConcern
+	 */
+	void deletePartialObject(String collection, DBObject query, String name, WriteConcern concern);
 
 	/**
 	 * Finds objects by the given example in the given

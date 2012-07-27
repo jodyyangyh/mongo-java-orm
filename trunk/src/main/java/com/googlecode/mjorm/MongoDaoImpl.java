@@ -102,7 +102,7 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public <T> T[] createObjects(String collection, T[] objects) {
-		return createObject(collection, objects, getCollection(collection).getWriteConcern());
+		return createObjects(collection, objects, getCollection(collection).getWriteConcern());
 	}
 
 	/**
@@ -129,27 +129,48 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObject(String collection, String id) {
-		deleteObjects(collection, new BasicDBObject("_id", new ObjectId(id)));
+	public void deleteObject(String collection, String id, WriteConcern concern) {
+		deleteObjects(collection, new BasicDBObject("_id", new ObjectId(id)), concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObjects(String collection, DBObject query) {
-		getCollection(collection).remove(query);
+	public void deleteObject(String collection, String id) {
+		deleteObject(collection, id, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteObjects(String collection, String[] ids, WriteConcern concern) {
+		ObjectId[] objIds = new ObjectId[ids.length];
+		for (int i=0; i<objIds.length; i++) {
+			objIds[i] = new ObjectId(ids[i]);
+		}
+		deleteObjects(collection, 
+			new BasicDBObject("_id", new BasicDBObject("$in", objIds)), concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void deleteObjects(String collection, String[] ids) {
-		ObjectId[] objIds = new ObjectId[ids.length];
-		for (int i=0; i<objIds.length; i++) {
-			objIds[i] = new ObjectId(ids[i]);
-		}
-		getCollection(collection).remove(
-			new BasicDBObject("_id", new BasicDBObject("$in", objIds)));
+		deleteObjects(collection, ids, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteObjects(String collection, DBObject query, WriteConcern concern) {
+		getCollection(collection).remove(query, concern);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteObjects(String collection, DBObject query) {
+		deleteObjects(collection, query, getCollection(collection).getWriteConcern());
 	}
 
 	/**
@@ -244,17 +265,31 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deletePartialObject(String collection, String id, String name) {
-		deletePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name);
+	public void deletePartialObject(String collection, DBObject query, String name, WriteConcern concern) {
+		getCollection(collection).update(
+			query, new BasicDBObject("$unset", new BasicDBObject(name, 1)),
+			false, false);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void deletePartialObject(String collection, DBObject query, String name) {
-		getCollection(collection).update(
-			query, new BasicDBObject("$unset", new BasicDBObject(name, 1)),
-			false, false);
+		deletePartialObject(collection, query, name, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deletePartialObject(String collection, String id, String name, WriteConcern concern) {
+		deletePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, concern);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deletePartialObject(String collection, String id, String name) {
+		deletePartialObject(collection, id, name, getCollection(collection).getWriteConcern());
 	}
 
 	/**
