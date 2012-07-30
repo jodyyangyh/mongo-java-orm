@@ -36,14 +36,23 @@ public class ObjectIterator<E>
 	/**
 	 * Reads all of the objects behind this cursor
 	 * and returns them in a {@link List}.
+	 * @param ret the list to read the objects into
 	 * @return the {@link List} of objects.
 	 */
-	public List<E> readAll() {
-		List<E> ret = new ArrayList<E>();
+	public List<E> readAll(List<E> ret) {
 		while (hasNext()) {
 			ret.add(next());
 		}
 		return ret;
+	}
+
+	/**
+	 * Reads all of the objects behind this cursor
+	 * and returns them in a {@link List}.
+	 * @return the {@link List} of objects.
+	 */
+	public List<E> readAll() {
+		return readAll(new ArrayList<E>());
 	}
 
 	/**
