@@ -118,6 +118,18 @@ public class DaoQuery
 
 	/**
 	 * Executes the query and returns objects of the given type.
+	 * @param clazz the type of objects to return
+	 * @return the iterator.
+	 */
+	public DBCursor findObjects() {
+		assertValid();
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		setupCursor(cursor);
+		return cursor;
+	}
+
+	/**
+	 * Executes the query and returns objects of the given type.
 	 * @param fields the type of objects to return
 	 * @return the iterator.
 	 */
@@ -130,27 +142,14 @@ public class DaoQuery
 	}
 
 	/**
-	 * Executes the query and returns objects of the given type.
-	 * @param clazz the type of objects to return
-	 * @return the iterator.
-	 */
-	public DBCursor findObjects() {
-		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
-		setupCursor(cursor);
-		return cursor;
-	}
-
-	/**
 	 * Executes the query and returns an object of the given type.
 	 * @param clazz the type of object to return
 	 * @return the object.
 	 */
 	public <T> T findObject(Class<T> clazz) {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
-		setupCursor(cursor);
-		return objectMapper.mapFromDBObject(cursor.next(), clazz);
+		ObjectIterator<T> itr = findObjects(clazz);
+		return itr.hasNext() ? itr.next() : null;
 	}
 
 	/**
@@ -160,9 +159,8 @@ public class DaoQuery
 	 */
 	public DBObject findObject(DBObject fields) {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject(), fields);
-		setupCursor(cursor);
-		return cursor.next();
+		DBCursor itr = findObjects(fields);
+		return itr.hasNext() ? itr.next() : null;
 	}
 
 	/**
@@ -172,9 +170,8 @@ public class DaoQuery
 	 */
 	public DBObject findObject() {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
-		setupCursor(cursor);
-		return cursor.next();
+		DBCursor itr = findObjects();
+		return itr.hasNext() ? itr.next() : null;
 	}
 
 	/**
