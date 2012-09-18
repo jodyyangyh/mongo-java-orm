@@ -90,6 +90,8 @@ Field function conditions generally perform some sort of operation on a field no
 || in || checks that the field contains one of the values specified ||
 || nin || checks that the field doesn't contain any of the values specified ||
 || all || checks that the field contains all of the values specified ||
+|| near || performs a geospacial near query ||
+|| withinBox || performs a geospacial within query for the given box ||
 
 {{{
 FROM
@@ -105,6 +107,9 @@ FROM
        names in('john', 'jacob', 'jingleheimer')
        somethingElse nin('a value', 10)
        otherTags all('fun', 'intersting')
+       location near(x, y, distance)
+       location within(x, y, xx, yy)
+       
    action
 }}}
 
