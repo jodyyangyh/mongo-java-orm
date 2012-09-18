@@ -13,10 +13,14 @@ import com.googlecode.mjorm.query.criteria.BetweenCriterion;
 import com.googlecode.mjorm.query.criteria.ElemMatchCriterion;
 import com.googlecode.mjorm.query.criteria.ExistsCriterion;
 import com.googlecode.mjorm.query.criteria.ModCriterion;
+import com.googlecode.mjorm.query.criteria.NearCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion;
 import com.googlecode.mjorm.query.criteria.SizeCriterion;
 import com.googlecode.mjorm.query.criteria.TypeCriterion;
+import com.googlecode.mjorm.query.criteria.WithinBoxCriterion;
 import com.googlecode.mjorm.query.criteria.SimpleCriterion.Operator;
+import com.googlecode.mjorm.query.criteria.WithinCircleCriterion;
+import com.googlecode.mjorm.query.criteria.WithinPolygonCriterion;
 import com.mongodb.DB;
 
 public class InterpreterFactory {
@@ -157,6 +161,10 @@ public class InterpreterFactory {
 		registerFieldFunction(ElemMatchCriterion.createFunction("elemMatch"));
 		registerFieldFunction(ModCriterion.createFunction("mod"));
 		registerFieldFunction(SizeCriterion.createFunction("size"));
+		registerFieldFunction(NearCriterion.createFunction("near"));
+		registerFieldFunction(WithinBoxCriterion.createFunction("within_box"));
+		registerFieldFunction(WithinCircleCriterion.createFunction("within_circle"));
+		registerFieldFunction(WithinPolygonCriterion.createFunction("within_polygon"));
 		registerFieldFunction(TypeCriterion.createFunction("type"));
 		registerFieldFunction(SimpleCriterion.createForOperator("in", Operator.IN, 1, Integer.MAX_VALUE, -1));
 		registerFieldFunction(SimpleCriterion.createForOperator("nin", Operator.NIN, 1, Integer.MAX_VALUE, -1));

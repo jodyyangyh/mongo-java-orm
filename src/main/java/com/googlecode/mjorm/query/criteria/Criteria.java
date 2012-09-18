@@ -147,6 +147,41 @@ public class Criteria {
 	}
 	
 	/**
+	 * {@see NearCriterion}
+	 */
+	public static NearCriterion near(Number x, Number y, Number distance) {
+		return new NearCriterion(x, y, distance);
+	}
+	
+	/**
+	 * {@see NearCriterion}
+	 */
+	public static NearCriterion near(Number x, Number y) {
+		return new NearCriterion(x, y);
+	}
+	
+	/**
+	 * {@see WithinBoxCriterion}
+	 */
+	public static WithinBoxCriterion within(Number x, Number y, Number xx, Number yy) {
+		return new WithinBoxCriterion(x, y, xx, yy);
+	}
+	
+	/**
+	 * {@see WithinCircleCriterion}
+	 */
+	public static WithinCircleCriterion within(Number x, Number y, Number radius) {
+		return new WithinCircleCriterion(x, y, radius);
+	}
+	
+	/**
+	 * {@see WithinCircleCriterion}
+	 */
+	public static WithinPolygonCriterion within(Number[][] points) {
+		return new WithinPolygonCriterion(points);
+	}
+	
+	/**
 	 * {@see TypeCriterion}
 	 */
 	public static TypeCriterion type(Number typeCode) {

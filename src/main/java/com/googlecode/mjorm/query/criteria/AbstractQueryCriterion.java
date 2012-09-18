@@ -293,4 +293,44 @@ public abstract class AbstractQueryCriterion<T extends AbstractQueryCriterion<T>
 	public T not(FieldCriterion criterion) {
 		return add(Criteria.not(criterion));
 	}
+
+	/**
+	 * {@see Criteria#near(Number, Number, Number)}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T near(String property, Number x, Number y, Number distance) {
+		return add(property, Criteria.near(x, y, distance));
+	}
+
+	/**
+	 * {@see Criteria#near(Number, Number)}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T near(String property, Number x, Number y) {
+		return add(property, Criteria.near(x, y));
+	}
+
+	/**
+	 * {@see Criteria#within(Number, Number, Number, Number)}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T within(String property, Number x, Number y, Number xx, Number yy) {
+		return add(property, Criteria.within(x, y, xx, yy));
+	}
+
+	/**
+	 * {@see Criteria#within(Number, Number, Number)}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T within(String property, Number x, Number y, Number radius) {
+		return add(property, Criteria.within(x, y, radius));
+	}
+
+	/**
+	 * {@see Criteria#within(Number[][])}
+	 * @return the {@link AbstractQueryCriterion} for chaining
+	 */
+	public T within(String property, Number[][] points) {
+		return add(property, Criteria.within(points));
+	}
 }

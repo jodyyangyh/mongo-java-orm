@@ -262,4 +262,19 @@ public class InterpreterTest
 		
 	}
 
+	@Test
+	public void testPolyFunction()
+		throws Exception {
+		if (!canTest) { return; }
+
+		// compile
+		Tree tree = interpreter.compile(ips(
+			"from people where whatever within_polygon([1,2], [3,4], [5,6]) select *"));
+		
+		// interpret
+		InterpreterResult res = interpreter.interpret(tree, "first1").get(0);
+		assertNotNull(res);
+		
+	}
+
 }
