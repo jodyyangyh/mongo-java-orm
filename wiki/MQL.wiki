@@ -91,7 +91,9 @@ Field function conditions generally perform some sort of operation on a field no
 || nin || checks that the field doesn't contain any of the values specified ||
 || all || checks that the field contains all of the values specified ||
 || near || performs a geospacial near query ||
-|| withinBox || performs a geospacial within query for the given box ||
+|| within_box || performs a geospacial within query for the given box ||
+|| within_circle || performs a geospacial within query for the given circle ||
+|| within_polygon || performs a geospacial within query for the given polygon ||
 
 {{{
 FROM
@@ -108,7 +110,9 @@ FROM
        somethingElse nin('a value', 10)
        otherTags all('fun', 'intersting')
        location near(x, y, distance)
-       location within(x, y, xx, yy)
+       location within_box(x, y, xx, yy)
+       location within_circle(x, y, radius)
+       location within_polygon([x, y], [x, y], [x, y], [x, y], ...)
        
    action
 }}}
