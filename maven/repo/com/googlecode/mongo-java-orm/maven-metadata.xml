@@ -38,7 +38,8 @@
       <version>1.0-RC4</version>
       <version>1.0-RC5-SNAPSHOT</version>
       <version>1.0-RC5</version>
+      <version>1.0-RC6-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20120918184356</lastUpdated>
+    <lastUpdated>20120918184740</lastUpdated>
   </versioning>
 </metadata>
