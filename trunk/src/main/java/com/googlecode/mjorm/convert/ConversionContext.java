@@ -51,7 +51,7 @@ public class ConversionContext {
 		}
 
 		// do the conversion
-		return conv.convert(source, hints);
+		return conv.convert(source, this, hints);
 	}
 
 	/**

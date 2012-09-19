@@ -3,18 +3,6 @@ package com.googlecode.mjorm.convert;
 public interface TypeConverter<Target, Source> {
 
 	/**
-	 * Returns the from type.
-	 * @return the from type
-	 */
-	Class<?> getSourceClass();
-
-	/**
-	 * Returns the to type.
-	 * @return the to type
-	 */
-	Class<?> getTargetClass();
-
-	/**
 	 * Indicates whether or not this converter can
 	 * convert form {@link sourceClass} to {@link targetClass}.
 	 * @param sourceClass the source
@@ -26,11 +14,12 @@ public interface TypeConverter<Target, Source> {
 	/**
 	 * Converts the {@code From} to a {@code To}.
 	 * @param source the from object
+	 * @param context the {@link ConversionContext}
 	 * @param hints hints
 	 * @return the to object
 	 * @throws ConversionException
 	 */
-	Target convert(Source source, TypeConversionHints hints)
+	Target convert(Source source, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException;
 
 }
