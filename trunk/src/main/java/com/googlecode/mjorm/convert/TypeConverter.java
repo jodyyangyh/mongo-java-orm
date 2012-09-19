@@ -1,6 +1,6 @@
 package com.googlecode.mjorm.convert;
 
-public interface TypeConverter<T, S> {
+public interface TypeConverter<Target, Source> {
 
 	/**
 	 * Returns the from type.
@@ -28,7 +28,9 @@ public interface TypeConverter<T, S> {
 	 * @param source the from object
 	 * @param hints hints
 	 * @return the to object
+	 * @throws ConversionException
 	 */
-	T convert(S source, TypeConversionHints hints);
+	Target convert(Source source, TypeConversionHints hints)
+		throws ConversionException;
 
 }
