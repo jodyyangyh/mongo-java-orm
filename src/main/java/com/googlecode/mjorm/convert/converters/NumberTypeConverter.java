@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 
+import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
@@ -20,20 +21,12 @@ public class NumberTypeConverter<Target extends Number>
 		this.targetClass = targetClass;
 	}
 
-	public Class<?> getSourceClass() {
-		return Number.class;
-	}
-
-	public Class<?> getTargetClass() {
-		return targetClass;
-	}
-
 	public boolean canConvert(Class<?> sourceClass, Class<?> targetClass) {
 		return Number.class.isAssignableFrom(sourceClass)
 			&& targetClass.isAssignableFrom(this.targetClass);
 	}
 
-	public Target convert(Number source, TypeConversionHints hints)
+	public Target convert(Number source, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		if (targetClass.equals(Byte.class)) {
