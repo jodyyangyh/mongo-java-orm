@@ -44,7 +44,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslateToAndFromDBObject()
+	public void testConvertToAndFromDBObject()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
 		addMapping("/com/googlecode/mjorm/City.mongo.xml");
@@ -108,7 +108,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslateToAndFromDBObject_SuperDuper()
+	public void testConvertToAndFromDBObject_SuperDuper()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
 		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
@@ -131,7 +131,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslate_Identifiers()
+	public void testConvert_Identifiers()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/City.mongo.xml");
 
@@ -176,7 +176,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslate_WithNulls()
+	public void testConvert_WithNulls()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/City.mongo.xml");
 
@@ -200,7 +200,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslateToAndFromDBObject_Maps_And_Collections()
+	public void testConvertToAndFromDBObject_Maps_And_Collections()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Address.mongo.xml");
 		addMapping("/com/googlecode/mjorm/Person.mongo.xml");
@@ -247,18 +247,18 @@ public class XmlDescriptorObjectMapperTest {
 		assertTrue(superDuperDbObject.get("personSortedSet") instanceof BasicDBList);
 		assertTrue(superDuperDbObject.get("stringMap") instanceof Map);
 		
-		SuperDuper translatedSuperDuper = mapper.map(
+		SuperDuper convertedSuperDuper = mapper.map(
 			superDuperDbObject, SuperDuper.class);
-		assertNotNull(translatedSuperDuper);
-		assertEquals(superDuper.getPersonList(), translatedSuperDuper.getPersonList());
-		assertEquals(superDuper.getPersonSet(), translatedSuperDuper.getPersonSet());
-		assertEquals(superDuper.getPersonSortedSet(), translatedSuperDuper.getPersonSortedSet());
-		assertEquals(superDuper.getPersonMap(), translatedSuperDuper.getPersonMap());
-		assertEquals(superDuper.getStringMap(), translatedSuperDuper.getStringMap());
+		assertNotNull(convertedSuperDuper);
+		assertEquals(superDuper.getPersonList(), convertedSuperDuper.getPersonList());
+		assertEquals(superDuper.getPersonSet(), convertedSuperDuper.getPersonSet());
+		assertEquals(superDuper.getPersonSortedSet(), convertedSuperDuper.getPersonSortedSet());
+		assertEquals(superDuper.getPersonMap(), convertedSuperDuper.getPersonMap());
+		assertEquals(superDuper.getStringMap(), convertedSuperDuper.getStringMap());
 	}
 
 	@Test
-	public void testTranslate_TranslateCity_And_AltColumns()
+	public void testConvert_ConvertCity_And_AltColumns()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/City_alt_columns.mongo.xml");
 
@@ -283,7 +283,7 @@ public class XmlDescriptorObjectMapperTest {
 	}
 
 	@Test
-	public void testTranslate_Arrays()
+	public void testConvert_Arrays()
 		throws Exception {
 		addMapping("/com/googlecode/mjorm/Arrays.mongo.xml");
 

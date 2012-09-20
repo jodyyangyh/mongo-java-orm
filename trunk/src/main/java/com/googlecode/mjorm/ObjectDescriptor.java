@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An object that describes how to translate
+ * An object that describes how to convert
  * java objects to and from {@link DBObject}s.
  */
 public class ObjectDescriptor {

@@ -107,7 +107,7 @@ public class ConversionContext {
 	}
 
 	/**
-	 * Returns a TypeConverter capable of translating source to target.
+	 * Returns a TypeConverter capable of converting source to target.
 	 * @param sourceClass
 	 * @param targetClass
 	 * @return

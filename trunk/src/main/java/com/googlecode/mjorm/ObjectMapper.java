@@ -3,16 +3,16 @@ package com.googlecode.mjorm;
 import com.mongodb.DBObject;
 
 /**
- * The {@code ObjectMapper} is responsible for translating
+ * The {@code ObjectMapper} is responsible for converting
  * objects to and from mongo's {@link DBObject}s.
  */
 public interface ObjectMapper {
 
 	/**
-	 * Translates the given {@link DBObject} into a java object.
+	 * Converts the given {@link DBObject} into a java object.
 	 * @param <T> the type
 	 * @param dbObject the {@link DBObject}
-	 * @param objectClass the {@link Class} of the object to translate to
+	 * @param objectClass the {@link Class} of the object to convert to
 	 * @throws MjormException on error
 	 * @return the java object
 	 */
@@ -20,7 +20,7 @@ public interface ObjectMapper {
 		throws MjormException;
 
 	/**
-	 * Translates the given java object into a {@link DBObject}.
+	 * Converts the given java object into a {@link DBObject}.
 	 * @param <T> the type
 	 * @param object the java object
 	 * @throws MjormException on error

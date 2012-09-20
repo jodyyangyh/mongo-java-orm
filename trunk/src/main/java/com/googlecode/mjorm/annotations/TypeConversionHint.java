@@ -7,15 +7,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Adds a translation hint for use by the
- * {@link ObjectMapper} when translating the
+ * Adds a conversion hint for use by the
+ * {@link ObjectMapper} when converting the
  * property that this is annotated with.
  *
  */
 @Target({ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface TranslationHint {
+public @interface TypeConversionHint {
 
 	/**
 	 * The hint's name.

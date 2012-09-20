@@ -65,9 +65,9 @@ public class XmlDescriptorObjectMapperFactoryBean
 	}
 
 	/**
-	 * @param typeTranslators the typeTranslators to set
+	 * @param typeConverters the typeConverters to set
 	 */
-	public void setTypeTranslators(List<TypeConverter<?, ?>> typeConverters) {
+	public void setTypeConverters(List<TypeConverter<?, ?>> typeConverters) {
 		this.typeConverters = typeConverters;
 	}
 
