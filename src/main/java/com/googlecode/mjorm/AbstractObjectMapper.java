@@ -15,6 +15,8 @@ import com.googlecode.mjorm.convert.converters.MongoToCollectionTypeConverter;
 import com.googlecode.mjorm.convert.converters.MongoToEnumTypeConverter;
 import com.googlecode.mjorm.convert.converters.MongoToMapTypeConverter;
 import com.googlecode.mjorm.convert.converters.NumberTypeConverter;
+import com.googlecode.mjorm.convert.converters.ObjectIdToStringTypeConverter;
+import com.googlecode.mjorm.convert.converters.StringToObjectIdTypeConverter;
 import com.googlecode.mjorm.convert.converters.StringTypeConverter;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -36,6 +38,8 @@ public abstract class AbstractObjectMapper
 		registerTypeConverter(new NumberTypeConverter());
 		registerTypeConverter(new CharacterTypeConverter());
 		registerTypeConverter(new BooleanTypeConverter());
+		registerTypeConverter(new ObjectIdToStringTypeConverter());
+		registerTypeConverter(new StringToObjectIdTypeConverter());
 		registerTypeConverter(new ArrayToMongoTypeConverter());
 		registerTypeConverter(new CollectionToMongoTypeConverter());
 		registerTypeConverter(new EnumToMongoTypeConverter());

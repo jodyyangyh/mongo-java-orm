@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 
@@ -45,6 +47,8 @@ public class ConversionContext {
 				ret = clazz;
 			} else if (Date.class.isAssignableFrom(clazz)) {
 				ret = clazz;
+			} else if (ObjectId.class.equals(clazz)) {
+				ret = String.class;
 			} else if (Collection.class.isAssignableFrom(clazz)) {
 				ret = BasicDBList.class;
 			} else if (Map.class.isAssignableFrom(clazz)) {
