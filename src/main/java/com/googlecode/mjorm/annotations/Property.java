@@ -37,6 +37,14 @@ public @interface Property {
 	Class<?> type() default void.class;
 
 	/**
+	 * Optionally specifies the type that should
+	 * be used to store this property.  By default the
+	 * method's return type is used.
+	 * @return
+	 */
+	Class<?> storageType() default void.class;
+
+	/**
 	 * Optionally specifies the type parameters for
 	 * any generic type parameters specified by
 	 * {@link #type()} (or the type that is inferred).

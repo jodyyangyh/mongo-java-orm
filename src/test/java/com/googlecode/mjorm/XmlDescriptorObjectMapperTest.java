@@ -67,13 +67,13 @@ public class XmlDescriptorObjectMapperTest {
 		state.setCities(new HashSet<City>());
 		state.getCities().add(city);
 
-		DBObject cityDbObject = mapper.mapToDBObject(city);
+		DBObject cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertEquals(city.getName(), cityDbObject.get("name"));
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
 
-		DBObject addressDbObject = mapper.mapToDBObject(address);
+		DBObject addressDbObject = mapper.unmap(address);
 		assertNotNull(addressDbObject);
 		DBObject addressCityDbObject = (DBObject)addressDbObject.get("city");
 		assertNotNull(addressCityDbObject);
@@ -83,7 +83,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLat(), addressCityDbObject.get("lat"));
 		assertEquals(city.getLon(), addressCityDbObject.get("lon"));
 
-		DBObject stateDbObject = mapper.mapToDBObject(state);
+		DBObject stateDbObject = mapper.unmap(state);
 		assertNotNull(stateDbObject);
 		BasicDBList stateCityDbList = (BasicDBList)stateDbObject.get("cities");
 		assertNotNull(stateCityDbList);
@@ -94,15 +94,15 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLat(), stateCityDbListObject.get("lat"));
 		assertEquals(city.getLon(), stateCityDbListObject.get("lon"));
 
-		City transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		City transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertEquals(city, transformedCity);
 
-		Address transformedAddress = mapper.mapFromDBObject(addressDbObject, Address.class);
+		Address transformedAddress = mapper.map(addressDbObject, Address.class);
 		assertNotNull(transformedAddress);
 		assertEquals(address, transformedAddress);
 
-		State transformedState = mapper.mapFromDBObject(stateDbObject, State.class);
+		State transformedState = mapper.map(stateDbObject, State.class);
 		assertNotNull(transformedState);
 		assertEquals(state, transformedState);
 	}
@@ -121,7 +121,7 @@ public class XmlDescriptorObjectMapperTest {
 		superDuper.setPersonSortedSet(new TreeSet<Person>());
 		superDuper.setStringMap(new HashMap<String, String>());
 
-		DBObject superDuperDbObject = mapper.mapToDBObject(superDuper);
+		DBObject superDuperDbObject = mapper.unmap(superDuper);
 		assertNotNull(superDuperDbObject);
 		assertTrue(superDuperDbObject.get("personList") instanceof BasicDBList);
 		assertTrue(superDuperDbObject.get("personMap") instanceof Map);
@@ -140,7 +140,7 @@ public class XmlDescriptorObjectMapperTest {
 		city.setLat(new Float("123.456"));
 		city.setLon(new Float("789.101"));
 
-		DBObject cityDbObject = mapper.mapToDBObject(city);
+		DBObject cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertNotNull(cityDbObject.get("_id"));
 		assertEquals(city.getName(), cityDbObject.get("name"));
@@ -148,7 +148,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
 		
 		city.setId(new ObjectId().toStringMongod());
-		cityDbObject = mapper.mapToDBObject(city);
+		cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertNotNull(cityDbObject.get("_id"));
 		assertTrue(ObjectId.class.isInstance(cityDbObject.get("_id")));
@@ -157,7 +157,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
 
-		City transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		City transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertNotNull(transformedCity.getId());
 		assertEquals(city.getId(), transformedCity.getId());
@@ -166,7 +166,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLon(), transformedCity.getLon());
 
 		cityDbObject.removeField("_id");
-		transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertNull(transformedCity.getId());
 		assertEquals(city.getName(), transformedCity.getName());
@@ -185,13 +185,13 @@ public class XmlDescriptorObjectMapperTest {
 		city.setLat(new Float("123.456"));
 		city.setLon(new Float("789.101"));
 
-		DBObject cityDbObject = mapper.mapToDBObject(city);
+		DBObject cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertNull(cityDbObject.get("name"));
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
 		assertEquals(city.getLon(), cityDbObject.get("lon"));
 
-		City transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		City transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertNull(transformedCity.getName());
 		assertEquals(city.getLat(), transformedCity.getLat());
@@ -239,7 +239,7 @@ public class XmlDescriptorObjectMapperTest {
 		superDuper.getPersonSortedSet().add(p2);
 		superDuper.getPersonSortedSet().add(p1);
 
-		DBObject superDuperDbObject = mapper.mapToDBObject(superDuper);
+		DBObject superDuperDbObject = mapper.unmap(superDuper);
 		assertNotNull(superDuperDbObject);
 		assertTrue(superDuperDbObject.get("personList") instanceof BasicDBList);
 		assertTrue(superDuperDbObject.get("personMap") instanceof Map);
@@ -247,7 +247,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertTrue(superDuperDbObject.get("personSortedSet") instanceof BasicDBList);
 		assertTrue(superDuperDbObject.get("stringMap") instanceof Map);
 		
-		SuperDuper translatedSuperDuper = mapper.mapFromDBObject(
+		SuperDuper translatedSuperDuper = mapper.map(
 			superDuperDbObject, SuperDuper.class);
 		assertNotNull(translatedSuperDuper);
 		assertEquals(superDuper.getPersonList(), translatedSuperDuper.getPersonList());
@@ -267,14 +267,14 @@ public class XmlDescriptorObjectMapperTest {
 		city.setLat(new Float("123.456"));
 		city.setLon(new Float("789.101"));
 
-		DBObject cityDbObject = mapper.mapToDBObject(city);
+		DBObject cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertNull(cityDbObject.get("_id"));
 		assertEquals(city.getName(), cityDbObject.get("col1"));
 		assertEquals(city.getLat(), cityDbObject.get("col2"));
 		assertEquals(city.getLon(), cityDbObject.get("col3"));
 
-		City transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		City transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertEquals(city.getName(), transformedCity.getName());
 		assertEquals(city.getLat(), transformedCity.getLat());
@@ -297,7 +297,7 @@ public class XmlDescriptorObjectMapperTest {
 		state.setName("state name");
 		state.setCitiesArray(new City[]{city, null, city});
 
-		DBObject cityDbObject = mapper.mapToDBObject(city);
+		DBObject cityDbObject = mapper.unmap(city);
 		assertNotNull(cityDbObject);
 		assertEquals(city.getName(), cityDbObject.get("name"));
 		assertEquals(city.getLat(), cityDbObject.get("lat"));
@@ -307,14 +307,14 @@ public class XmlDescriptorObjectMapperTest {
 		BasicDBList transformedZipCodes = BasicDBList.class.cast(cityDbObject.get("zipCodes"));
 		assertArrayEquals(city.getZipCodes(), transformedZipCodes.toArray(new String[0]));
 
-		City transformedCity = mapper.mapFromDBObject(cityDbObject, City.class);
+		City transformedCity = mapper.map(cityDbObject, City.class);
 		assertNotNull(transformedCity);
 		assertEquals(city.getName(), transformedCity.getName());
 		assertEquals(city.getLat(), transformedCity.getLat());
 		assertEquals(city.getLon(), transformedCity.getLon());
 		assertArrayEquals(city.getZipCodes(), transformedCity.getZipCodes());
 
-		DBObject stateDbObject = mapper.mapToDBObject(state);
+		DBObject stateDbObject = mapper.unmap(state);
 		assertNotNull(stateDbObject);
 		assertEquals(state.getName(), stateDbObject.get("name"));
 		assertNotNull(stateDbObject.get("citiesArray"));
@@ -333,7 +333,7 @@ public class XmlDescriptorObjectMapperTest {
 		assertEquals(city.getLat(), cityDbObject2.get("lat"));
 		assertEquals(city.getLon(), cityDbObject2.get("lon"));
 
-		State transformedState = mapper.mapFromDBObject(stateDbObject, State.class);
+		State transformedState = mapper.map(stateDbObject, State.class);
 		assertNotNull(transformedState);
 		assertEquals(state.getName(), transformedState.getName());
 		assertArrayEquals(state.getCitiesArray(), transformedState.getCitiesArray());

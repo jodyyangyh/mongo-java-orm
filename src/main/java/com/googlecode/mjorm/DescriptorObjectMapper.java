@@ -1,6 +1,7 @@
 package com.googlecode.mjorm;
 
-import com.googlecode.mjorm.jot.DescriptorTranslator;
+import com.googlecode.mjorm.convert.converters.MongoToPojoTypeConverter;
+import com.googlecode.mjorm.convert.converters.PojoToMongoTypeConverter;
 
 /**
  * Abstract class that uses {@link ObjectDescriptor}s and
@@ -14,7 +15,8 @@ public class DescriptorObjectMapper
 
 	public DescriptorObjectMapper() {
 		registry = new ObjectDescriptorRegistry();
-		super.registerConverter(new DescriptorTranslator(registry));
+		super.registerTypeConverter(new PojoToMongoTypeConverter(registry));
+		super.registerTypeConverter(new MongoToPojoTypeConverter(registry));
 	}
 
 	/**

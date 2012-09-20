@@ -3,9 +3,7 @@
 
 	<object class="com.googlecode.mjorm.State">
 		<property name="name" />
-		<property name="cities">
-			<type-param class="com.googlecode.mjorm.City" />
-		</property>
+		<property name="cities" />
 	</object>
 
 </descriptors>

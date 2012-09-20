@@ -28,17 +28,6 @@
 		<url>http://mongo-java-orm.googlecode.com/svn/trunk/</url>
 	</scm>
 
-	<repositories>
-		<repository>
-			<id>jot-repo</id>
-			<name>JOT Maven Repository</name>
-			<url>https://jot-framework.googlecode.com/svn/maven/repo</url>
-			<layout>default</layout>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>true</enabled></snapshots>
-		</repository>
-	</repositories>
-
 	<!--
 	 | distribution (deployment) configuration
 	 +-->
@@ -250,15 +239,6 @@
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr</artifactId>
 			<version>3.4</version>
-		</dependency>
-		
-		<!-- 
-		 | jot dependencies
-		 +-->
-		<dependency>
-			<groupId>com.googlecode</groupId>
-			<artifactId>jot</artifactId>
-			<version>0.4</version>
 		</dependency>
 		
 		<!-- 

@@ -1,15 +1,20 @@
 package com.googlecode.mjorm;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.googlecode.jot.TranslationContext;
-import com.googlecode.jot.TypeTranslator;
-import com.googlecode.jot.translators.PrimitiveTypeTranslator;
-import com.googlecode.mjorm.jot.ArrayTypeTranslator;
-import com.googlecode.mjorm.jot.CollectionTypeTranslator;
-import com.googlecode.mjorm.jot.EnumTypeTranslator;
-import com.googlecode.mjorm.jot.MapTypeTranslator;
+import com.googlecode.mjorm.convert.ConversionContext;
+import com.googlecode.mjorm.convert.ConversionException;
+import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConverter;
+import com.googlecode.mjorm.convert.converters.ArrayToMongoTypeConverter;
+import com.googlecode.mjorm.convert.converters.CollectionToMongoTypeConverter;
+import com.googlecode.mjorm.convert.converters.BooleanTypeConverter;
+import com.googlecode.mjorm.convert.converters.CharacterTypeConverter;
+import com.googlecode.mjorm.convert.converters.MapToMongoTypeConverter;
+import com.googlecode.mjorm.convert.converters.MongoToArrayTypeConverter;
+import com.googlecode.mjorm.convert.converters.MongoToCollectionTypeConverter;
+import com.googlecode.mjorm.convert.converters.MongoToMapTypeConverter;
+import com.googlecode.mjorm.convert.converters.NumberTypeConverter;
+import com.googlecode.mjorm.convert.converters.StringTypeConverter;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
@@ -19,64 +24,61 @@ import com.mongodb.DBObject;
 public abstract class AbstractObjectMapper
 	implements ObjectMapper {
 
-	private TranslationContext translationCtx = new TranslationContext();
-	private Set<TypeTranslator<?, ?>> typeTranslators
-		= new HashSet<TypeTranslator<?, ?>>();
+	private ConversionContext conversionContext = new ConversionContext();
 
 	/**
 	 * Creates the mapper.
 	 */
 	public AbstractObjectMapper() {
-		translationCtx.registerTranslator(new PrimitiveTypeTranslator());
-		translationCtx.registerTranslator(new EnumTypeTranslator());
-		translationCtx.registerTranslator(new CollectionTypeTranslator());
-		translationCtx.registerTranslator(new MapTypeTranslator());
-		translationCtx.registerTranslator(new ArrayTypeTranslator());
+		registerTypeConverter(new StringTypeConverter());
+		registerTypeConverter(new NumberTypeConverter());
+		registerTypeConverter(new CharacterTypeConverter());
+		registerTypeConverter(new BooleanTypeConverter());
+		registerTypeConverter(new ArrayToMongoTypeConverter());
+		registerTypeConverter(new CollectionToMongoTypeConverter());
+		registerTypeConverter(new MapToMongoTypeConverter());
+		registerTypeConverter(new MongoToArrayTypeConverter());
+		registerTypeConverter(new MongoToCollectionTypeConverter());
+		registerTypeConverter(new MongoToMapTypeConverter());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> T mapFromDBObject(DBObject dbObject, Class<T> objectClass) {
-		return (T)translationCtx.translateToLocal(dbObject, objectClass);
+	public <T> T map(DBObject dbObject, Class<T> objectClass) {
+		try {
+			return conversionContext.convert(dbObject, JavaType.fromType(objectClass));
+		} catch(ConversionException ce) {
+			throw new MjormException(ce);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> DBObject mapToDBObject(T object) {
-		return translationCtx.translateFromLocal(object);
+	public <T> DBObject unmap(T object) {
+		try {
+			return conversionContext.convert(object, JavaType.fromType(BasicDBObject.class));
+		} catch(ConversionException ce) {
+			throw new MjormException(ce);
+		}
 	}
 
 	/**
 	 * Registers the given {@link TypeTranslator}.
 	 * @param typeTranslator the {@link TypeTranslator}
 	 */
-	public void registerConverter(TypeTranslator<?, ?> typeTranslator) {
-		if (!typeTranslators.contains(typeTranslator)) {
-			typeTranslators.add(typeTranslator);
-			this.translationCtx.registerTranslator(typeTranslator);
-		}
+	public void registerTypeConverter(TypeConverter<?, ?> typeConverter) {
+		conversionContext.registerTypeConverter(typeConverter);
 	}
 
 	/**
-	 * Unregisters the given {@link TypeTranslator}.
-	 * @param typeTranslator the {@link TypeTranslator}
+	 * 
+	 * @param source
+	 * @param target
 	 */
-	public void unregisterConverter(TypeTranslator<?, ?> typeTranslator) {
-		typeTranslators.remove(typeTranslator);
-		this.translationCtx.unregisterTranslator(typeTranslator);
-	}
-
-	/**
-	 * Unregisters all {@link TypeTranslator}s.
-	 */
-	public void unregisterAllConverters() {
-		for (TypeTranslator<?, ?> c : typeTranslators) {
-			this.translationCtx.unregisterTranslator(c);
-		}
-		typeTranslators.clear();
+	public void registerDefaultStorageClass(Class<?> source, Class<?> target) {
+		conversionContext.registerDefaultStorageClass(source, target);
 	}
 
 }

@@ -2,9 +2,7 @@
 <descriptors>
 
 	<object class="com.googlecode.mjorm.SuperDuper">
-		<property name="personSet">
-			<type-param class="com.googlecode.mjorm.PersonEx" />
-		</property>
+		<property name="personSet" />
 		<property name="personList" />
 		<property name="personSortedSet" />
 		<property name="personMap" />
