@@ -2,6 +2,7 @@ package com.googlecode.mjorm;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class PropertyDescriptor {
 	private String propColumn;
 	private JavaType type;
 	private JavaType storageType;
+	private Type[] genericParameterTypes;
 	private Method setter;
 	private Method getter;
 	private boolean isIdentifier;
@@ -175,6 +177,20 @@ public class PropertyDescriptor {
 	 */
 	public void setPropColumn(String propColumn) {
 		this.propColumn = propColumn;
+	}
+
+	/**
+	 * @return the genericParameterTypes
+	 */
+	public Type[] getGenericParameterTypes() {
+		return genericParameterTypes;
+	}
+
+	/**
+	 * @param genericParameterTypes the genericParameterTypes to set
+	 */
+	public void setGenericParameterTypes(Type[] genericParameterTypes) {
+		this.genericParameterTypes = genericParameterTypes;
 	}
 
 }

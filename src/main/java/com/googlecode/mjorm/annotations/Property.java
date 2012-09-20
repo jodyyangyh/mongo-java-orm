@@ -50,7 +50,7 @@ public @interface Property {
 	 * {@link #type()} (or the type that is inferred).
 	 * @return
 	 */
-	Class<?>[] paramTypes() default {};
+	Class<?>[] genericParameterTypes() default {};
 
 	/**
 	 * Optionally specifies translation hints that

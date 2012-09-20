@@ -1,7 +1,9 @@
 package com.googlecode.mjorm.convert.converters;
 
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import org.bson.types.ObjectId;
 
@@ -14,6 +16,7 @@ import com.googlecode.mjorm.ReflectionUtil;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 import com.mongodb.BasicDBObject;
 
@@ -36,7 +39,7 @@ public class MongoToPojoTypeConverter
 		throws ConversionException {
 
 		// get the target class
-		Class<?> targetClass = targetType.getTypeClass();
+		Class<?> targetClass = targetType.asClass();
 
 		// get the descriptors
 		LinkedList<ObjectDescriptor> descriptors = registry.getDescriptorsForType(targetClass);
@@ -94,7 +97,24 @@ public class MongoToPojoTypeConverter
 	
 					} else {
 						Object value = source.get(prop.getPropColumn());
-						value = context.convert(value, prop.getType());
+						if (value!=null) {
+							// setup hints
+							TypeConversionHints hints = new TypeConversionHints();
+							if (prop.getTranslationHints()!=null && !prop.getTranslationHints().isEmpty()) {
+								for (Entry<String, Object> entry : prop.getTranslationHints().entrySet()) {
+									hints.set(entry.getKey(), entry.getValue());
+								}
+							}
+
+							// add generic type parameter hints
+							Type[] genericParameterTypes = prop.getGenericParameterTypes();
+							if (genericParameterTypes!=null && genericParameterTypes.length>0) {
+								hints.set(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS, genericParameterTypes);
+							}
+							
+							// convert
+							value = context.convert(value, prop.getType(), hints);
+						}
 						prop.set(ret, value);
 					}
 	

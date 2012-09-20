@@ -1,7 +1,9 @@
 package com.googlecode.mjorm.convert.converters;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +15,7 @@ import com.googlecode.mjorm.ReflectionUtil;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 import com.mongodb.BasicDBList;
 
@@ -32,7 +35,14 @@ public class MongoToCollectionTypeConverter
 		throws ConversionException {
 
 		// get parameter type
-		JavaType parameterType = targetType.getJavaTypeParameter(0);
+		JavaType parameterType = null;
+		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		if (types!=null && types.length>0) {
+			parameterType = JavaType.fromType(types[0]);
+		}
+		if (parameterType==null) {
+			parameterType = targetType.getJavaTypeParameter(0);
+		}
 
 		// bail if we don't have a parameter type
 		if (parameterType==null) {
@@ -41,7 +51,7 @@ public class MongoToCollectionTypeConverter
 		}
 
 		// get target class
-		Class<?> targetClass = targetType.getTypeClass();
+		Class<?> targetClass = targetType.asClass();
 
 		// create collection
 		Collection ret;
@@ -52,7 +62,27 @@ public class MongoToCollectionTypeConverter
 				throw new ConversionException("Couldn't instantiate "+targetClass.getName(), e);
 			}
 		} else if (SortedSet.class.isAssignableFrom(targetClass)) {
-			ret = new TreeSet();
+
+			// get comparator hint
+			TypeConversionHints hints = context.getHints();
+			String comaparatorClassName = hints.get(HINT_COMPARATOR_CLASS);
+
+			// create the comparator if we can
+			Comparator<?> comparator = null;
+			if (comaparatorClassName!=null) {
+				try {
+					comparator = Comparator.class.cast(
+						ReflectionUtil.instantiate(Class.forName(comaparatorClassName)));
+				} catch(Exception e) {
+					throw new ConversionException("Error creating comparator: "+comaparatorClassName);
+				}
+			}
+
+			// create TreeSet
+			ret = (comparator!=null)
+				? new TreeSet(comparator)
+				: new TreeSet();
+
 		} else if (Set.class.isAssignableFrom(targetClass)) {
 			ret = new HashSet();
 		} else if (List.class.isAssignableFrom(targetClass)) {
@@ -61,7 +91,7 @@ public class MongoToCollectionTypeConverter
 			ret = new LinkedList();
 		}
 
-		// iterate and convert
+		// iterate and populate
 		for (int i=0; i<source.size(); i++) {
 
 			// get value

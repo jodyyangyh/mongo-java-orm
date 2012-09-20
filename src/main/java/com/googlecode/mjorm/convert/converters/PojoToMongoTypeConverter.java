@@ -70,10 +70,14 @@ public class PojoToMongoTypeConverter
 	
 					} else {
 						if (value!=null) {
+							
+							// get storage type
 							JavaType storageType = prop.getStorageType();
 							if (storageType==null && value!=null) {
 								storageType = context.getStorageType(value.getClass());
 							}
+
+							// convert
 							value = context.convert(value, storageType);
 						}
 						ret.put(prop.getPropColumn(), value);

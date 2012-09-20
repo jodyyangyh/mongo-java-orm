@@ -19,12 +19,6 @@ public class ArrayToMongoTypeConverter
 		Object[] source, JavaType targetType, ConversionContext context)
 		throws ConversionException {
 
-		// get component type of array
-		Class<?> componentType = targetType.getTypeClass().getComponentType();
-		if (Object.class.equals(componentType)) {
-			componentType = null;
-		}
-
 		// create array
 		BasicDBList ret = new BasicDBList();
 
@@ -32,9 +26,7 @@ public class ArrayToMongoTypeConverter
 		for (int i=0; i<source.length; i++) {
 			Object value = source[i];
 			if (value!=null) {
-				JavaType storageType = (componentType!=null)
-					? JavaType.fromType(componentType)
-					: context.getStorageType(value.getClass());
+				JavaType storageType = context.getStorageType(value.getClass());
 				value = context.convert(value, storageType);
 			}
 			ret.add(value);

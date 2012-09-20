@@ -2,23 +2,51 @@ package com.googlecode.mjorm.convert;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Utility class for working with java types.
+ */
 public class JavaType {
+
+	private static final Map<Type, JavaType> CACHE = new HashMap<Type, JavaType>();
 
 	private Type type;
 	private ParameterizedType parameterizedType;
 	private Class<?> clazz;
+	private Class<?> componentType;
 	private Type[] typeParameters;
 	private boolean instantiable;
 	private boolean genericInfo;
 
-	public static JavaType fromType(Type type) {
-		if (type==null) {
-			return null;
+	public static JavaType[] fromTypes(Type... types) {
+		JavaType[] ret = new JavaType[types.length];
+		for (int i=0; i<types.length; i++) {
+			ret[i] = JavaType.fromType(types[i]);
 		}
-		return new JavaType(type);
+		return ret;
 	}
 
+	/**
+	 * Returns the {@link JavaType} for the given {@link Type}.
+	 * @param type
+	 * @return
+	 */
+	public static JavaType fromType(Type type) {
+		if (type==null) {
+			throw new IllegalArgumentException("Type can't be null");
+		}
+		if (!CACHE.containsKey(type)) {
+			CACHE.put(type, new JavaType(type));
+		}
+		return CACHE.get(type);
+	}
+
+	/**
+	 * Creates the type, it's private so you must use fromType.
+	 * @param type
+	 */
 	private JavaType(Type type) {
 
 		// the type
@@ -40,6 +68,11 @@ public class JavaType {
 			clazz = null;
 		}
 
+		// component type
+		if (clazz!=null && clazz.getComponentType()!=null) {
+			componentType = clazz.getComponentType();
+		}
+
 		// instantiable
 		instantiable = clazz != null;
 
@@ -52,6 +85,10 @@ public class JavaType {
 		genericInfo = typeParameters != null;
 	}
 
+	public boolean is(Type type) {
+		return type.equals(type);
+	}
+
 	/**
 	 * @return the type
 	 */
@@ -62,14 +99,14 @@ public class JavaType {
 	/**
 	 * @return the parameterizedType
 	 */
-	public ParameterizedType getParameterizedType() {
+	public ParameterizedType asParameterizedType() {
 		return parameterizedType;
 	}
 
 	/**
 	 * @return the clazz
 	 */
-	public Class<?> getTypeClass() {
+	public Class<?> asClass() {
 		return clazz;
 	}
 
@@ -106,8 +143,24 @@ public class JavaType {
 	/**
 	 * @return the genericInfo
 	 */
-	public boolean isGenericInfo() {
+	public boolean hasGenericInfo() {
 		return genericInfo;
+	}
+
+	/**
+	 * @return the componentType
+	 */
+	public Class<?> getComponentType() {
+		return componentType;
+	}
+
+	/**
+	 * @return the componentType
+	 */
+	public JavaType getComponentJavaType() {
+		return (componentType!=null)
+			? JavaType.fromType(componentType)
+			: null;
 	}
 
 	@Override
