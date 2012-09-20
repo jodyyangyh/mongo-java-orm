@@ -8,9 +8,11 @@ import com.googlecode.mjorm.convert.converters.ArrayToMongoTypeConverter;
 import com.googlecode.mjorm.convert.converters.CollectionToMongoTypeConverter;
 import com.googlecode.mjorm.convert.converters.BooleanTypeConverter;
 import com.googlecode.mjorm.convert.converters.CharacterTypeConverter;
+import com.googlecode.mjorm.convert.converters.EnumToMongoTypeConverter;
 import com.googlecode.mjorm.convert.converters.MapToMongoTypeConverter;
 import com.googlecode.mjorm.convert.converters.MongoToArrayTypeConverter;
 import com.googlecode.mjorm.convert.converters.MongoToCollectionTypeConverter;
+import com.googlecode.mjorm.convert.converters.MongoToEnumTypeConverter;
 import com.googlecode.mjorm.convert.converters.MongoToMapTypeConverter;
 import com.googlecode.mjorm.convert.converters.NumberTypeConverter;
 import com.googlecode.mjorm.convert.converters.StringTypeConverter;
@@ -36,10 +38,12 @@ public abstract class AbstractObjectMapper
 		registerTypeConverter(new BooleanTypeConverter());
 		registerTypeConverter(new ArrayToMongoTypeConverter());
 		registerTypeConverter(new CollectionToMongoTypeConverter());
+		registerTypeConverter(new EnumToMongoTypeConverter());
 		registerTypeConverter(new MapToMongoTypeConverter());
 		registerTypeConverter(new MongoToArrayTypeConverter());
 		registerTypeConverter(new MongoToCollectionTypeConverter());
 		registerTypeConverter(new MongoToMapTypeConverter());
+		registerTypeConverter(new MongoToEnumTypeConverter());
 	}
 
 	/**

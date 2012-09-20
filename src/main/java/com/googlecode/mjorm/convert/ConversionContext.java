@@ -1,6 +1,7 @@
 package com.googlecode.mjorm.convert;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -42,10 +43,14 @@ public class ConversionContext {
 				ret = clazz;
 			} else if (Character.class.isAssignableFrom(clazz)) {
 				ret = clazz;
+			} else if (Date.class.isAssignableFrom(clazz)) {
+				ret = clazz;
 			} else if (Collection.class.isAssignableFrom(clazz)) {
 				ret = BasicDBList.class;
 			} else if (Map.class.isAssignableFrom(clazz)) {
 				ret = BasicDBObject.class;
+			} else if (Enum.class.isAssignableFrom(clazz)) {
+				ret = String.class;
 			} else { // default to this
 				ret = BasicDBObject.class;
 			}
