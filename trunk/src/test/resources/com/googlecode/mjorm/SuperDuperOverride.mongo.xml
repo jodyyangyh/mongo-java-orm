@@ -2,9 +2,15 @@
 <descriptors>
 
 	<object class="com.googlecode.mjorm.SuperDuper">
-		<property name="personSet" />
+		<property name="personSet">
+			<type-param class="com.googlecode.mjorm.PersonEx" />
+		</property>
 		<property name="personList" />
-		<property name="personSortedSet" />
+		<property name="personSortedSet">
+			<conversion-hints>
+				<hint name="comparatorClassName">asd</hint>
+			</conversion-hints>
+		</property>
 		<property name="personMap" />
 		<property name="stringMap" />
 	</object>

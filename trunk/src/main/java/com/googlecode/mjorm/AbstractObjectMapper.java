@@ -72,13 +72,4 @@ public abstract class AbstractObjectMapper
 		conversionContext.registerTypeConverter(typeConverter);
 	}
 
-	/**
-	 * 
-	 * @param source
-	 * @param target
-	 */
-	public void registerDefaultStorageClass(Class<?> source, Class<?> target) {
-		conversionContext.registerDefaultStorageClass(source, target);
-	}
-
 }

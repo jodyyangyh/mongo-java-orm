@@ -1,10 +1,12 @@
 package com.googlecode.mjorm.convert.converters;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 import com.mongodb.BasicDBList;
 
@@ -21,15 +23,23 @@ public class MongoToArrayTypeConverter
 		throws ConversionException {
 
 		// get component type of array
-		JavaType componentType = JavaType.fromType(
-			targetType.getTypeClass().getComponentType());
+		JavaType componentType = null;
+		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		if (types!=null && types.length>0) {
+			componentType = JavaType.fromType(types[0]);
+		}
+		if (componentType==null) {
+			componentType = targetType.getComponentJavaType();
+		}
+
+		// bail if we don't have a component type
 		if (componentType==null) {
 			throw new ConversionException(
 				"Unable to determine componentType of "+targetType);
 		}
 
 		// create array
-		Object ret = Array.newInstance(componentType.getTypeClass(), source.size());
+		Object ret = Array.newInstance(componentType.asClass(), source.size());
 
 		// iterate and convert
 		for (int i=0; i<source.size(); i++) {

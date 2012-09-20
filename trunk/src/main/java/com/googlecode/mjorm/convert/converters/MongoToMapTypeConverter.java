@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.convert.converters;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 import com.mongodb.BasicDBObject;
 
@@ -23,7 +25,14 @@ public class MongoToMapTypeConverter
 		throws ConversionException {
 
 		// get parameter types
-		JavaType parameterType = targetType.getJavaTypeParameter(1);
+		JavaType parameterType = null;
+		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		if (types!=null && types.length>1) {
+			parameterType = JavaType.fromType(types[1]);
+		}
+		if (parameterType==null) {
+			parameterType = targetType.getJavaTypeParameter(1);
+		}
 
 		// bail if we don't have a parameter type
 		if (parameterType==null) {

@@ -18,25 +18,25 @@ public class NumberTypeConverter
 	public Number convert(Number source, JavaType targetType, ConversionContext context)
 		throws ConversionException {
 
-		if (targetType.getTypeClass().equals(Byte.class)) {
+		if (targetType.is(Byte.class)) {
 			return Byte.valueOf(source.byteValue());
 			
-		} else if (targetType.getTypeClass().equals(Short.class)) {
+		} else if (targetType.is(Short.class)) {
 			return Short.valueOf(source.shortValue());
 			
-		} else if (targetType.getTypeClass().equals(Integer.class)) {
+		} else if (targetType.is(Integer.class)) {
 			return Integer.valueOf(source.intValue());
 			
-		} else if (targetType.getTypeClass().equals(Long.class)) {
+		} else if (targetType.is(Long.class)) {
 			return Long.valueOf(source.longValue());
 			
-		} else if (targetType.getTypeClass().equals(Float.class)) {
+		} else if (targetType.is(Float.class)) {
 			return Float.valueOf(source.floatValue());
 			
-		} else if (targetType.getTypeClass().equals(Double.class)) {
+		} else if (targetType.is(Double.class)) {
 			return Double.valueOf(source.doubleValue());
 			
-		} else if (targetType.getTypeClass().equals(BigDecimal.class)) {
+		} else if (targetType.is(BigDecimal.class)) {
 			return BigDecimal.valueOf(source.floatValue());
 			
 		}
