@@ -16,7 +16,7 @@ public interface ObjectMapper {
 	 * @throws MjormException on error
 	 * @return the java object
 	 */
-	<T> T mapFromDBObject(DBObject dbObject, Class<T> objectClass)
+	<T> T map(DBObject dbObject, Class<T> objectClass)
 		throws MjormException;
 
 	/**
@@ -26,6 +26,6 @@ public interface ObjectMapper {
 	 * @throws MjormException on error
 	 * @return the {@link DBObject}
 	 */
-	<T> DBObject mapToDBObject(T object)
+	<T> DBObject unmap(T object)
 		throws MjormException;
 }

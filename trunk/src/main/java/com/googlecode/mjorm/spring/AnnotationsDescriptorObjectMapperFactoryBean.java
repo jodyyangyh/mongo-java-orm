@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.googlecode.mjorm.annotations.AnnotationsDescriptorObjectMapper;
-import com.googlecode.jot.TypeTranslator;
+import com.googlecode.mjorm.convert.TypeConverter;
 
 /**
  * {@link FactoryBean} for created {@link AnnotationsDescriptorObjectMapper}s.
@@ -15,7 +15,7 @@ public class AnnotationsDescriptorObjectMapperFactoryBean
 	extends AbstractFactoryBean<AnnotationsDescriptorObjectMapper> {
 
 	private Class<?>[] annotatedClasses = new Class<?>[0];
-	private List<TypeTranslator<?, ?>> typeTranslators = new ArrayList<TypeTranslator<?, ?>>();
+	private List<TypeConverter<?, ?>> typeConverters = new ArrayList<TypeConverter<?, ?>>();
 
 	/**
 	 * {@inheritDoc}
@@ -24,8 +24,8 @@ public class AnnotationsDescriptorObjectMapperFactoryBean
 	protected AnnotationsDescriptorObjectMapper createInstance()
 		throws Exception {
 		AnnotationsDescriptorObjectMapper mapper = new AnnotationsDescriptorObjectMapper();
-		for (TypeTranslator<?, ?> converter : typeTranslators) {
-			mapper.registerConverter(converter);
+		for (TypeConverter<?, ?> converter : typeConverters) {
+			mapper.registerTypeConverter(converter);
 		}
 		for (Class<?> clazz : annotatedClasses) {
 			mapper.addClass(clazz);
@@ -42,10 +42,10 @@ public class AnnotationsDescriptorObjectMapperFactoryBean
 	}
 
 	/**
-	 * @param typeTranslators the typeTranslators to set
+	 * @param typeConverters the typeConverters to set
 	 */
-	public void setTypeTranslators(List<TypeTranslator<?, ?>> typeTranslators) {
-		this.typeTranslators = typeTranslators;
+	public void setTypeConverters(List<TypeConverter<?, ?>> typeConverters) {
+		this.typeConverters = typeConverters;
 	}
 
 	/**

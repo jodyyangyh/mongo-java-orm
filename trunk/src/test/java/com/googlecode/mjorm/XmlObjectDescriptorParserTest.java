@@ -81,15 +81,12 @@ public class XmlObjectDescriptorParserTest {
 		PropertyDescriptor personMap = sdDescriptor.getPropertyDescriptor("personMap");
 		PropertyDescriptor stringMap = sdDescriptor.getPropertyDescriptor("stringMap");
 		assertNotNull(personSet);
-		assertNotNull(personSet.getParameterTypes());
-		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
 		assertNotNull(personList);
 		assertNotNull(personSortedSet);
 		assertNotNull(personMap);
 		assertNotNull(stringMap);
 		
 		assertEquals(Set.class, personSet.getType());
-		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
 		assertEquals(List.class, personList.getType());
 		assertEquals(SortedSet.class, personSortedSet.getType());
 		assertEquals(Map.class, personMap.getType());
@@ -128,15 +125,12 @@ public class XmlObjectDescriptorParserTest {
 		PropertyDescriptor personMap = sdDescriptor.getPropertyDescriptor("personMap");
 		PropertyDescriptor stringMap = sdDescriptor.getPropertyDescriptor("stringMap");
 		assertNotNull(personSet);
-		assertNotNull(personSet.getParameterTypes());
-		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
 		assertNotNull(personList);
 		assertNotNull(personSortedSet);
 		assertNotNull(personMap);
 		assertNotNull(stringMap);
 		
 		assertEquals(Set.class, personSet.getType());
-		assertEquals(PersonEx.class, personSet.getParameterTypes()[0]);
 		assertEquals(List.class, personList.getType());
 		assertEquals(SortedSet.class, personSortedSet.getType());
 		assertEquals(Map.class, personMap.getType());

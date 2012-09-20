@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.core.io.Resource;
 
 import com.googlecode.mjorm.XmlDescriptorObjectMapper;
-import com.googlecode.jot.TypeTranslator;
+import com.googlecode.mjorm.convert.TypeConverter;
 
 /**
  * {@link FactoryBean} for created {@link XmlDescriptorObjectMapper}s.
@@ -19,7 +19,7 @@ public class XmlDescriptorObjectMapperFactoryBean
 
 	private List<Resource> xmlResources = new ArrayList<Resource>();
 	private List<File> xmlFiles = new ArrayList<File>();
-	private List<TypeTranslator<?, ?>> typeTranslators = new ArrayList<TypeTranslator<?, ?>>();
+	private List<TypeConverter<?, ?>> typeConverters = new ArrayList<TypeConverter<?, ?>>();
 
 	/**
 	 * {@inheritDoc}
@@ -28,8 +28,8 @@ public class XmlDescriptorObjectMapperFactoryBean
 	protected XmlDescriptorObjectMapper createInstance()
 		throws Exception {
 		XmlDescriptorObjectMapper mapper = new XmlDescriptorObjectMapper();
-		for (TypeTranslator<?, ?> converter : typeTranslators) {
-			mapper.registerConverter(converter);
+		for (TypeConverter<?, ?> converter : typeConverters) {
+			mapper.registerTypeConverter(converter);
 		}
 		for (Resource resource : xmlResources) {
 			InputStream ips = resource.getInputStream();
@@ -67,8 +67,8 @@ public class XmlDescriptorObjectMapperFactoryBean
 	/**
 	 * @param typeTranslators the typeTranslators to set
 	 */
-	public void setTypeTranslators(List<TypeTranslator<?, ?>> typeTranslators) {
-		this.typeTranslators = typeTranslators;
+	public void setTypeTranslators(List<TypeConverter<?, ?>> typeConverters) {
+		this.typeConverters = typeConverters;
 	}
 
 }

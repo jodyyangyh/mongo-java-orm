@@ -83,9 +83,9 @@ public class MongoDaoImpl
 	public <T> T createObject(String collection, T object, WriteConcern concern) {
 		DBObject dbObject;
 		try {
-			dbObject = objectMapper.mapToDBObject(object);
+			dbObject = objectMapper.unmap(object);
 			getCollection(collection).insert(dbObject, concern);
-			return (T)objectMapper.mapFromDBObject(dbObject, object.getClass());
+			return (T)objectMapper.map(dbObject, object.getClass());
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -113,12 +113,12 @@ public class MongoDaoImpl
 		DBObject[] dbObjects = new DBObject[objects.length];
 		try {
 			for (int i=0; i<objects.length; i++) {
-				dbObjects[i] = objectMapper.mapToDBObject(objects[i]);
+				dbObjects[i] = objectMapper.unmap(objects[i]);
 			}
 			getCollection(collection).insert(dbObjects, concern);
 			T[] ret = (T[])Array.newInstance(objects[0].getClass(), objects.length);
 			for (int i=0; i<objects.length; i++) {
-				ret[i] = (T)objectMapper.mapFromDBObject(dbObjects[i], objects[i].getClass());
+				ret[i] = (T)objectMapper.map(dbObjects[i], objects[i].getClass());
 			}
 		} catch (Exception e) {
 			throw new MjormException(e);
@@ -209,7 +209,7 @@ public class MongoDaoImpl
 
 		// now convert
 		return !isPrimitive(clazz)
-			? objectMapper.mapFromDBObject(dbObject, clazz)
+			? objectMapper.map(dbObject, clazz)
 			: (T)value;
 	}
 
@@ -252,7 +252,7 @@ public class MongoDaoImpl
 		if (data!=null) {
 			Class<?> clazz = data.getClass();
 			value = !isPrimitive(clazz)
-				? objectMapper.mapToDBObject(data)
+				? objectMapper.unmap(data)
 				: data;
 		}
 
@@ -298,7 +298,7 @@ public class MongoDaoImpl
 	public <T> ObjectIterator<T> findByExample(String collection, T example, Class<T> clazz) {
 		DBObject query;
 		try {
-			query = objectMapper.mapToDBObject(example);
+			query = objectMapper.unmap(example);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -311,7 +311,7 @@ public class MongoDaoImpl
 	public <T> T findObject(String collection, DBObject query, Class<T> clazz) {
 		DBObject dbObject = getCollection(collection).findOne(query);
 		try {
-			return objectMapper.mapFromDBObject(dbObject, clazz);
+			return objectMapper.map(dbObject, clazz);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -347,7 +347,7 @@ public class MongoDaoImpl
 		DBObject dbObject = getCollection(collection)
 			.findOne(new BasicDBObject("_id", new ObjectId(id)));
 		try {
-			return objectMapper.mapFromDBObject(dbObject, clazz);
+			return objectMapper.map(dbObject, clazz);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -367,7 +367,7 @@ public class MongoDaoImpl
 		try {
 			List<T> ret = new ArrayList<T>();
 			while (cursor.hasNext()) {
-				ret.add((T)objectMapper.mapFromDBObject(cursor.next(), clazz));
+				ret.add((T)objectMapper.map(cursor.next(), clazz));
 			}
 			return ret.toArray((T[])Array.newInstance(clazz, 0));
 		} catch (Exception e) {
@@ -381,7 +381,7 @@ public class MongoDaoImpl
 	public void updateObject(String collection, String id, Object o, WriteConcern concern) {
 		DBObject dbObject;
 		try {
-			dbObject = objectMapper.mapToDBObject(o);
+			dbObject = objectMapper.unmap(o);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -395,7 +395,7 @@ public class MongoDaoImpl
 	public void updateObject(String collection, String id, Object o) {
 		DBObject dbObject;
 		try {
-			dbObject = objectMapper.mapToDBObject(o);
+			dbObject = objectMapper.unmap(o);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -499,7 +499,7 @@ public class MongoDaoImpl
 				fieldsObject.put(field, 1);
 			}
 		}
-		return objectMapper.mapFromDBObject(
+		return objectMapper.map(
 			getCollection(collection).findAndModify(
 				query, fieldsObject, sort, true, null, false, false), clazz);
 	}
@@ -525,7 +525,7 @@ public class MongoDaoImpl
 				fieldsObject.put(field, 1);
 			}
 		}
-		return objectMapper.mapFromDBObject(
+		return objectMapper.map(
 			getCollection(collection).findAndModify(
 				query, fieldsObject, sort, false, update, returnNew, upsert), clazz);
 	}

@@ -128,7 +128,7 @@ public class StatementImpl
 	 * {@inheritDoc}
 	 */
 	public <T> T executeSingle(Class<T> clazz) {
-		return objectMapper.mapFromDBObject(executeSingle(), clazz);
+		return objectMapper.map(executeSingle(), clazz);
 	}
 
 	/**

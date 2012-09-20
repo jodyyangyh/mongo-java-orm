@@ -126,7 +126,7 @@ public class DaoModifier
 		DBObject object = query.getDB().getCollection(query.getCollection())
 			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
 				true, null, false, false);
-		return query.getObjectMapper().mapFromDBObject(object, clazz);
+		return query.getObjectMapper().map(object, clazz);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class DaoModifier
 		DBObject object = query.getDB().getCollection(query.getCollection())
 			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
 				false, toModifierObject(), returnNew, upsert);
-		return query.getObjectMapper().mapFromDBObject(object, clazz);
+		return query.getObjectMapper().map(object, clazz);
 	}
 
 	/**

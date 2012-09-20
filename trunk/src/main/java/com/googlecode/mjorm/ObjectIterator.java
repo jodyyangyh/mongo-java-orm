@@ -67,7 +67,7 @@ public class ObjectIterator<E>
 	 */
 	public E next() {
 		try {
-			return objectMapper.mapFromDBObject(cursor.next(), clazz);
+			return objectMapper.map(cursor.next(), clazz);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
@@ -78,7 +78,7 @@ public class ObjectIterator<E>
 	 */
 	public E current() {
 		try {
-			return objectMapper.mapFromDBObject(cursor.curr(), clazz);
+			return objectMapper.map(cursor.curr(), clazz);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
