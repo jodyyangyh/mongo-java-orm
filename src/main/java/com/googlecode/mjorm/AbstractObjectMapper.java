@@ -69,8 +69,8 @@ public abstract class AbstractObjectMapper
 	}
 
 	/**
-	 * Registers the given {@link TypeTranslator}.
-	 * @param typeTranslator the {@link TypeTranslator}
+	 * Registers the given {@link TypeConverter}.
+	 * @param typeConverter the {@link TypeConverter}
 	 */
 	public void registerTypeConverter(TypeConverter<?, ?> typeConverter) {
 		conversionContext.registerTypeConverter(typeConverter);

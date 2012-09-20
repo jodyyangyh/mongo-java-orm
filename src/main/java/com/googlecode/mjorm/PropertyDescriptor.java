@@ -15,7 +15,7 @@ import com.googlecode.mjorm.convert.JavaType;
 public class PropertyDescriptor {
 
 	private String name;
-	private Map<String, Object> translationHints = new HashMap<String, Object>();
+	private Map<String, Object> conversionHints = new HashMap<String, Object>();
 	private String propColumn;
 	private JavaType type;
 	private JavaType storageType;
@@ -68,17 +68,17 @@ public class PropertyDescriptor {
 	}
 
 	/**
-	 * @return the translationHints
+	 * @return the conversionHints
 	 */
-	public Map<String, Object> getTranslationHints() {
-		return translationHints;
+	public Map<String, Object> getConversionHints() {
+		return conversionHints;
 	}
 
 	/**
-	 * @param translationHints the translationHints to set
+	 * @param conversionHints the conversionHints to set
 	 */
-	public void setTranslationHints(Map<String, Object> translationHints) {
-		this.translationHints = translationHints;
+	public void setConversionHints(Map<String, Object> conversionHints) {
+		this.conversionHints = conversionHints;
 	}
 
 	/**

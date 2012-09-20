@@ -53,12 +53,12 @@ public @interface Property {
 	Class<?>[] genericParameterTypes() default {};
 
 	/**
-	 * Optionally specifies translation hints that
+	 * Optionally specifies conversion hints that
 	 * are used by the {@link ObjectMapper} when
-	 * translating this property to and from the
+	 * conversion this property to and from the
 	 * MongoDB document's field.
 	 * @return
 	 */
-	TranslationHint[] translationHints() default {};
+	TypeConversionHint[] typeConversionHints() default {};
 
 }

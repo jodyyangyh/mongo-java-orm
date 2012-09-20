@@ -100,8 +100,8 @@ public class MongoToPojoTypeConverter
 						if (value!=null) {
 							// setup hints
 							TypeConversionHints hints = new TypeConversionHints();
-							if (prop.getTranslationHints()!=null && !prop.getTranslationHints().isEmpty()) {
-								for (Entry<String, Object> entry : prop.getTranslationHints().entrySet()) {
+							if (prop.getConversionHints()!=null && !prop.getConversionHints().isEmpty()) {
+								for (Entry<String, Object> entry : prop.getConversionHints().entrySet()) {
 									hints.set(entry.getKey(), entry.getValue());
 								}
 							}
