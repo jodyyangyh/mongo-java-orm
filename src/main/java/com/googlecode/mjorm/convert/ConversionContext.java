@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bson.types.ObjectId;
 
@@ -48,6 +49,8 @@ public class ConversionContext {
 			} else if (Date.class.isAssignableFrom(clazz)) {
 				ret = clazz;
 			} else if (ObjectId.class.equals(clazz)) {
+				ret = String.class;
+			} else if (UUID.class.equals(clazz)) {
 				ret = String.class;
 			} else if (Collection.class.isAssignableFrom(clazz)) {
 				ret = BasicDBList.class;
