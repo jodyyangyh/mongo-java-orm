@@ -11,6 +11,7 @@ import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.query.criteria.AbstractQueryCriterion;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
@@ -183,7 +184,9 @@ public class DaoQuery
 	 */
 	public long countObjects() {
 		assertValid();
-		return db.getCollection(collection).count(toQueryObject());
+		return (readPreference!=null)
+			? db.getCollection(collection).count(toQueryObject(), readPreference)
+			: db.getCollection(collection).count(toQueryObject());
 	}
 
 
@@ -196,9 +199,10 @@ public class DaoQuery
 	@SuppressWarnings("unchecked")
 	public List<Object> distinct(String field) {
 		assertValid();
-		return db
-			.getCollection(collection)
-			.distinct(field, toQueryObject());
+		DBCollection col = db.getCollection(collection);
+		return (readPreference!=null)
+			? col.distinct(field, toQueryObject(), readPreference)
+			: col.distinct(field, toQueryObject());
 	}
 
 	/**
@@ -211,9 +215,7 @@ public class DaoQuery
 	@SuppressWarnings("unchecked")
 	public <T> List<T> distinct(String field, Class<T> expected) {
 		assertValid();
-		return db
-			.getCollection(collection)
-			.distinct(field, toQueryObject());
+		return (List<T>)distinct(field);
 	}
 
 	/**
@@ -430,13 +432,6 @@ public class DaoQuery
 	public DaoQuery setObjectMapper(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 		return self();
-	}
-
-	/**
-	 * @return the readPreference
-	 */
-	public ReadPreference getReadPreference() {
-		return readPreference;
 	}
 
 	/**
