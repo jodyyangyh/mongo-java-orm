@@ -13,6 +13,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.ReadPreference;
 
 public class DaoQuery
 	extends AbstractQueryCriterion<DaoQuery> {
@@ -28,6 +29,7 @@ public class DaoQuery
 	private Boolean snapShot;
 	private String comment;
 	private String collection;
+	private ReadPreference readPreference;
 	private CursorVisitor cursorVisitor;
 	private DaoModifier modifier;
 
@@ -230,6 +232,9 @@ public class DaoQuery
 	 * @param cursor the curor.
 	 */
 	private void setupCursor(DBCursor cursor) {
+		if (readPreference!=null) {
+			cursor.setReadPreference(readPreference);
+		}
 		if (firstDocument!=null) {
 			cursor.skip(firstDocument);
 		}
@@ -424,6 +429,21 @@ public class DaoQuery
 	 */
 	public DaoQuery setObjectMapper(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
+		return self();
+	}
+
+	/**
+	 * @return the readPreference
+	 */
+	public ReadPreference getReadPreference() {
+		return readPreference;
+	}
+
+	/**
+	 * @param readPreference the readPreference to set
+	 */
+	public DaoQuery setReadPreference(ReadPreference readPreference) {
+		this.readPreference = readPreference;
 		return self();
 	}
 
