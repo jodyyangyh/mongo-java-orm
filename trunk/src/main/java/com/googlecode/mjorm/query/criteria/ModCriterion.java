@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBList;
@@ -34,7 +35,7 @@ public class ModCriterion
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		BasicDBList numbers = new BasicDBList();
 		numbers.add(left);
 		numbers.add(right);

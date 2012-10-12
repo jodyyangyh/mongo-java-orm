@@ -1,5 +1,7 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
+
 public class EqualsCriterion
 	extends AbstractCriterion {
 
@@ -19,8 +21,8 @@ public class EqualsCriterion
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object toQueryObject() {
-		return value;
+	public Object toQueryObject(ObjectMapper mapper) {
+		return mapper.unmapValue(value);
 	}
 
 }

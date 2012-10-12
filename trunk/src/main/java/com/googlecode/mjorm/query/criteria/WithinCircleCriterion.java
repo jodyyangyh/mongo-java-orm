@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBList;
@@ -33,7 +34,7 @@ public class WithinCircleCriterion
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		BasicDBList args = new BasicDBList();
 		args.add(coords);
 		args.add(radius);

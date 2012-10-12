@@ -36,8 +36,6 @@ public class ConversionContext {
 		if (ret==null) {
 			if (clazz.isPrimitive()) {
 				ret = clazz;
-			} else if (clazz.isArray()) {
-				ret = BasicDBList.class;
 			} else if (String.class.isAssignableFrom(clazz)) {
 				ret = clazz;
 			} else if (Number.class.isAssignableFrom(clazz)) {
@@ -49,9 +47,11 @@ public class ConversionContext {
 			} else if (Date.class.isAssignableFrom(clazz)) {
 				ret = clazz;
 			} else if (ObjectId.class.equals(clazz)) {
-				ret = String.class;
+				ret = clazz;
 			} else if (UUID.class.equals(clazz)) {
 				ret = String.class;
+			} else if (clazz.isArray()) {
+				ret = BasicDBList.class;
 			} else if (Collection.class.isAssignableFrom(clazz)) {
 				ret = BasicDBList.class;
 			} else if (Map.class.isAssignableFrom(clazz)) {

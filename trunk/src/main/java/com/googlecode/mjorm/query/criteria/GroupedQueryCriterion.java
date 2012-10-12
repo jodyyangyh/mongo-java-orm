@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.query.QueryGroup;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -31,9 +32,9 @@ public class GroupedQueryCriterion
 	}
 
 	@Override
-	public DBObject toQueryObject() {
+	public DBObject toQueryObject(ObjectMapper mapper) {
 		return new BasicDBObject(
-			group.getName(), queryGroup.toQueryObject());
+			group.getName(), queryGroup.toQueryObject(mapper));
 	}
 
 }

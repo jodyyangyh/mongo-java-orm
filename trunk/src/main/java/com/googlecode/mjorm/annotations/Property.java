@@ -53,6 +53,12 @@ public @interface Property {
 	Class<?>[] genericParameterTypes() default {};
 
 	/**
+	 * The class that generates values for the property.
+	 * @return the value generator
+	 */
+	Class<?> valueGeneratorClass() default void.class;
+
+	/**
 	 * Optionally specifies conversion hints that
 	 * are used by the {@link ObjectMapper} when
 	 * conversion this property to and from the

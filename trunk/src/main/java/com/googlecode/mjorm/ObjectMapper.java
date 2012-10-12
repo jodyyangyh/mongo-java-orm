@@ -28,4 +28,16 @@ public interface ObjectMapper {
 	 */
 	<T> DBObject unmap(T object)
 		throws MjormException;
+
+	/**
+	 * Converts the given java object into an object suitable for
+	 * storage in the database.
+	 * @param <T> the type
+	 * @param object the java object
+	 * @throws MjormException on error
+	 * @return the {@link Object}
+	 */
+	<T> Object unmapValue(T object)
+		throws MjormException;
+
 }

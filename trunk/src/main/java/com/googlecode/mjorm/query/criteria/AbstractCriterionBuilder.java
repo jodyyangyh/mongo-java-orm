@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import com.googlecode.mjorm.DBObjectUtil;
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -72,7 +73,7 @@ public abstract class AbstractCriterionBuilder<T extends AbstractCriterionBuilde
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toQueryObject() {
+	public DBObject toQueryObject(ObjectMapper mapper) {
 
 		// the query we're returning
 		BasicDBObject ret = new BasicDBObject();
@@ -81,7 +82,7 @@ public abstract class AbstractCriterionBuilder<T extends AbstractCriterionBuilde
 		for (DocumentCriterion criterion : criteria) {
 
 			// merge the query
-			DBObjectUtil.merge(criterion.toQueryObject(), ret);
+			DBObjectUtil.merge(criterion.toQueryObject(mapper), ret);
 		}
 
 		// return it

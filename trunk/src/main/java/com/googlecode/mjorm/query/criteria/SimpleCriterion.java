@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBObject;
@@ -55,8 +56,8 @@ public class SimpleCriterion
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object toQueryObject() {
-		return new BasicDBObject(operator, value);
+	public Object toQueryObject(ObjectMapper mapper) {
+		return new BasicDBObject(operator, mapper.unmapValue(value));
 	}
 
 	/**	 
