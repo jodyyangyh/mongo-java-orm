@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBObject;
@@ -21,7 +22,7 @@ public class WithinPolygonCriterion
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		return new BasicDBObject(
 			"$within", new BasicDBObject("$polygon", points));
 	}

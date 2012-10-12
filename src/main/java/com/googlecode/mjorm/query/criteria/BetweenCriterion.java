@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.mongodb.BasicDBObject;
@@ -16,10 +17,10 @@ public class BetweenCriterion
 	}
 
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		BasicDBObject ret = new BasicDBObject();
-		ret.put("$gte", left);
-		ret.put("$lte", right);
+		ret.put("$gte", mapper.unmapValue(left));
+		ret.put("$lte", mapper.unmapValue(right));
 		return ret;
 	}
 

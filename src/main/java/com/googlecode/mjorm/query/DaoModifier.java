@@ -13,7 +13,7 @@ public class DaoModifier
 	extends AbstractQueryModifiers<DaoModifier> {
 
 	private DaoQuery query;
-	private boolean atomic 			= false;
+	private boolean atomic 				= false;
 	private WriteConcern writeConcern 	= null;
 	private DBEncoder dbEncoder			= null;
 
@@ -114,7 +114,7 @@ public class DaoModifier
 			concern = collection.getWriteConcern();
 		}
 		return query.getDB().getCollection(query.getCollection())
-			.remove(query.toQueryObject(), concern, dbEncoder);
+			.remove(query.toQueryObject(query.getObjectMapper()), concern, dbEncoder);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class DaoModifier
 	public <T> T findAndDelete(Class<T> clazz) {
 		assertValid();
 		DBObject object = query.getDB().getCollection(query.getCollection())
-			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
+			.findAndModify(query.toQueryObject(query.getObjectMapper()), null, query.getSortDBObject(),
 				true, null, false, false);
 		return query.getObjectMapper().map(object, clazz);
 	}
@@ -137,7 +137,7 @@ public class DaoModifier
 	public DBObject findAndDelete(DBObject fields) {
 		assertValid();
 		return query.getDB().getCollection(query.getCollection())
-			.findAndModify(query.toQueryObject(), fields, query.getSortDBObject(),
+			.findAndModify(query.toQueryObject(query.getObjectMapper()), fields, query.getSortDBObject(),
 				true, null, false, false);
 	}
 
@@ -161,7 +161,7 @@ public class DaoModifier
 	public <T> T findAndModify(boolean returnNew, boolean upsert, Class<T> clazz) {
 		assertValid();
 		DBObject object = query.getDB().getCollection(query.getCollection())
-			.findAndModify(query.toQueryObject(), null, query.getSortDBObject(),
+			.findAndModify(query.toQueryObject(query.getObjectMapper()), null, query.getSortDBObject(),
 				false, toModifierObject(), returnNew, upsert);
 		return query.getObjectMapper().map(object, clazz);
 	}
@@ -176,7 +176,7 @@ public class DaoModifier
 	public DBObject findAndModify(boolean returnNew, boolean upsert, DBObject fields) {
 		assertValid();
 		return query.getDB().getCollection(query.getCollection())
-			.findAndModify(query.toQueryObject(), fields, query.getSortDBObject(),
+			.findAndModify(query.toQueryObject(query.getObjectMapper()), fields, query.getSortDBObject(),
 				false, toModifierObject(), returnNew, upsert);
 	}
 
@@ -204,7 +204,7 @@ public class DaoModifier
 		if (concern==null) {
 			concern = collection.getWriteConcern();
 		}
-		DBObject criteria = query.toQueryObject();
+		DBObject criteria = query.toQueryObject(query.getObjectMapper());
 		if (this.atomic) {
 			criteria.put("$atomic", 1);
 		}

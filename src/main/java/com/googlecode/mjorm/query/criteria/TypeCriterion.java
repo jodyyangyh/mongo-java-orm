@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.mongodb.BasicDBObject;
@@ -57,7 +58,7 @@ public class TypeCriterion
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		return new BasicDBObject("$type", typeCode);
 	}
 

@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.googlecode.mjorm.query.Query;
@@ -28,8 +29,8 @@ public class ElemMatchCriterion
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object toQueryObject() {
-		return new BasicDBObject("$elemMatch", queryCriterion.toQueryObject());
+	public Object toQueryObject(ObjectMapper mapper) {
+		return new BasicDBObject("$elemMatch", queryCriterion.toQueryObject(mapper));
 	}
 
 	public static MqlCriterionFunction createFunction(final String functionName) {

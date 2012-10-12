@@ -5,8 +5,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bson.types.ObjectId;
-
 import com.googlecode.mjorm.mql.MqlException;
 import com.googlecode.mjorm.mql.Statement;
 import com.googlecode.mjorm.mql.StatementImpl;
@@ -129,33 +127,29 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObject(String collection, String id, WriteConcern concern) {
-		deleteObjects(collection, new BasicDBObject("_id", new ObjectId(id)), concern);
+	public void deleteObject(String collection, Object id, WriteConcern concern) {
+		deleteObjects(collection, new BasicDBObject("_id", objectMapper.unmapValue(id)), concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObject(String collection, String id) {
+	public void deleteObject(String collection, Object id) {
 		deleteObject(collection, id, getCollection(collection).getWriteConcern());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObjects(String collection, String[] ids, WriteConcern concern) {
-		ObjectId[] objIds = new ObjectId[ids.length];
-		for (int i=0; i<objIds.length; i++) {
-			objIds[i] = new ObjectId(ids[i]);
-		}
+	public void deleteObjects(String collection, Object[] ids, WriteConcern concern) {
 		deleteObjects(collection, 
-			new BasicDBObject("_id", new BasicDBObject("$in", objIds)), concern);
+			new BasicDBObject("_id", new BasicDBObject("$in", objectMapper.unmapValue(ids))), concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteObjects(String collection, String[] ids) {
+	public void deleteObjects(String collection, Object[] ids) {
 		deleteObjects(collection, ids, getCollection(collection).getWriteConcern());
 	}
 
@@ -176,8 +170,8 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T getPartialObject(String collection, String id, String name, Class<T> clazz) {
-		return getPartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, clazz);
+	public <T> T getPartialObject(String collection, Object id, String name, Class<T> clazz) {
+		return getPartialObject(collection, new BasicDBObject("_id", objectMapper.unmapValue(id)), name, clazz);
 	}
 
 	/**
@@ -217,16 +211,16 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	public <T> void savePartialObject(
-		String collection, String id, String name, T data, boolean upsert, WriteConcern concern) {
-		savePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, data, upsert);
+		String collection, Object id, String name, T data, boolean upsert, WriteConcern concern) {
+		savePartialObject(collection, new BasicDBObject("_id", objectMapper.unmapValue(id)), name, data, upsert);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public <T> void savePartialObject(
-		String collection, String id, String name, T data, boolean upsert) {
-		savePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)),
+		String collection, Object id, String name, T data, boolean upsert) {
+		savePartialObject(collection, new BasicDBObject("_id", objectMapper.unmapValue(id)),
 			name, data, upsert, getCollection(collection).getWriteConcern());
 	}
 
@@ -281,14 +275,14 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deletePartialObject(String collection, String id, String name, WriteConcern concern) {
-		deletePartialObject(collection, new BasicDBObject("_id", new ObjectId(id)), name, concern);
+	public void deletePartialObject(String collection, Object id, String name, WriteConcern concern) {
+		deletePartialObject(collection, new BasicDBObject("_id", objectMapper.unmapValue(id)), name, concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deletePartialObject(String collection, String id, String name) {
+	public void deletePartialObject(String collection, Object id, String name) {
 		deletePartialObject(collection, id, name, getCollection(collection).getWriteConcern());
 	}
 
@@ -343,9 +337,9 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public <T> T readObject(String collection, String id, Class<T> clazz) {
+	public <T> T readObject(String collection, Object id, Class<T> clazz) {
 		DBObject dbObject = getCollection(collection)
-			.findOne(new BasicDBObject("_id", new ObjectId(id)));
+			.findOne(new BasicDBObject("_id", objectMapper.unmapValue(id)));
 		try {
 			return objectMapper.map(dbObject, clazz);
 		} catch (Exception e) {
@@ -357,13 +351,9 @@ public class MongoDaoImpl
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T[] readObjects(String collection, String[] ids, Class<T> clazz) {
-		ObjectId[] objIds = new ObjectId[ids.length];
-		for (int i=0; i<objIds.length; i++) {
-			objIds[i] = new ObjectId(ids[i]);
-		}
+	public <T> T[] readObjects(String collection, Object[] ids, Class<T> clazz) {
 		DBCursor cursor = getCollection(collection).find(
-			new BasicDBObject("_id", new BasicDBObject("$in", objIds)));
+			new BasicDBObject("_id", new BasicDBObject("$in", objectMapper.unmapValue(ids))));
 		try {
 			List<T> ret = new ArrayList<T>();
 			while (cursor.hasNext()) {
@@ -378,7 +368,7 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateObject(String collection, String id, Object o, WriteConcern concern) {
+	public void updateObject(String collection, Object id, Object o, WriteConcern concern) {
 		DBObject dbObject;
 		try {
 			dbObject = objectMapper.unmap(o);
@@ -386,20 +376,20 @@ public class MongoDaoImpl
 			throw new MjormException(e);
 		}
 		 getCollection(collection).update(
-				new BasicDBObject("_id", new ObjectId(id)), dbObject, false, false, concern);
+				new BasicDBObject("_id", objectMapper.unmapValue(id)), dbObject, false, false, concern);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateObject(String collection, String id, Object o) {
+	public void updateObject(String collection, Object id, Object o) {
 		DBObject dbObject;
 		try {
 			dbObject = objectMapper.unmap(o);
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
-		 getCollection(collection).update(new BasicDBObject("_id", new ObjectId(id)), dbObject);
+		 getCollection(collection).update(new BasicDBObject("_id", objectMapper.unmapValue(id)), dbObject);
 	}
 
 	/**

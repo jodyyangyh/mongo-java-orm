@@ -102,7 +102,7 @@ public class DaoQuery
 	 */
 	public <T> ObjectIterator<T> findObjects(Class<T> clazz) {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(objectMapper));
 		setupCursor(cursor);
 		return new ObjectIterator<T>(cursor, objectMapper, clazz);
 	}
@@ -114,7 +114,7 @@ public class DaoQuery
 	 */
 	public DBCursor findObjects(DBObject fields) {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject(), fields);
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(objectMapper), fields);
 		setupCursor(cursor);
 		return cursor;
 	}
@@ -126,7 +126,7 @@ public class DaoQuery
 	 */
 	public DBCursor findObjects() {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(objectMapper));
 		setupCursor(cursor);
 		return cursor;
 	}
@@ -185,8 +185,8 @@ public class DaoQuery
 	public long countObjects() {
 		assertValid();
 		return (readPreference!=null)
-			? db.getCollection(collection).count(toQueryObject(), readPreference)
-			: db.getCollection(collection).count(toQueryObject());
+			? db.getCollection(collection).count(toQueryObject(objectMapper), readPreference)
+			: db.getCollection(collection).count(toQueryObject(objectMapper));
 	}
 
 
@@ -201,8 +201,8 @@ public class DaoQuery
 		assertValid();
 		DBCollection col = db.getCollection(collection);
 		return (readPreference!=null)
-			? col.distinct(field, toQueryObject(), readPreference)
-			: col.distinct(field, toQueryObject());
+			? col.distinct(field, toQueryObject(objectMapper), readPreference)
+			: col.distinct(field, toQueryObject(objectMapper));
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class DaoQuery
 	 */
 	public DBObject explain() {
 		assertValid();
-		DBCursor cursor = db.getCollection(collection).find(toQueryObject());
+		DBCursor cursor = db.getCollection(collection).find(toQueryObject(objectMapper));
 		setupCursor(cursor);
 		return cursor.explain();
 	}

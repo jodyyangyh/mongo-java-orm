@@ -5,8 +5,12 @@ import static com.googlecode.mjorm.query.criteria.Criteria.*;
 
 import java.util.Arrays;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.googlecode.mjorm.DescriptorObjectMapper;
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.query.criteria.TypeCriterion.Type;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -14,10 +18,22 @@ import com.mongodb.DBObject;
 
 public class QueryTest {
 
+	private ObjectMapper mapper;
+
+	@Before
+	public void setUp() {
+		mapper = new DescriptorObjectMapper();
+	}
+
+	@After
+	public void tearDown() {
+		mapper = new DescriptorObjectMapper();
+	}
+
 	@Test
 	public void testEmpty() {
 		Query queryCriterion = new Query();
-		assertEquals(new BasicDBObject(), queryCriterion.toQueryObject());
+		assertEquals(new BasicDBObject(), queryCriterion.toQueryObject(mapper));
 	}
 
 	@Test
@@ -32,7 +48,7 @@ public class QueryTest {
 				.get())
 			.get();
 
-		assertEquals(obj, queryCriterion.toQueryObject());
+		assertEquals(obj, queryCriterion.toQueryObject(mapper));
 	}
 
 	@Test(expected=IllegalStateException.class)
@@ -42,7 +58,7 @@ public class QueryTest {
 			.lt("value", 20)
 			.eq("value", 10);
 
-		queryCriterion.toQueryObject();
+		queryCriterion.toQueryObject(mapper);
 	}
 
 	@Test
@@ -77,7 +93,7 @@ public class QueryTest {
 			.add("what.what", "in the butt")
 			.get();
 
-		assertEquals(obj, queryCriterion.toQueryObject());
+		assertEquals(obj, queryCriterion.toQueryObject(mapper));
 	}
 
 	@Test
@@ -175,7 +191,7 @@ public class QueryTest {
 			)
 		;
 
-		assertEquals(query1.toString(), query2.toString());
+		assertEquals(query1.toQueryObject(mapper).toString(), query2.toQueryObject(mapper).toString());
 	}
 
 }

@@ -5,8 +5,6 @@ import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-import org.bson.types.ObjectId;
-
 import com.googlecode.mjorm.DBObjectUtil;
 import com.googlecode.mjorm.MjormException;
 import com.googlecode.mjorm.ObjectDescriptor;
@@ -88,35 +86,35 @@ public class MongoToPojoTypeConverter
 			for (PropertyDescriptor prop : desc.getProperties()) {
 	
 				try {
-					if (prop.isIdentifier()) {
-						Object value = source.get("_id");
-						if (value==null) {
-							continue;
-						}
-						prop.set(ret, ObjectId.class.cast(value).toStringMongod());
-	
-					} else {
-						Object value = source.get(prop.getPropColumn());
-						if (value!=null) {
-							// setup hints
-							TypeConversionHints hints = new TypeConversionHints();
-							if (prop.getConversionHints()!=null && !prop.getConversionHints().isEmpty()) {
-								for (Entry<String, Object> entry : prop.getConversionHints().entrySet()) {
-									hints.set(entry.getKey(), entry.getValue());
-								}
-							}
 
-							// add generic type parameter hints
-							Type[] genericParameterTypes = prop.getGenericParameterTypes();
-							if (genericParameterTypes!=null && genericParameterTypes.length>0) {
-								hints.set(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS, genericParameterTypes);
+					// the field name
+					String fieldName = prop.isIdentifier() ? "_id" : prop.getFieldName();
+
+					// get the value
+					Object value = source.get(fieldName);
+
+					// convert
+					if (value!=null) {
+						// setup hints
+						TypeConversionHints hints = new TypeConversionHints();
+						if (prop.getConversionHints()!=null && !prop.getConversionHints().isEmpty()) {
+							for (Entry<String, Object> entry : prop.getConversionHints().entrySet()) {
+								hints.set(entry.getKey(), entry.getValue());
 							}
-							
-							// convert
-							value = context.convert(value, prop.getType(), hints);
 						}
-						prop.set(ret, value);
+
+						// add generic type parameter hints
+						Type[] genericParameterTypes = prop.getGenericParameterTypes();
+						if (genericParameterTypes!=null && genericParameterTypes.length>0) {
+							hints.set(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS, genericParameterTypes);
+						}
+						
+						// convert
+						value = context.convert(value, prop.getType(), hints);
 					}
+
+					// set
+					prop.set(ret, value);
 	
 				} catch (Exception e) {
 					throw new MjormException(

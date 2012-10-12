@@ -92,7 +92,7 @@ public class AbstractMJORMDao
 	 * @param <T> the type
 	 * @return the object
 	 */
-	protected <T> T readObject(String collection, String id, Class<T> clazz) {
+	protected <T> T readObject(String collection, Object id, Class<T> clazz) {
 		return getMongoDao().readObject(collection, id, clazz);
 	}
 
@@ -102,7 +102,7 @@ public class AbstractMJORMDao
 	 * @param id the id
 	 * @param o the object
 	 */
-	protected void updateObject(String collection, String id, Object o) {
+	protected void updateObject(String collection, Object id, Object o) {
 		getMongoDao().updateObject(collection, id, o);
 	}
 
@@ -113,7 +113,7 @@ public class AbstractMJORMDao
 	 * @param concern the WriteConcern
 	 * @param o the object
 	 */
-	protected void updateObject(String collection, String id, Object o, WriteConcern concern) {
+	protected void updateObject(String collection, Object id, Object o, WriteConcern concern) {
 		getMongoDao().updateObject(collection, id, o, concern);
 	}
 
@@ -122,7 +122,7 @@ public class AbstractMJORMDao
 	 * @param collection the collection
 	 * @param id the id
 	 */
-	protected void deleteObject(String collection, String id) {
+	protected void deleteObject(String collection, Object id) {
 		getMongoDao().deleteObject(collection, id);
 	}
 
@@ -132,7 +132,7 @@ public class AbstractMJORMDao
 	 * @param id the id
 	 * @param concern the WriteConcern
 	 */
-	protected void deleteObject(String collection, String id, WriteConcern concern) {
+	protected void deleteObject(String collection, Object id, WriteConcern concern) {
 		getMongoDao().deleteObject(collection, id, concern);
 	}
 

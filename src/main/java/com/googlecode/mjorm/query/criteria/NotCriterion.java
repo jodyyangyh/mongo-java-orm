@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.criteria;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -18,9 +19,9 @@ public class NotCriterion
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toQueryObject() {
+	public DBObject toQueryObject(ObjectMapper mapper) {
 		return new BasicDBObject(getFieldName(),
-				new BasicDBObject("$not", getCriterion().toQueryObject()));
+				new BasicDBObject("$not", getCriterion().toQueryObject(mapper)));
 	}
 
 }

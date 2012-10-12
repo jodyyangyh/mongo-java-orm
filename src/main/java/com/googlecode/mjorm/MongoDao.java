@@ -74,7 +74,7 @@ public interface MongoDao {
 	 * @param clazz the object's class
 	 * @return the object read
 	 */
-	<T> T readObject(String collection, String id, Class<T> clazz);
+	<T> T readObject(String collection, Object id, Class<T> clazz);
 
 	/**
 	 * Maps and returns a objects from the given collection.
@@ -84,7 +84,7 @@ public interface MongoDao {
 	 * @param clazz the object's class
 	 * @return the objects read
 	 */
-	<T> T[] readObjects(String collection, String[] ids, Class<T> clazz);
+	<T> T[] readObjects(String collection, Object[] ids, Class<T> clazz);
 
 	/**
 	 * Updates the object with the given id in the given
@@ -93,7 +93,7 @@ public interface MongoDao {
 	 * @param id the id
 	 * @param o the object
 	 */
-	void updateObject(String collection, String id, Object o);
+	void updateObject(String collection, Object id, Object o);
 
 	/**
 	 * Updates the object with the given id in the given
@@ -103,7 +103,7 @@ public interface MongoDao {
 	 * @param conern the WriteConcern
 	 * @param o the object
 	 */
-	void updateObject(String collection, String id, Object o, WriteConcern concern);
+	void updateObject(String collection, Object id, Object o, WriteConcern concern);
 
 	/**
 	 * Deletes the object with the given id from the
@@ -111,7 +111,7 @@ public interface MongoDao {
 	 * @param collection the collection
 	 * @param id the id
 	 */
-	void deleteObject(String collection, String id);
+	void deleteObject(String collection, Object id);
 
 	/**
 	 * Deletes the object with the given id from the
@@ -120,7 +120,7 @@ public interface MongoDao {
 	 * @param conern the WriteConcern
 	 * @param id the id
 	 */
-	void deleteObject(String collection, String id, WriteConcern concern);
+	void deleteObject(String collection, Object id, WriteConcern concern);
 
 	/**
 	 * Deletes the objects matching the given query from
@@ -145,7 +145,7 @@ public interface MongoDao {
 	 * @param collection the collection
 	 * @param ids the ids of the objects to delete
 	 */
-	void deleteObjects(String collection, String[] ids);
+	void deleteObjects(String collection, Object[] ids);
 
 	/**
 	 * Deletes the objects matching the given query from
@@ -154,7 +154,7 @@ public interface MongoDao {
 	 * @param conern the WriteConcern
 	 * @param ids the ids of the objects to delete
 	 */
-	void deleteObjects(String collection, String[] ids, WriteConcern concern);
+	void deleteObjects(String collection, Object[] ids, WriteConcern concern);
 
 	/**
 	 * Returns a partial object.
@@ -165,7 +165,7 @@ public interface MongoDao {
 	 * @param clazz the type
 	 * @return the partial object
 	 */
-	<T> T getPartialObject(String collection, String id, String name, Class<T> clazz);
+	<T> T getPartialObject(String collection, Object id, String name, Class<T> clazz);
 
 	/**
 	 * Returns a partial object.
@@ -188,7 +188,7 @@ public interface MongoDao {
 	 * @param upsert the upsert
 	 */
 	<T> void savePartialObject(
-		String collection, String id, String name, T data, boolean upsert);
+		String collection, Object id, String name, T data, boolean upsert);
 
 	/**
 	 * Saves a partial object.
@@ -201,7 +201,7 @@ public interface MongoDao {
 	 * @param conern the WriteConcern
 	 */
 	<T> void savePartialObject(
-		String collection, String id, String name, T data, boolean upsert, WriteConcern concern);
+		String collection, Object id, String name, T data, boolean upsert, WriteConcern concern);
 
 	/**
 	 * Saves a partial object.
@@ -222,7 +222,7 @@ public interface MongoDao {
 	 * @param id the document's id
 	 * @param name the name
 	 */
-	void deletePartialObject(String collection, String id, String name);
+	void deletePartialObject(String collection, Object id, String name);
 
 	/**
 	 * Deletes a partial object.
@@ -231,7 +231,7 @@ public interface MongoDao {
 	 * @param name the name
 	 * @param conern the WriteConcern
 	 */
-	void deletePartialObject(String collection, String id, String name, WriteConcern concern);
+	void deletePartialObject(String collection, Object id, String name, WriteConcern concern);
 
 	/**
 	 * Deletes a partial object.

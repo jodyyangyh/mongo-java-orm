@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.mql.MqlCriterionFunction;
 import com.googlecode.mjorm.mql.AbstractMqlCriterionFunction;
 import com.googlecode.mjorm.query.criteria.AbstractCriterion;
@@ -72,10 +73,10 @@ public class QueryGroup
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object toQueryObject() {
+	public Object toQueryObject(ObjectMapper mapper) {
 		BasicDBList list = new BasicDBList();
 		for (Query queryCriterion : queryCriterions) {
-			list.add(queryCriterion.toQueryObject());
+			list.add(queryCriterion.toQueryObject(mapper));
 		}
 		return list;
 	}

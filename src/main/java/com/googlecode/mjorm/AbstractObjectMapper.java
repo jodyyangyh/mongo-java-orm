@@ -75,6 +75,21 @@ public abstract class AbstractObjectMapper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public <T> Object unmapValue(T object) throws MjormException {
+		try {
+			if (object==null) {
+				return null;
+			}
+			JavaType storageType = conversionContext.getStorageType(object.getClass());
+			return conversionContext.convert(object, storageType);
+		} catch(ConversionException ce) {
+			throw new MjormException(ce);
+		}
+	}
+
+	/**
 	 * Registers the given {@link TypeConverter}.
 	 * @param typeConverter the {@link TypeConverter}
 	 */
