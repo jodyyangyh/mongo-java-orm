@@ -14,7 +14,8 @@ import com.mongodb.DBObject;
  * @param <E>
  */
 public class ObjectIterator<E>
-	implements Iterator<E> {
+	implements Iterable<E>,
+	Iterator<E> {
 
 	private DBCursor cursor;
 	private final ObjectMapper objectMapper;
@@ -31,6 +32,13 @@ public class ObjectIterator<E>
 		this.cursor 		= cursor;
 		this.objectMapper	= objectMapper;
 		this.clazz			= clazz;
+	}
+
+	/**
+	 * For for loops.
+	 */
+	public Iterator<E> iterator() {
+		return this;
 	}
 
 	/**
