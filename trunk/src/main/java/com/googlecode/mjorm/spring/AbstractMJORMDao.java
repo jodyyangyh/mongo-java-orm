@@ -32,7 +32,7 @@ public class AbstractMJORMDao
 	protected ObjectId[] oids(String... ids) {
 		ObjectId[] ret = new ObjectId[ids.length];
 		for (int i=0; i<ids.length; i++) {
-			ret[i] = new ObjectId(ids[i]);
+			ret[i] = ids[i]!=null ? new ObjectId(ids[i]) : null;
 		}
 		return ret;
 	}
@@ -46,7 +46,7 @@ public class AbstractMJORMDao
 	protected List<ObjectId> oids(Collection<String> ids) {
 		List<ObjectId> ret = new ArrayList<ObjectId>(ids.size());
 		for (String id : ids) {
-			ret.add(new ObjectId(id));
+			ret.add(id!=null ? new ObjectId(id) : null);
 		}
 		return ret;
 	}
@@ -58,7 +58,7 @@ public class AbstractMJORMDao
 	 * @return the ObjectId string
 	 */
 	protected ObjectId oid(String objectId) {
-		return new ObjectId(objectId);
+		return objectId!=null ? new ObjectId(objectId) : null;
 	}
 
 	/**
