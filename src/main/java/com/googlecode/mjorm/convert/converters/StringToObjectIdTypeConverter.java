@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 
 public class StringToObjectIdTypeConverter
@@ -16,7 +17,7 @@ public class StringToObjectIdTypeConverter
 	}
 
 	public ObjectId convert(
-		String source, JavaType targetType, ConversionContext context)
+		String source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 		return new ObjectId(source);
 	}

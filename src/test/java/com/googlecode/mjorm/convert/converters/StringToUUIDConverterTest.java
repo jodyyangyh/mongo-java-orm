@@ -39,9 +39,9 @@ public class StringToUUIDConverterTest {
 	public final void testConvert()
 		throws Exception {
 		UUID uuid = UUID.nameUUIDFromBytes("test".getBytes());
-		assertEquals(uuid, converter.convert("test".getBytes(), JavaType.fromType(byte[].class), null));
-		assertEquals(uuid, converter.convert("test".getBytes(), JavaType.fromType(Byte[].class), null));
-		assertEquals(uuid, converter.convert(uuid.toString(), JavaType.fromType(String.class), null));
+		assertEquals(uuid, converter.convert("test".getBytes(), JavaType.fromType(byte[].class), null, null));
+		assertEquals(uuid, converter.convert("test".getBytes(), JavaType.fromType(Byte[].class), null, null));
+		assertEquals(uuid, converter.convert(uuid.toString(), JavaType.fromType(String.class), null, null));
 	}
 
 }

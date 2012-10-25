@@ -36,7 +36,7 @@ public class StringToObjectIdTypeConverterTest {
 	public void testConvert()
 		throws Exception {
 		String id = new ObjectId().toStringMongod();
-		assertEquals(new ObjectId(id), converter.convert(id, JavaType.fromType(ObjectId.class), null));
+		assertEquals(new ObjectId(id), converter.convert(id, JavaType.fromType(ObjectId.class), null, null));
 	}
 
 }

@@ -21,9 +21,6 @@ public class ConversionContext {
 	private Map<Class<?>, Class<?>> storageClasses
 		= new HashMap<Class<?>, Class<?>>();
 
-	private LinkedList<TypeConversionHints> hintStack
-		= new LinkedList<TypeConversionHints>();
-
 	/**
 	 * Returns the storage class for the given class.
 	 * @param clazz the class
@@ -65,12 +62,6 @@ public class ConversionContext {
 		return JavaType.fromType(ret);
 	}
 
-	public TypeConversionHints getHints() {
-		return !hintStack.isEmpty()
-			? hintStack.getLast()
-			: TypeConversionHints.NO_HINTS;
-	}
-
 	public <S, T> T convert(S source, JavaType targetType)
 		throws ConversionException {
 		return convert(source, targetType, TypeConversionHints.NO_HINTS);
@@ -79,6 +70,13 @@ public class ConversionContext {
 	@SuppressWarnings("unchecked")
 	public <S, T> T convert(S source, JavaType targetType, TypeConversionHints hints)
 		throws ConversionException {
+
+		// must have hints
+		if (hints==null) {
+			throw new IllegalArgumentException(
+				"Must have TypeConversionHints, consider TypeConversionHints.NO_HINTS or "
+				+"the variation of convert() that doesn't have a TypeConversionHints parameter");
+		}
 
 		// pass nulls through
 		if (source==null) { return null; }
@@ -105,12 +103,7 @@ public class ConversionContext {
 		}
 
 		// do the conversion
-		try {
-			hintStack.addLast(hints);
-			return (T)conv.convert(source, targetType, this);
-		} finally {
-			hintStack.removeLast();
-		}
+		return (T)conv.convert(source, targetType, this, hints);
 	}
 
 	/**

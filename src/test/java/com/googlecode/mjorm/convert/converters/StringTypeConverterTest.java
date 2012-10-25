@@ -33,9 +33,9 @@ public class StringTypeConverterTest {
 	@Test
 	public void testConvert()
 		throws Exception {
-		assertEquals("true", conv.convert(true, JavaType.fromType(String.class), null));
-		assertEquals("1", conv.convert(1, JavaType.fromType(String.class), null));
-		assertEquals("1.0", conv.convert(1.0f, JavaType.fromType(String.class), null));
+		assertEquals("true", conv.convert(true, JavaType.fromType(String.class), null, null));
+		assertEquals("1", conv.convert(1, JavaType.fromType(String.class), null, null));
+		assertEquals("1.0", conv.convert(1.0f, JavaType.fromType(String.class), null, null));
 	}
 
 }

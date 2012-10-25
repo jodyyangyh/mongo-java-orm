@@ -19,12 +19,12 @@ public class MongoToArrayTypeConverter
 	}
 
 	public Object[] convert(
-		BasicDBList source, JavaType targetType, ConversionContext context)
+		BasicDBList source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		// get component type of array
 		JavaType componentType = null;
-		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		Type[] types = hints.get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
 		if (types!=null && types.length>0) {
 			componentType = JavaType.fromType(types[0]);
 		}
