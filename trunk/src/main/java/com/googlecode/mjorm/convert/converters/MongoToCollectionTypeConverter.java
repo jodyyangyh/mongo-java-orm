@@ -31,12 +31,12 @@ public class MongoToCollectionTypeConverter
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Collection<?> convert(
-		BasicDBList source, JavaType targetType, ConversionContext context)
+		BasicDBList source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		// get parameter type
 		JavaType parameterType = null;
-		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		Type[] types = hints.get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
 		if (types!=null && types.length>0) {
 			parameterType = JavaType.fromType(types[0]);
 		}
@@ -64,7 +64,6 @@ public class MongoToCollectionTypeConverter
 		} else if (SortedSet.class.isAssignableFrom(targetClass)) {
 
 			// get comparator hint
-			TypeConversionHints hints = context.getHints();
 			String comaparatorClassName = hints.get(HINT_COMPARATOR_CLASS);
 
 			// create the comparator if we can

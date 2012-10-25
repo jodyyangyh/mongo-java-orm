@@ -10,6 +10,7 @@ import com.googlecode.mjorm.PropertyDescriptor;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 import com.mongodb.BasicDBObject;
 
@@ -28,7 +29,7 @@ public class PojoToMongoTypeConverter
 	}
 
 	public BasicDBObject convert(
-		Object source, JavaType targetType, ConversionContext context)
+		Object source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		// get source class

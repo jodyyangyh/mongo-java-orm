@@ -21,12 +21,12 @@ public class MongoToMapTypeConverter
 	}
 
 	public Map<String, Object> convert(
-		BasicDBObject source, JavaType targetType, ConversionContext context)
+		BasicDBObject source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		// get parameter types
 		JavaType parameterType = null;
-		Type[] types = context.getHints().get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
+		Type[] types = hints.get(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS);
 		if (types!=null && types.length>1) {
 			parameterType = JavaType.fromType(types[1]);
 		}

@@ -34,10 +34,10 @@ public class BooleanTypeConverterTest {
 	@Test
 	public void testConvert()
 		throws Exception {
-		assertEquals(Boolean.valueOf(true), conv.convert(1, JavaType.fromType(Number.class), null));
-		assertEquals(Boolean.valueOf(true), conv.convert("true", JavaType.fromType(String.class), null));
-		assertEquals(Boolean.valueOf(true), conv.convert((char)1, JavaType.fromType(Character.class), null));
-		assertEquals(Boolean.valueOf(false), conv.convert((char)0, JavaType.fromType(Character.class), null));
+		assertEquals(Boolean.valueOf(true), conv.convert(1, JavaType.fromType(Number.class), null, null));
+		assertEquals(Boolean.valueOf(true), conv.convert("true", JavaType.fromType(String.class), null, null));
+		assertEquals(Boolean.valueOf(true), conv.convert((char)1, JavaType.fromType(Character.class), null, null));
+		assertEquals(Boolean.valueOf(false), conv.convert((char)0, JavaType.fromType(Character.class), null, null));
 	}
 
 }

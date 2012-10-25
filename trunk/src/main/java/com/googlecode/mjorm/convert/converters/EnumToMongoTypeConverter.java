@@ -3,6 +3,7 @@ package com.googlecode.mjorm.convert.converters;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 
 public class EnumToMongoTypeConverter
@@ -14,7 +15,7 @@ public class EnumToMongoTypeConverter
 	}
 
 	public String convert(
-		Enum<?> source, JavaType targetType, ConversionContext context)
+		Enum<?> source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 		return source.name();
 	}

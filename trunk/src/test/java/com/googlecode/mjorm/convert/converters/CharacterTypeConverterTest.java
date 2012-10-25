@@ -35,10 +35,10 @@ public class CharacterTypeConverterTest {
 	@Test
 	public void testConvert()
 		throws Exception {
-		assertEquals(Character.valueOf((char)1), conv.convert(1, JavaType.fromType(Number.class), null));
-		assertEquals(Character.valueOf('1'), conv.convert("1", JavaType.fromType(String.class), null));
-		assertEquals(Character.valueOf((char)1), conv.convert(true, JavaType.fromType(Boolean.class), null));
-		assertEquals(Character.valueOf((char)0), conv.convert(false, JavaType.fromType(Boolean.class), null));
+		assertEquals(Character.valueOf((char)1), conv.convert(1, JavaType.fromType(Number.class), null, null));
+		assertEquals(Character.valueOf('1'), conv.convert("1", JavaType.fromType(String.class), null, null));
+		assertEquals(Character.valueOf((char)1), conv.convert(true, JavaType.fromType(Boolean.class), null, null));
+		assertEquals(Character.valueOf((char)0), conv.convert(false, JavaType.fromType(Boolean.class), null, null));
 	}
 
 }

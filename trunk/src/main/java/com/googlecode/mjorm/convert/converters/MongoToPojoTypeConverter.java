@@ -33,7 +33,7 @@ public class MongoToPojoTypeConverter
 	}
 
 	public Object convert(
-		BasicDBObject source, JavaType targetType, ConversionContext context)
+		BasicDBObject source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		// get the target class
@@ -96,21 +96,21 @@ public class MongoToPojoTypeConverter
 					// convert
 					if (value!=null) {
 						// setup hints
-						TypeConversionHints hints = new TypeConversionHints();
+						TypeConversionHints nextHints = new TypeConversionHints();
 						if (prop.getConversionHints()!=null && !prop.getConversionHints().isEmpty()) {
 							for (Entry<String, Object> entry : prop.getConversionHints().entrySet()) {
-								hints.set(entry.getKey(), entry.getValue());
+								nextHints.set(entry.getKey(), entry.getValue());
 							}
 						}
 
 						// add generic type parameter hints
 						Type[] genericParameterTypes = prop.getGenericParameterTypes();
 						if (genericParameterTypes!=null && genericParameterTypes.length>0) {
-							hints.set(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS, genericParameterTypes);
+							nextHints.set(TypeConversionHints.HINT_GENERIC_TYPE_PARAMETERS, genericParameterTypes);
 						}
 						
 						// convert
-						value = context.convert(value, prop.getType(), hints);
+						value = context.convert(value, prop.getType(), nextHints);
 					}
 
 					// set

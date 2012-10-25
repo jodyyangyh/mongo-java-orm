@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import com.googlecode.mjorm.convert.ConversionContext;
 import com.googlecode.mjorm.convert.ConversionException;
 import com.googlecode.mjorm.convert.JavaType;
+import com.googlecode.mjorm.convert.TypeConversionHints;
 import com.googlecode.mjorm.convert.TypeConverter;
 
 public class NumberTypeConverter
@@ -28,7 +29,7 @@ public class NumberTypeConverter
 				|| double.class.isAssignableFrom(targetClass));
 	}
 
-	public Number convert(Number source, JavaType targetType, ConversionContext context)
+	public Number convert(Number source, JavaType targetType, ConversionContext context, TypeConversionHints hints)
 		throws ConversionException {
 
 		if (targetType.is(Byte.class) || targetType.is(byte.class)) {
