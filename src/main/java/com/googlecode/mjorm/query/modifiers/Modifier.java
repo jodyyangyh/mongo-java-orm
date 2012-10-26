@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.modifiers;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.DBObject;
 
 /**
@@ -15,5 +16,5 @@ public interface Modifier {
 	 * 
 	 * @return the {@link Object}
 	 */
-	DBObject toModifierObject(String propertyName);
+	DBObject toModifierObject(String propertyName, ObjectMapper mapper);
 }

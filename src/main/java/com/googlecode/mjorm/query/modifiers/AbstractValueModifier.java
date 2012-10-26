@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.modifiers;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -23,9 +24,9 @@ public abstract class AbstractValueModifier<T>
 	}
 
 	@Override
-	public DBObject toModifierObject(String propertyName) {
+	public DBObject toModifierObject(String propertyName, ObjectMapper mapper) {
 		return new BasicDBObject(command,
-			new BasicDBObject(propertyName, value));
+			new BasicDBObject(propertyName, mapper.unmapValue(value)));
 	}
 
 }

@@ -2,6 +2,7 @@ package com.googlecode.mjorm.query.modifiers;
 
 import java.util.Collection;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -20,10 +21,10 @@ public class AddToSetEachModifier
 	}
 
 	@Override
-	public DBObject toModifierObject(String propertyName) {
+	public DBObject toModifierObject(String propertyName, ObjectMapper mapper) {
 		return new BasicDBObject("$addToSet",
 			new BasicDBObject(propertyName,
-				new BasicDBObject("$each", this.values)));
+				new BasicDBObject("$each", mapper.unmapValue(this.values))));
 	}
 
 }

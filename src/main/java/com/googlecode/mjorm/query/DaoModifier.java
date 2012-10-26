@@ -1,6 +1,7 @@
 package com.googlecode.mjorm.query;
 
 import com.googlecode.mjorm.MongoDao;
+import com.googlecode.mjorm.ObjectMapper;
 import com.googlecode.mjorm.query.modifiers.AbstractQueryModifiers;
 import com.mongodb.DBCollection;
 import com.mongodb.DBEncoder;
@@ -162,7 +163,7 @@ public class DaoModifier
 		assertValid();
 		DBObject object = query.getDB().getCollection(query.getCollection())
 			.findAndModify(query.toQueryObject(query.getObjectMapper()), null, query.getSortDBObject(),
-				false, toModifierObject(), returnNew, upsert);
+				false, toModifierObject(query.getObjectMapper()), returnNew, upsert);
 		return query.getObjectMapper().map(object, clazz);
 	}
 
@@ -177,7 +178,7 @@ public class DaoModifier
 		assertValid();
 		return query.getDB().getCollection(query.getCollection())
 			.findAndModify(query.toQueryObject(query.getObjectMapper()), fields, query.getSortDBObject(),
-				false, toModifierObject(), returnNew, upsert);
+				false, toModifierObject(query.getObjectMapper()), returnNew, upsert);
 	}
 
 	/**
@@ -209,7 +210,7 @@ public class DaoModifier
 			criteria.put("$atomic", 1);
 		}
 		WriteResult result = collection.update(
-			criteria, toModifierObject(),
+			criteria, toModifierObject(query.getObjectMapper()),
 			upsert, multi, concern, dbEncoder);
 		if (result.getError()!=null) {
 			throw new MongoException(result.getError());
@@ -249,8 +250,8 @@ public class DaoModifier
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DBObject toModifierObject() {
-		return super.toModifierObject();
+	public DBObject toModifierObject(ObjectMapper mapper) {
+		return super.toModifierObject(mapper);
 	}
 
 	

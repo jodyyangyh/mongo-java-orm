@@ -8,6 +8,7 @@ import java.util.Stack;
 import java.util.Map.Entry;
 
 import com.googlecode.mjorm.DBObjectUtil;
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -101,16 +102,7 @@ public abstract class AbstractModifierBuilder<T extends AbstractModifierBuilder<
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public String toString() {
-		Object queryObj = toModifierObject();
-		return (queryObj!=null) ? queryObj.toString() : "null";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public DBObject toModifierObject() {
+	public DBObject toModifierObject(ObjectMapper mapper) {
 
 		// the return object
 		BasicDBObject ret = new BasicDBObject();
@@ -124,7 +116,7 @@ public abstract class AbstractModifierBuilder<T extends AbstractModifierBuilder<
 			for (Modifier modifier : entry.getValue()) {
 
 				// convert to modifier object
-				DBObject curVal = modifier.toModifierObject(propertyName);
+				DBObject curVal = modifier.toModifierObject(propertyName, mapper);
 
 				// merge it
 				DBObjectUtil.merge(curVal, ret);
