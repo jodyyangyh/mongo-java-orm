@@ -1,5 +1,6 @@
 package com.googlecode.mjorm.query.modifiers;
 
+import com.googlecode.mjorm.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -15,7 +16,7 @@ public class BitwiseModifier
 	}
 
 	@Override
-	public DBObject toModifierObject(String propertyName) {
+	public DBObject toModifierObject(String propertyName, ObjectMapper mapper) {
 		return new BasicDBObject("$bit",
 			new BasicDBObject(propertyName,
 				new BasicDBObject(operation.getValue(), value)));
