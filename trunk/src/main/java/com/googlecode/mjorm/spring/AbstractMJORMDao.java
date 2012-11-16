@@ -85,6 +85,18 @@ public class AbstractMJORMDao
 	}
 
 	/**
+	 * Creates objects.
+	 * @param collection the collection
+	 * @param object the object
+	 * @param concern the WriteConcern
+	 * @param <T> the type
+	 * @return the created object
+	 */
+	protected <T> T[] createObjects(String collection, T[] objects, WriteConcern concern) {
+		return getMongoDao().createObjects(collection, objects, concern);
+	}
+
+	/**
 	 * Reads an object from the given collection.
 	 * @param collection the collection
 	 * @param id the id
