@@ -1,5 +1,8 @@
 package com.googlecode.mjorm;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.googlecode.mjorm.mql.Statement;
 import com.googlecode.mjorm.query.DaoQuery;
 import com.mongodb.CommandResult;
@@ -61,10 +64,29 @@ public interface MongoDao {
 	 * @param <T> the type
 	 * @param collection the collection
 	 * @param objects the objects to create
+	 * @return the created objects
+	 */
+	<T> List<T> createObjects(String collection, Collection<T> objects);
+
+	/**
+	 * Creates the given objects in the given collection.
+	 * @param <T> the type
+	 * @param collection the collection
+	 * @param objects the objects to create
 	 * @param conern the WriteConcern
 	 * @return the created objects
 	 */
 	<T> T[] createObjects(String collection, T[] objects, WriteConcern conern);
+
+	/**
+	 * Creates the given objects in the given collection.
+	 * @param <T> the type
+	 * @param collection the collection
+	 * @param objects the objects to create
+	 * @param conern the WriteConcern
+	 * @return the created objects
+	 */
+	<T> List<T> createObjects(String collection, Collection<T> objects, WriteConcern conern);
 
 	/**
 	 * Maps and returns an object from the given collection.

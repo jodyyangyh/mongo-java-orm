@@ -3,6 +3,7 @@ package com.googlecode.mjorm;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.googlecode.mjorm.mql.MqlException;
@@ -106,6 +107,35 @@ public class MongoDaoImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	public <T> List<T> createObjects(String collection, Collection<T> objects) {
+		return createObjects(collection, objects, getCollection(collection).getWriteConcern());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> List<T> createObjects(String collection, Collection<T> objects, WriteConcern conern) {
+		List<DBObject> dbObjects = new ArrayList<DBObject>();
+		try {
+			List<T> ret = new ArrayList<T>();
+			for (T obj : objects) {
+				ret.add(obj);
+				dbObjects.add(objectMapper.unmap(obj));
+			}
+			getCollection(collection).insert(dbObjects, conern);
+			for (int i=0; i<ret.size(); i++) {
+				ret.set(i, (T)objectMapper.map(dbObjects.get(i), ret.get(i).getClass()));
+			}
+			return ret;
+		} catch (Exception e) {
+			throw new MjormException(e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T[] createObjects(String collection, T[] objects, WriteConcern concern) {
 		DBObject[] dbObjects = new DBObject[objects.length];
@@ -118,10 +148,10 @@ public class MongoDaoImpl
 			for (int i=0; i<objects.length; i++) {
 				ret[i] = (T)objectMapper.map(dbObjects[i], objects[i].getClass());
 			}
+			return ret;
 		} catch (Exception e) {
 			throw new MjormException(e);
 		}
-		return null;
 	}
 
 	/**
